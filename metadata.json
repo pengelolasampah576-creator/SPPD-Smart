@@ -1,0 +1,6 @@
+{
+  "name": "Aplikasi Perjalanan Dinas (SPPD)",
+  "description": "Aplikasi pengelolaan perjalanan dinas untuk memproses Nota Dinas, Surat Tugas, dan Surat Perjalanan Dinas (SPD) berbasis data pegawai Inspektorat Daerah.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
