@@ -1,6 +1,6 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Employee, Travel } from "../types";
-import { Printer, FileSignature, ArrowRight, UserCheck } from "lucide-react";
+import { Printer, Settings, RefreshCw, FileText, Layers } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
 
 interface DocumentSPDProps {
@@ -9,18 +9,16 @@ interface DocumentSPDProps {
 }
 
 export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
-  const participants = travel.employeeIds.map(id => employees.find(e => e.id === id)).filter(Boolean) as Employee[];
-  
-  // Choose which employee to view SPD for (default: first participant)
-  const [activeEmployeeId, setActiveEmployeeId] = useState<string>(travel.employeeIds[0] || "");
+  const participants = travel.employeeIds
+    .map(id => employees.find(e => e.id === id))
+    .filter(Boolean) as Employee[];
 
+  // Select active employee to generate individual SPD sheet
+  const [activeEmployeeId, setActiveEmployeeId] = useState<string>(travel.employeeIds[0] || "");
   const activeEmployee = employees.find(e => e.id === activeEmployeeId) || participants[0];
-  const ppk = employees.find(e => e.id === travel.ppkId);
-  
-  // Calculate index of active traveler in list to generate unique serial child SPD number
+
   const activeIndex = travel.employeeIds.indexOf(activeEmployeeId);
   const serialNo = activeIndex !== -1 ? `${activeIndex + 1}`.padStart(2, '0') : "01";
-  const fullSpdNumber = `${travel.spdNumberPrefix}/${serialNo}`;
 
   // Helper to format Indonesian dates
   const formatIndoDate = (dateStr: string) => {
@@ -48,31 +46,219 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
   const durationDays = calculateDays(travel.departureDate, travel.returnDate);
 
+  const durationDaysToWords = (num: number) => {
+    const words = [
+      "nol", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", 
+      "delapan", "sembilan", "sepuluh", "sebelas", "dua belas", "tiga belas", 
+      "empat belas", "lima belas", "enam belas", "tujuh belas", "delapan belas", 
+      "sembilan belas", "dua puluh"
+    ];
+    if (num < words.length) return words[num];
+    return num.toString();
+  };
+
   // Determine Level of Cost ("Tingkat Biaya Perjalanan Dinas")
   const getTingkatBiaya = (pangkat: string) => {
-    if (pangkat.toLowerCase().includes("pembina")) return "Tingkat A";
-    if (pangkat.toLowerCase().includes("penata")) return "Tingkat B";
-    if (pangkat.toLowerCase().includes("pengatur")) return "Tingkat C";
-    return "Tingkat D / Non-Eselon";
+    if (!pangkat || pangkat === "-") return "Tingkat C";
+    const pLower = pangkat.toLowerCase();
+    if (pLower.includes("pembina") || pLower.includes("iv/")) return "Tingkat A";
+    if (pLower.includes("penata") || pLower.includes("iii/")) return "Tingkat B";
+    if (pLower.includes("pengatur") || pLower.includes("ii/")) return "Tingkat C";
+    return "Tingkat D";
+  };
+
+  // --- INTERACTIVE CONFIGURATION PANEL STATES ---
+  const [showConfig, setShowConfig] = useState(false);
+  const [activeTab, setActiveTab] = useState<"all" | "depan" | "belakang">("all");
+
+  // Header State
+  const [kopPemkab, setKopPemkab] = useState("PEMERINTAH KABUPATEN TABALONG");
+  const [kopInstansi, setKopInstansi] = useState("INSPEKTORAT DAERAH");
+  const [kopAlamat, setKopAlamat] = useState("Jalan Jaksa Agung Suprapto, Kel. Tanjung, Kec. Tanjung, Kode Pos 71513");
+  const [kopLaman, setKopLaman] = useState("Laman: www.inspektorat.tabalongkab.go.id Pos el: inspektorat@tabalongkab.go.id");
+
+  // Metadata block (Top Right Page 1)
+  const [lembarKe, setLembarKe] = useState("");
+  const [kodeNo, setKodeNo] = useState("");
+  const [numSpd, setNumSpd] = useState("");
+
+  // Table Page 1 Redaction overrides
+  const [paName, setPaName] = useState("Diyanto, SE, MT, FRMP");
+  const [paNip, setPaNip] = useState("197110132005011005");
+  const [paPangkat, setPaPangkat] = useState("Pembina Utama Muda (IV/c)");
+  const [pangkatTraveler, setPangkatTraveler] = useState("");
+  const [jabatanTraveler, setJabatanTraveler] = useState("");
+  const [tingkatBiaya, setTingkatBiaya] = useState("");
+  const [maksudDinas, setMaksudDinas] = useState("");
+  const [alatTransport, setAlatTransport] = useState("");
+  const [tempatBerangkat, setTempatBerangkat] = useState("");
+  const [tempatTujuan, setTempatTujuan] = useState("");
+  const [lamanyaDinas, setLamanyaDinas] = useState("");
+  const [tglBerangkat, setTglBerangkat] = useState("");
+  const [tglKembali, setTglKembali] = useState("");
+
+  // Budget Source details Table 1 Row 9
+  const [akunInstansi, setAkunInstansi] = useState("Inspektorat Daerah Kabupaten Tabalong");
+  const [akunKode, setAkunKode] = useState("");
+
+  // Page 2 (Halaman Belakang) specific redactory overrides
+  const [p2BerangkatDari, setP2BerangkatDari] = useState("Tanjung");
+  const [p2Ke, setP2Ke] = useState("Banjarbaru");
+  const [p2TglBerangkat, setP2TglBerangkat] = useState("");
+  
+  const [pptkName, setPptkName] = useState("Syahriadi, S.Sos., M.Si");
+  const [pptkNip, setPptkNip] = useState("197812022005011008");
+
+  const [p2Row1TibaDi, setP2Row1TibaDi] = useState("Banjarbaru");
+  const [p2Row1TibaTgl, setP2Row1TibaTgl] = useState("");
+  const [p2Row1BerangkatDari, setP2Row1BerangkatDari] = useState("Banjarbaru");
+  const [p2Row1BerangkatKe, setP2Row1BerangkatKe] = useState("Tanjung");
+  const [p2Row1BerangkatTgl, setP2Row1BerangkatTgl] = useState("");
+
+  const [p2Row3TibaDi, setP2Row3TibaDi] = useState("Tanjung");
+  const [p2Row3TibaTgl, setP2Row3TibaTgl] = useState("");
+
+  const [p2Notes, setP2Notes] = useState("-");
+  const [p2TopRightLabel, setP2TopRightLabel] = useState("selaku pelaksana teknis kegiatan");
+  const [p2Row4LeftLabel, setP2Row4LeftLabel] = useState("selaku pelaksana teknis kegiatan");
+  const [p2Row4RightLabel, setP2Row4RightLabel] = useState("Pengguna Anggaran");
+
+  // Keep state synchronized with travel select choices
+  useEffect(() => {
+    if (!activeEmployee) return;
+
+    // Default metadata fields
+    setNumSpd(`${travel.spdNumberPrefix}/${serialNo}`);
+
+    // Try to find the actual PA/PPK or default to Diyanto
+    const matchedPpk = employees.find(e => e.id === travel.ppkId);
+    if (matchedPpk) {
+      setPaName(matchedPpk.name);
+      setPaNip(matchedPpk.nip);
+      setPaPangkat(matchedPpk.pangkat);
+    } else {
+      setPaName("Diyanto, SE, MT, FRMP");
+      setPaNip("197110132005011005");
+      setPaPangkat("Pembina Utama Muda (IV/c)");
+    }
+
+    // Traveler details
+    setPangkatTraveler(activeEmployee.pangkat);
+    setJabatanTraveler(activeEmployee.jabatan);
+    setTingkatBiaya(getTingkatBiaya(activeEmployee.pangkat));
+
+    // Travel particulars
+    setMaksudDinas(travel.purpose);
+    setAlatTransport(travel.transportMode);
+    setTempatBerangkat(travel.departurePlace || "Tanjung");
+    setTempatTujuan(travel.destination);
+    setLamanyaDinas(`${durationDays} (${durationDaysToWords(durationDays)}) hari`);
+    setTglBerangkat(formatIndoDate(travel.departureDate));
+    setTglKembali(formatIndoDate(travel.returnDate));
+
+    // Budget account matching Page 1 Row 9
+    setAkunInstansi("Inspektorat Daerah Kabupaten Tabalong");
+    setAkunKode(`${travel.budgetCode} ${travel.budgetSource.replace("DPA-SKPD", "").replace("DPA", "").trim()}`);
+
+    // Page 2 Default parameters
+    setP2BerangkatDari(travel.departurePlace || "Tanjung");
+    setP2Ke(travel.destination);
+    setP2TglBerangkat(formatIndoDate(travel.departureDate));
+
+    setP2Row1TibaDi(travel.destination);
+    setP2Row1TibaTgl(formatIndoDate(travel.departureDate));
+    setP2Row1BerangkatDari(travel.destination);
+    setP2Row1BerangkatKe(travel.departurePlace || "Tanjung");
+    setP2Row1BerangkatTgl(formatIndoDate(travel.returnDate));
+
+    setP2Row3TibaDi(travel.departurePlace || "Tanjung");
+    setP2Row3TibaTgl(formatIndoDate(travel.returnDate));
+
+    // PPTK dynamic default search: try to find a sub-coordinator or active user or fallback
+    const matchedPptk = employees.find(e => 
+      e.jabatan.toLowerCase().includes("pelaksana") || 
+      e.jabatan.toLowerCase().includes("perencanaan") || 
+      e.id === travel.signatoryId
+    );
+    if (matchedPptk && matchedPptk.id !== activeEmployee.id) {
+      setPptkName(matchedPptk.name);
+      setPptkNip(matchedPptk.nip);
+    } else {
+      setPptkName("Syahriadi, S.Sos., M.Si");
+      setPptkNip("197812022005011008");
+    }
+
+  }, [activeEmployeeId, travel.id, employees]);
+
+  // Handle Preset trigger from screenshots
+  const handleLoadCaptureDefaults = () => {
+    setKopPemkab("PEMERINTAH KABUPATEN TABALONG");
+    setKopInstansi("INSPEKTORAT DAERAH");
+    setKopAlamat("Jalan Jaksa Agung Suprapto, Kel. Tanjung, Kec. Tanjung, Kode Pos 71513");
+    setKopLaman("Laman: www.inspektorat.tabalongkab.go.id Pos el: inspektorat@tabalongkab.go.id");
+
+    setLembarKe("");
+    setKodeNo("");
+    setNumSpd("090/084/ND-INSP/2026");
+
+    setPaName("Diyanto, SE, MT, FRMP");
+    setPaNip("197110132005011005");
+    setPaPangkat("Pembina Utama Muda (IV/c)");
+
+    setPangkatTraveler("Penata Muda Tk. I / III/b");
+    setJabatanTraveler("PPUPD Ahli Pertama");
+    setTingkatBiaya("Perjalanan Dinas Luar Daerah Luar Provinsi");
+
+    setMaksudDinas("Penetapan dan Pemanggilan Peserta Ujikom Perjenjangan Jabatan Fungsional PPUPD Ahli Muda Angkatan II Tahun 2025");
+    setAlatTransport("Transportasi Udara");
+    setTempatBerangkat("Tanjung");
+    setTempatTujuan("Makassar");
+    setLamanyaDinas("4 (empat) hari");
+    setTglBerangkat("30 Oktober 2025");
+    setTglKembali("02 November 2025");
+
+    setAkunInstansi("Inspektorat Daerah Kabupaten Tabalong");
+    setAkunKode("5.1.02.04.01.0001 Pendidikan dan Pelatihan Pegawai Berdasarkan Tugas dan Fungsi");
+
+    setP2BerangkatDari("Tanjung");
+    setP2Ke("Banjarbaru");
+    setP2TglBerangkat("05 Maret 2026");
+
+    setPptkName("Syahriadi, S.Sos., M.Si");
+    setPptkNip("197812022005011008");
+
+    setP2Row1TibaDi("Banjarbaru");
+    setP2Row1TibaTgl("05 Maret 2026");
+    setP2Row1BerangkatDari("Banjarbaru");
+    setP2Row1BerangkatKe("Tanjung");
+    setP2Row1BerangkatTgl("07 Maret 2026");
+
+    setP2Row3TibaDi("Tanjung");
+    setP2Row3TibaTgl("07 Maret 2026");
+
+    setP2Notes("-");
+    setP2TopRightLabel("selaku pelaksana teknis kegiatan");
+    setP2Row4LeftLabel("selaku pelaksana teknis kegiatan");
+    setP2Row4RightLabel("Pengguna Anggaran");
   };
 
   const handlePrint = () => {
     const printContent = document.getElementById("spd-printable")?.innerHTML;
     if (printContent) {
-      const printWindow = window.open("", "", "height=850,width=800");
+      const printWindow = window.open("", "", "height=950,width=850");
       if (printWindow) {
         printWindow.document.write(`
           <html>
             <head>
-              <title>SPD - ${fullSpdNumber.replace(/\//g, '_')}</title>
+              <title>SPD - ${numSpd.replace(/\//g, '_')}</title>
               <style>
                 body {
                   font-family: "Times New Roman", Times, serif;
-                  line-height: 1.3;
+                  line-height: 1.4;
                   color: #000;
                   background-color: #fff;
                   margin: 0;
-                  padding: 30px;
+                  padding: 2.5cm 1.5cm;
                 }
                 .text-center { text-align: center; }
                 .text-right { text-align: right; }
@@ -80,91 +266,188 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 .font-bold { font-weight: bold; }
                 .uppercase { text-transform: uppercase; }
                 
-                /* Kop */
+                /* Letterhead Kop */
                 .kop-header {
                   position: relative;
-                  border-bottom: 3px double #000;
-                  padding-bottom: 10px;
-                  margin-bottom: 15px;
+                  border-bottom: 4px double #000;
+                  padding-bottom: 8px;
+                  margin-bottom: 12px;
                   text-align: center;
                   min-height: 80px;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
+                  display: block;
                 }
                 .kop-logo-container {
                   position: absolute;
                   left: 0;
-                  top: 50%;
-                  transform: translateY(-50%);
+                  top: 0;
+                  bottom: 0;
                   display: flex;
                   align-items: center;
                 }
                 .kop-logo {
-                  height: 56px;
-                  width: 48px;
+                  height: 64px;
+                  width: 56px;
                   object-fit: contain;
+                }
+                .kop-text-container {
+                  padding-left: 64px;
+                  padding-right: 20px;
+                  width: 105%;
+                  text-align: center;
                 }
                 .kop-pemkab {
                   font-size: 15px;
                   font-weight: bold;
+                  letter-spacing: 0.5px;
                   margin: 0;
+                  line-height: 1.2;
                 }
                 .kop-instansi {
-                  font-size: 20px;
+                  font-size: 21px;
                   font-weight: bold;
+                  letter-spacing: 0.5px;
                   margin: 0;
-                  margin-top: 4px;
+                  margin-top: 2px;
+                  line-height: 1.2;
                 }
                 .kop-alamat {
                   font-size: 10px;
-                  font-style: italic;
                   margin: 0;
-                  margin-top: 4px;
+                  margin-top: 3.5px;
+                  line-height: 1.3;
                 }
-                
-                /* Title Box */
-                .title-box {
+                .kop-laman {
+                  font-size: 10px;
+                  margin: 0;
+                  margin-top: 1px;
+                  line-height: 1.3;
+                }
+
+                /* Top Right Meta Table */
+                .top-meta-container {
+                  float: right;
+                  width: 250px;
+                  margin-top: 10px;
+                  margin-bottom: 12px;
+                  font-size: 11.5px;
+                }
+                .top-meta-container table {
+                  width: 100%;
+                  border-collapse: collapse;
+                }
+                .top-meta-container td {
+                  padding: 1.5px 2px;
+                  vertical-align: top;
+                }
+
+                /* Document Title */
+                .doc-title-box {
                   text-align: center;
-                  margin-bottom: 20px;
+                  margin-top: 25px;
+                  margin-bottom: 15px;
+                  clear: both;
                 }
-                .title-label {
-                  font-size: 16px;
+                .doc-title {
+                  font-size: 14.5px;
                   font-weight: bold;
-                  text-decoration: underline;
+                  letter-spacing: 0.5px;
+                  text-decoration: none;
+                  margin: 0;
                 }
-                .number-label {
-                  font-size: 12px;
-                }
-                
-                /* SPD Main Table */
-                .spd-table {
+
+                /* SPD Grid Table */
+                .spd-main-table {
                   width: 100%;
                   border-collapse: collapse;
                   border: 1px solid #000;
-                  font-size: 12px;
-                  margin-bottom: 25px;
+                  font-size: 11.5px;
+                  margin-bottom: 20px;
                 }
-                .spd-table th, .spd-table td {
+                .spd-main-table td {
                   border: 1px solid #000;
                   padding: 6px 8px;
                   vertical-align: top;
                 }
-                
-                /* Side note block */
-                .sig-block {
-                  margin-top: 30px;
+                .spd-main-table .center-align {
+                  text-align: center;
+                }
+
+                /* Custom nested styles for multi-point cells */
+                .sub-nested-table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin: 0;
+                }
+                .sub-nested-table td {
+                  border: none !important;
+                  padding: 1.5px 0 !important;
+                }
+
+                /* Inner standard Pengikut sub-table */
+                .pengikut-inner-table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-top: 2px;
+                }
+                .pengikut-inner-table td {
+                  border-bottom: 1px solid #ddd;
+                  padding: 3px 4px;
+                }
+                .pengikut-header-row td {
+                  font-weight: bold;
+                  border-bottom: 1px solid #000;
+                  background-color: #fcfcfc;
+                }
+
+                /* Layout Page Breaks */
+                .page-container {
+                  width: 100%;
+                  box-sizing: border-box;
+                }
+                .page-break {
+                  page-break-after: always;
+                  break-after: page;
+                  margin-top: 60px;
+                }
+
+                /* Back Page Table Layout */
+                .back-table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  border: 1px solid #000;
+                  font-size: 10.5px;
+                }
+                .back-table td {
+                  border: 1px solid #000;
+                  padding: 7px 9px;
+                  vertical-align: top;
+                }
+                .back-table td:not([colspan]) {
+                  width: 50%;
+                }
+                .back-half-col {
+                  width: 50%;
+                }
+                .signature-box-mini {
+                  height: 50px;
+                }
+
+                /* Traditional bottom signatories */
+                .footer-sig-block {
+                  margin-top: 20px;
                   float: right;
-                  width: 250px;
+                  width: 270px;
                   font-size: 12px;
+                  text-align: left;
                 }
                 .sig-box {
                   height: 60px;
                 }
-                
+
                 @media print {
-                  body { padding: 15px; }
-                  @page { size: portrait; margin: 1.5cm; }
+                  body { padding: 0; margin: 0; }
+                  @page { size: A4 portrait; margin: 1.5cm; }
+                  .page-break { margin-top: 0; }
                 }
               </style>
             </head>
@@ -178,212 +461,765 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
         setTimeout(() => {
           printWindow.print();
           printWindow.close();
-        }, 300);
+        }, 400);
       }
     }
   };
 
-  return (
-    <div className="bg-white rounded-2xl border border-slate-150 p-6 shadow-xs space-y-6">
-      {/* Top Traveler Switcher bar */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
-        <div className="flex items-center gap-2">
-          <UserCheck className="w-5 h-5 text-blue-600" />
-          <div>
-            <span className="text-xs font-bold text-slate-500 block uppercase">Pilih Peserta Perjalanan Dinas:</span>
-            <select
-              id="select-spd-traveler"
-              value={activeEmployeeId}
-              onChange={(e) => setActiveEmployeeId(e.target.value)}
-              className="bg-white border border-slate-200 mt-0.5 rounded-lg text-sm px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold text-slate-800 cursor-pointer"
-            >
-              {participants.map((p) => (
-                <option key={`spd-opt-${p.id}`} value={p.id}>
-                  {p.name} ({p.pangkat !== "-" ? p.pangkat : "Non-ASN"})
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+  // Generate Pengikut list automatically or populate empty items to match the layout
+  const otherParticipants = participants.filter(p => p.id !== activeEmployeeId);
+  const minRows = [0, 1]; // standard 2 rows empty or populated
 
-        <button
-          onClick={handlePrint}
-          className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition shadow-xs cursor-pointer w-full md:w-auto justify-center"
-        >
-          <Printer className="w-3.5 h-3.5" />
-          Cetak SPD ({activeEmployee?.name ? activeEmployee.name.split(',')[0] : 'Pegawai'})
-        </button>
+  return (
+    <div className="bg-white rounded-2xl border border-slate-150 p-5 shadow-xs space-y-5">
+      
+      {/* ACTION HEADER & CONTROLS BANNER */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+        <span className="text-xs text-slate-600 font-medium flex items-center gap-2">
+          <FileText className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>Format Surat Perjalanan Dinas (SPD) Resmi - Double-Sided Pages</span>
+        </span>
+        
+        <div className="flex flex-wrap items-center gap-2">
+          {/* TAB VISUAL SELECTORS */}
+          <div className="bg-white border p-1 rounded-lg flex items-center text-[11px] font-bold text-slate-600 gap-1 mr-1">
+            <button
+              onClick={() => setActiveTab("all")}
+              className={`px-2.5 py-1 rounded transition-all cursor-pointer ${activeTab === "all" ? "bg-slate-800 text-white" : "hover:bg-slate-100"}`}
+            >
+              Cetak Semua
+            </button>
+            <button
+              onClick={() => setActiveTab("depan")}
+              className={`px-2.5 py-1 rounded transition-all cursor-pointer ${activeTab === "depan" ? "bg-slate-800 text-white" : "hover:bg-slate-100"}`}
+            >
+              Halaman 1 (Depan)
+            </button>
+            <button
+              onClick={() => setActiveTab("belakang")}
+              className={`px-2.5 py-1 rounded transition-all cursor-pointer ${activeTab === "belakang" ? "bg-slate-800 text-white" : "hover:bg-slate-100"}`}
+            >
+              Halaman 2 (Belakang)
+            </button>
+          </div>
+
+          <button
+            onClick={() => setShowConfig(!showConfig)}
+            className={`flex items-center gap-1 text-[11px] font-bold px-3 py-2 rounded-lg border transition duration-150 cursor-pointer ${
+              showConfig 
+                ? "bg-slate-200 border-slate-300 text-slate-800" 
+                : "bg-white border-slate-200 hover:bg-slate-50 text-slate-600"
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5 text-slate-500" />
+            {showConfig ? "Sembunyikan Pengaturan" : "Sesuaikan Metadata"}
+          </button>
+          
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-4 py-2 rounded-lg transition shadow-xs cursor-pointer"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            Cetak Dokumen SPD
+          </button>
+        </div>
       </div>
 
-      {activeEmployee ? (
-        <div className="border border-slate-300 p-8 md:p-12 bg-white max-w-3xl mx-auto shadow-sm select-text overflow-x-auto min-w-[320px]">
-          <div id="spd-printable" className="font-serif text-black leading-snug text-xs md:text-sm max-w-[650px] mx-auto bg-white">
-            
-            {/* HEAD KOP */}
-            <div className="kop-header relative border-b-4 border-double border-black pb-2 mb-4 min-h-[80px] flex items-center justify-center">
-              <div className="kop-logo-container absolute left-0 top-1/2 -translate-y-1/2 flex items-center">
-                <img
-                  src={TABALONG_LOGO_BASE64}
-                  alt="Logo Kabupaten Tabalong"
-                  className="kop-logo h-14 w-12 object-contain"
-                />
-              </div>
-              <div className="text-center w-full px-14">
-                <h1 className="kop-pemkab text-sm md:text-base font-bold tracking-wide uppercase m-0 leading-tight">
-                  PEMERINTAH KABUPATEN TABALONG
-                </h1>
-                <h2 className="kop-instansi text-base md:text-xl font-bold uppercase m-0 leading-tight mt-1">
-                  INSPEKTORAT DAERAH
-                </h2>
-                <p className="kop-alamat text-[10px] text-stone-700 font-medium italic m-0">
-                  Alamat: Jl. Pangeran Hidayatullah No. 4 Tabalong Pos 71513, Kalimantan Selatan
-                </p>
-              </div>
+      {/* EXPANDABLE COLLAPSIBLE CONTROL PANEL (NON-PRINTING SCREEN-ONLY) */}
+      {showConfig && (
+        <div className="bg-slate-50 border border-slate-200 p-5 rounded-xl space-y-4 animate-fadeIn transition-all duration-300">
+          <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+            <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+              <Settings className="w-4 h-4 text-emerald-500" />
+              Sesuaikan Lembar SPD (Front & Back Metadata)
+            </h4>
+            <button
+              onClick={handleLoadCaptureDefaults}
+              className="flex items-center gap-1 bg-white hover:bg-slate-100 text-[10px] font-bold text-emerald-600 border border-emerald-200 px-2.5 py-1 rounded"
+              title="Mengubah seluruh kolom ttd & data persis seperti lampiran contoh."
+            >
+              <RefreshCw className="w-3 h-3 text-emerald-500" />
+              Set Sesuai Gambar Contoh
+            </button>
+          </div>
+
+          {/* CHOOSE SYSTEM TRAVELER SYNC DIRECTORY */}
+          <div className="bg-white p-3 rounded-lg border border-slate-150 space-y-2">
+            <label className="text-[10px] font-bold uppercase text-slate-500 block">Sinkronisasi Data Peserta Aktif:</label>
+            <div className="flex flex-wrap gap-2 text-xs">
+              {participants.map((p) => (
+                <button
+                  key={`conf-traveler-${p.id}`}
+                  onClick={() => setActiveEmployeeId(p.id)}
+                  className={`px-3 py-1.5 rounded-lg border font-semibold cursor-pointer ${
+                    activeEmployeeId === p.id 
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-300" 
+                      : "bg-stone-50 text-stone-600 hover:bg-stone-100 border-stone-200"
+                  }`}
+                >
+                  {p.name}
+                </button>
+              ))}
             </div>
+          </div>
 
-            {/* TITLE & SERIAL */}
-            <div className="title-box text-center mb-4">
-              <h3 className="title-label text-sm md:text-base font-bold uppercase underline m-0">
-                SURAT PERJALANAN DINAS (SPD)
-              </h3>
-              <p className="number-label text-xs m-0 mt-0.5">
-                Nomor Lembar : {fullSpdNumber}
-              </p>
-            </div>
-
-            {/* MAIN SPD TABLE */}
-            <table className="spd-table w-full border-collapse border border-black mb-6 text-xs select-text">
-              <tbody>
-                <tr>
-                  <td className="w-8 text-center p-2 font-bold">1.</td>
-                  <td className="w-56 p-2 font-bold">Pejabat Pembuat Komitmen</td>
-                  <td className="p-2 text-slate-900 font-semibold">{ppk?.name || "HAIRUL FAHMI, SE"} <span className="font-normal text-[10px] block">({ppk?.jabatan || "Kepala Subbagian Administrasi Umum"})</span></td>
-                </tr>
-                <tr>
-                  <td className="text-center p-2 font-bold">2.</td>
-                  <td className="p-2 font-bold">Nama / NIP Pegawai yang diperintah</td>
-                  <td className="p-2 font-bold text-slate-900">
-                    <div className="text-sm">{activeEmployee.name}</div>
-                    <div className="text-xs font-mono font-medium mt-0.5 text-slate-700">
-                      {activeEmployee.nip !== "-" ? `NIP. ${activeEmployee.nip}` : "Pramubakti / Non-ASN"}
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="text-center p-2 font-bold">3.</td>
-                  <td className="p-2 font-bold">
-                    a. Pangkat dan Golongan ruang gaji <br/>
-                    b. Jabatan / Instansi <br/>
-                    c. Tingkat Biaya Perjalanan Dinas
-                  </td>
-                  <td className="p-2 text-slate-900">
-                    a. {activeEmployee.pangkat !== "-" ? activeEmployee.pangkat : "-"} <br/>
-                    b. {activeEmployee.jabatan !== "-" ? activeEmployee.jabatan : "Inspektorat Kabupaten Tabalong"} <br/>
-                    c. {getTingkatBiaya(activeEmployee.pangkat)}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="text-center p-2 font-bold">4.</td>
-                  <td className="p-2 font-bold">Maksud Perjalanan Dinas</td>
-                  <td className="p-2 text-justify text-slate-950 font-medium">{travel.purpose}</td>
-                </tr>
-                <tr>
-                  <td className="text-center p-2 font-bold">5.</td>
-                  <td className="p-2 font-bold">Alat angkutan yang dipergunakan</td>
-                  <td className="p-2 text-slate-800 font-semibold">{travel.transportMode}</td>
-                </tr>
-                <tr>
-                  <td className="text-center p-2 font-bold">6.</td>
-                  <td className="p-2 font-bold">
-                    a. Tempat Berangkat <br/>
-                    b. Tempat Tujuan
-                  </td>
-                  <td className="p-2">
-                    a. <span className="font-bold">{travel.departurePlace}</span> <br/>
-                    b. <span className="font-bold">{travel.destination}</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td className="text-center p-2 font-bold">7.</td>
-                  <td className="p-2 font-bold">
-                    a. Lamanya Perjalanan Dinas <br/>
-                    b. Tanggal Berangkat <br/>
-                    c. Tanggal harus kembali
-                  </td>
-                  <td className="p-2 text-slate-900">
-                    a. <span className="font-bold">{durationDays} (Tiga) Hari Kerja</span> <br/>
-                    b. {formatIndoDate(travel.departureDate)} <br/>
-                    c. {formatIndoDate(travel.returnDate)}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="text-center p-2 font-bold">8.</td>
-                  <td className="p-2 font-bold">Pengikut / Peserta Pengiring</td>
-                  <td className="p-2 select-text">
-                    {participants.filter(p => p.id !== activeEmployeeId).length > 0 ? (
-                      <ol className="list-decimal ml-4">
-                        {participants.filter(p => p.id !== activeEmployeeId).map(p => (
-                          <li key={`spd-fol-${p.id}`} className="py-0.5">
-                            <span className="font-bold">{p.name}</span> <span className="text-[10px] text-slate-500">({p.jabatan})</span>
-                          </li>
-                        ))}
-                      </ol>
-                    ) : (
-                      <span className="text-slate-400 italic font-medium">Melaksanakan tugas mandiri / nihil pengikut</span>
-                    )}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="text-center p-2 font-bold">9.</td>
-                  <td className="p-2 font-bold">
-                    Pembebanan Anggaran <br/>
-                    a. Instansi <br/>
-                    b. Mata Anggaran / Kode Rekening
-                  </td>
-                  <td className="p-2 italic text-xs">
-                    a. SKPD Inspektorat Daerah Kabupaten Tabalong <br/>
-                    b. <span className="font-mono bg-stone-50 p-0.5 text-stone-900 not-italic font-semibold">{travel.budgetCode}</span>  {travel.budgetSource}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="text-center p-2 font-bold">10.</td>
-                  <td className="p-2 font-bold">Keterangan lain-lain</td>
-                  <td className="p-2 text-xs italic text-slate-500 font-medium">
-                    Surat perintah diterbitkan dalam rangkap tindak administratif kedisplinan keuangan daerah Tabalong.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            {/* FOOTER SIGNATURE DETAIL */}
-            <div className="mt-6 flex flex-col items-end">
-              <div className="w-72 text-xs text-slate-900 select-text">
-                <p className="m-0">Dikeluarkan di : Tabalong</p>
-                <p className="m-0 border-b border-black pb-1">Pada Tanggal : {formatIndoDate(travel.taskLetterDate)}</p>
-                
-                <div className="mt-3 text-center">
-                  <p className="m-0 font-bold uppercase">{ppk?.jabatan || "Pejabat Pembuat Komitmen"},</p>
-                  <p className="m-0 text-[10px] text-slate-500 italic">Inspektorat Daerah Kabupaten Tabalong</p>
-                  <div className="sig-box h-16"></div>
-                  <p className="m-0 font-bold underline uppercase">{ppk?.name || "HAIRUL FAHMI, SE"}</p>
-                  {ppk?.nip && ppk.nip !== "-" && (
-                    <p className="m-0 text-[10px]">
-                      Pangkat: {ppk.pangkat} <br/>
-                      NIP. {ppk.nip}
-                    </p>
-                  )}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Column 1: Page 1 Overhead & Headers */}
+            <div className="space-y-3 bg-white p-3 rounded-lg border border-slate-150">
+              <p className="text-[10px] font-bold uppercase text-emerald-600 border-b pb-1">1. Kop & Metadata Atas</p>
+              <div className="space-y-2 text-xs">
+                <div>
+                  <label className="text-[9px] text-slate-400 font-bold block">LEMBAR KE</label>
+                  <input type="text" value={lembarKe} onChange={(e) => setLembarKe(e.target.value)} className="w-full text-xs p-1 bg-slate-50 border rounded" />
+                </div>
+                <div>
+                  <label className="text-[9px] text-slate-400 font-bold block">KODE NO.</label>
+                  <input type="text" value={kodeNo} onChange={(e) => setKodeNo(e.target.value)} className="w-full text-xs p-1 bg-slate-50 border rounded" />
+                </div>
+                <div>
+                  <label className="text-[9px] text-slate-400 font-bold block">NOMOR SURAT</label>
+                  <input type="text" value={numSpd} onChange={(e) => setNumSpd(e.target.value)} className="w-full text-xs p-1 bg-slate-50 border rounded font-semibold" />
+                </div>
+                <div className="border-t pt-2 space-y-1">
+                  <label className="text-[9px] text-slate-400 font-bold block">PENGGUNA ANGGARAN (PA) LINE 1</label>
+                  <input type="text" value={paName} onChange={(e) => setPaName(e.target.value)} className="w-full text-xs p-1 bg-slate-50 border rounded font-bold" />
+                  <label className="text-[9px] text-slate-400 font-bold block">NIP PA</label>
+                  <input type="text" value={paNip} onChange={(e) => setPaNip(e.target.value)} className="w-full text-xs p-1 bg-slate-50 border rounded" />
                 </div>
               </div>
             </div>
-            <div className="clear-both"></div>
 
+            {/* Column 2: Traveler details Customizations */}
+            <div className="space-y-3 bg-white p-3 rounded-lg border border-slate-150">
+              <p className="text-[10px] font-bold uppercase text-emerald-600 border-b pb-1">2. Butir Perjalanan Dinas (Depan)</p>
+              <div className="space-y-2 text-xs">
+                <div>
+                  <label className="text-[9px] text-slate-400 font-bold block">BUTIR 3A. PANGKAT & GOLONGAN</label>
+                  <input type="text" value={pangkatTraveler} onChange={(e) => setPangkatTraveler(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                </div>
+                <div>
+                  <label className="text-[9px] text-slate-400 font-bold block">BUTIR 3B. JABATAN / INSTANSI</label>
+                  <input type="text" value={jabatanTraveler} onChange={(e) => setJabatanTraveler(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                </div>
+                <div>
+                  <label className="text-[9px] text-slate-400 font-bold block">BUTIR 3C. TINGKAT PERJALANAN DINAS</label>
+                  <input type="text" value={tingkatBiaya} onChange={(e) => setTingkatBiaya(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                </div>
+                <div>
+                  <label className="text-[9px] text-slate-400 font-bold block">BUTIR 4. MAKSUD PERJALANAN DINAS</label>
+                  <textarea rows={2} value={maksudDinas} onChange={(e) => setMaksudDinas(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                </div>
+              </div>
+            </div>
+
+            {/* Column 3: Routes & Budgeting details */}
+            <div className="space-y-3 bg-white p-3 rounded-lg border border-slate-150">
+              <p className="text-[10px] font-bold uppercase text-emerald-600 border-b pb-1">3. Rute & Pembebanan Anggaran</p>
+              <div className="space-y-2 text-xs">
+                <div className="grid grid-cols-2 gap-1">
+                  <div>
+                    <label className="text-[9px] text-slate-400 font-bold block">B.5 TRANS.</label>
+                    <input type="text" value={alatTransport} onChange={(e) => setAlatTransport(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-slate-400 font-bold block">B.7A LAMANYA</label>
+                    <input type="text" value={lamanyaDinas} onChange={(e) => setLamanyaDinas(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-1">
+                  <div>
+                    <label className="text-[9px] text-slate-400 font-bold block">B.6A BERANGKAT</label>
+                    <input type="text" value={tempatBerangkat} onChange={(e) => setTempatBerangkat(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-slate-400 font-bold block">B.6B TUJUAN</label>
+                    <input type="text" value={tempatTujuan} onChange={(e) => setTempatTujuan(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                  </div>
+                </div>
+                <div className="border-t pt-2 space-y-1">
+                  <label className="text-[9px] text-slate-400 font-bold block">MATA ANGGARAN (BUTIR 9B)</label>
+                  <textarea rows={2} value={akunKode} onChange={(e) => setAkunKode(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Panel Config: Specific to Page 2 (Halaman Belakang) */}
+          <div className="bg-white p-4 rounded-lg border border-slate-150 space-y-3">
+            <p className="text-[10px] font-bold uppercase text-emerald-700 border-b pb-1.5">4. Data Halaman Belakang (Halaman Kedua untuk Catatan Transit)</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              
+              <div className="space-y-2 bg-stone-50/50 p-2.5 rounded border">
+                <span className="text-[10px] font-bold text-slate-500 block">A. POS AWAL KEDUDUKAN (Atas Kanan)</span>
+                <div>
+                  <label className="text-[8px] text-slate-400 font-bold block">BERANGKAT DARI</label>
+                  <input type="text" value={p2BerangkatDari} onChange={(e) => setP2BerangkatDari(e.target.value)} className="w-full text-[11px] p-1 border rounded bg-white" />
+                </div>
+                <div>
+                  <label className="text-[8px] text-slate-400 font-bold block">TUJUAN KE</label>
+                  <input type="text" value={p2Ke} onChange={(e) => setP2Ke(e.target.value)} className="w-full text-[11px] p-1 border rounded bg-white" />
+                </div>
+                <div>
+                  <label className="text-[8px] text-slate-400 font-bold block">PADA TANGGAL</label>
+                  <input type="text" value={p2TglBerangkat} onChange={(e) => setP2TglBerangkat(e.target.value)} className="w-full text-[11px] p-1 border rounded bg-white" />
+                </div>
+              </div>
+
+              <div className="space-y-2 bg-stone-50/50 p-2.5 rounded border">
+                <span className="text-[10px] font-bold text-slate-500 block">B. PENANDATANGAN HALAMAN 2</span>
+                <div>
+                  <label className="text-[8px] text-slate-400 font-bold block">NAMA LENGKAP PPTK</label>
+                  <input type="text" value={pptkName} onChange={(e) => setPptkName(e.target.value)} className="w-full text-[11px] p-1 border rounded bg-white" />
+                </div>
+                <div>
+                  <label className="text-[8px] text-slate-400 font-bold block">NIP PPTK</label>
+                  <input type="text" value={pptkNip} onChange={(e) => setPptkNip(e.target.value)} className="w-full text-[11px] p-1 border rounded bg-white" />
+                </div>
+                <div>
+                  <label className="text-[8px] text-slate-400 font-bold block">JABATAN TTD PPTK (I & IV)</label>
+                  <input type="text" value={p2TopRightLabel} onChange={(e) => {
+                    setP2TopRightLabel(e.target.value);
+                    setP2Row4LeftLabel(e.target.value);
+                  }} className="w-full text-[11px] p-1 border rounded bg-white" />
+                </div>
+                <div>
+                  <label className="text-[8px] text-slate-400 font-bold block">JABATAN TTD PA (IV KANAN)</label>
+                  <input type="text" value={p2Row4RightLabel} onChange={(e) => setP2Row4RightLabel(e.target.value)} className="w-full text-[11px] p-1 border rounded bg-white" />
+                </div>
+              </div>
+
+              <div className="space-y-2 bg-stone-50/50 p-2.5 rounded border">
+                <span className="text-[10px] font-bold text-slate-500 block">C. JALUR TRANSIT RAYA (ROW I / Tiba-Pergi)</span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div>
+                    <label className="text-[8px] text-slate-400 font-bold block">I. TIBA DI</label>
+                    <input type="text" value={p2Row1TibaDi} onChange={(e) => setP2Row1TibaDi(e.target.value)} className="w-full text-[10px] p-1 border rounded bg-white" />
+                  </div>
+                  <div>
+                    <label className="text-[8px] text-slate-400 font-bold block">I. TIBA TGL</label>
+                    <input type="text" value={p2Row1TibaTgl} onChange={(e) => setP2Row1TibaTgl(e.target.value)} className="w-full text-[10px] p-1 border rounded bg-white" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div>
+                    <label className="text-[8px] text-slate-400 font-bold block">I. GO FROM</label>
+                    <input type="text" value={p2Row1BerangkatDari} onChange={(e) => setP2Row1BerangkatDari(e.target.value)} className="w-full text-[10px] p-1 border rounded bg-white" />
+                  </div>
+                  <div>
+                    <label className="text-[8px] text-slate-400 font-bold block">I. GO DATE</label>
+                    <input type="text" value={p2Row1BerangkatTgl} onChange={(e) => setP2Row1BerangkatTgl(e.target.value)} className="w-full text-[10px] p-1 border rounded bg-white" />
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
-      ) : (
-        <div className="p-10 text-center text-slate-500">
-          Pilih atau tambahkan pegawai pada perjalanan dinas untuk menggenerasi SPD.
-        </div>
       )}
+
+      {/* RENDER SHEET WRAPPER WITH TIMES NEW ROMAN STYLES FOR THE SIMULATION */}
+      <div className="border border-slate-300 p-8 md:p-14 bg-slate-100 max-w-4xl mx-auto shadow-inner overflow-x-auto min-w-[320px]">
+        
+        {/* PRINTABLE COMPONENT */}
+        <div 
+          id="spd-printable" 
+          className="bg-white p-10 md:p-14 font-serif text-black leading-normal shadow-lg max-w-[700px] mx-auto select-text select-all"
+          style={{ fontFamily: '"Times New Roman", Times, serif' }}
+        >
+          <style dangerouslySetInnerHTML={{ __html: `
+            #spd-printable {
+              font-family: "Times New Roman", Times, serif !important;
+              color: #000 !important;
+              background-color: #fff !important;
+            }
+            #spd-printable .kop-header {
+              position: relative;
+              border-bottom: 4px double #000;
+              padding-bottom: 8px;
+              margin-bottom: 12px;
+              text-align: center;
+              min-height: 80px;
+              display: block;
+            }
+            #spd-printable .kop-logo-container {
+              position: absolute;
+              left: 0;
+              top: 50%;
+              transform: translateY(-50%);
+              display: flex;
+              align-items: center;
+            }
+            #spd-printable .kop-logo {
+              height: 64px;
+              width: 56px;
+              object-fit: contain;
+            }
+            #spd-printable .kop-text-container {
+              padding-left: 64px;
+              padding-right: 20px;
+              width: 100%;
+              text-align: center;
+            }
+            #spd-printable .kop-pemkab {
+              font-size: 15px;
+              font-weight: bold;
+              letter-spacing: 0.5px;
+              margin: 0;
+              line-height: 1.2;
+            }
+            #spd-printable .kop-instansi {
+              font-size: 21px;
+              font-weight: bold;
+              letter-spacing: 0.5px;
+              margin: 0;
+              margin-top: 2px;
+              line-height: 1.2;
+            }
+            #spd-printable .kop-alamat {
+              font-size: 10px;
+              margin: 0;
+              margin-top: 3.5px;
+              line-height: 1.3;
+            }
+            #spd-printable .kop-laman {
+              font-size: 10px;
+              margin: 0;
+              margin-top: 1px;
+              line-height: 1.3;
+            }
+            #spd-printable .top-meta-container {
+              float: right;
+              width: 250px;
+              margin-top: 10px;
+              margin-bottom: 12px;
+              font-size: 11.5px;
+            }
+            #spd-printable .top-meta-container table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            #spd-printable .top-meta-container td {
+              padding: 1.5px 2px;
+              vertical-align: top;
+            }
+            #spd-printable .doc-title-box {
+              text-align: center;
+              margin-top: 25px;
+              margin-bottom: 15px;
+              clear: both;
+            }
+            #spd-printable .doc-title {
+              font-size: 14.5px;
+              font-weight: bold;
+              letter-spacing: 0.5px;
+              text-decoration: none;
+              margin: 0;
+            }
+            #spd-printable .spd-main-table {
+              width: 100%;
+              border-collapse: collapse;
+              border: 1px solid #000;
+              font-size: 11.5px;
+              margin-bottom: 20px;
+            }
+            #spd-printable .spd-main-table > tbody > tr > td {
+              border: 1px solid #000 !important;
+              padding: 6px 8px;
+              vertical-align: top;
+            }
+            #spd-printable .sub-nested-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 0;
+            }
+            #spd-printable .sub-nested-table td {
+              border: none !important;
+              padding: 1.5px 0 !important;
+            }
+            #spd-printable .back-table {
+              width: 100%;
+              border-collapse: collapse;
+              border: 1px solid #000;
+              font-size: 10.5px;
+              margin-bottom: 20px;
+            }
+            #spd-printable .back-table > tbody > tr > td {
+              border: 1px solid #000 !important;
+              padding: 7px 9px;
+              vertical-align: top;
+            }
+            #spd-printable .back-table > tbody > tr > td:not([colspan]) {
+              width: 50%;
+            }
+            #spd-printable .back-half-col {
+              width: 50%;
+            }
+            #spd-printable .signature-box-mini {
+              height: 50px;
+            }
+            #spd-printable .footer-sig-block {
+              margin-top: 20px;
+              float: right;
+              width: 270px;
+              font-size: 12px;
+              text-align: left;
+            }
+            #spd-printable .sig-box {
+              height: 60px;
+            }
+          ` }} />
+
+          {/* HALAMAN 1 (HALAMAN DEPAN) */}
+          {(activeTab === "all" || activeTab === "depan") && (
+            <div className="page-container select-text text-black">
+              {/* HEAD KOP */}
+              <div className="kop-header relative border-b-4 border-double border-black pb-3 mb-4 min-h-[85px] flex items-center justify-center">
+                <div className="kop-logo-container absolute left-0 top-1/2 -translate-y-1/2 flex items-center">
+                  <img
+                    src={TABALONG_LOGO_BASE64}
+                    alt="Logo Kabupaten Tabalong"
+                    className="kop-logo h-16 w-14 object-contain"
+                  />
+                </div>
+                
+                <div className="kop-text-container text-center w-full pl-16 pr-4">
+                  <h1 className="kop-pemkab text-[15px] font-bold tracking-tight uppercase m-0 leading-tight">
+                    {kopPemkab}
+                  </h1>
+                  <h2 className="kop-instansi text-xl font-bold tracking-normal uppercase m-0 leading-tight mt-1">
+                    {kopInstansi}
+                  </h2>
+                  <p className="kop-alamat text-[10px] text-slate-800 m-0 mt-1 leading-normal">
+                    {kopAlamat}
+                  </p>
+                  <p className="kop-laman text-[10px] text-slate-800 m-0 mt-0.5 leading-normal">
+                    {kopLaman}
+                  </p>
+                </div>
+              </div>
+
+              {/* TOP RIGHT BLOCK SERIAL */}
+              <div className="top-meta-container">
+                <table>
+                  <tbody>
+                    <tr>
+                      <td className="w-20">Lembar ke</td>
+                      <td className="w-4 text-center">:</td>
+                      <td>{lembarKe || "-"}</td>
+                    </tr>
+                    <tr>
+                      <td>Kode No.</td>
+                      <td className="text-center">:</td>
+                      <td>{kodeNo || "-"}</td>
+                    </tr>
+                    <tr>
+                      <td>Nomor</td>
+                      <td className="text-center">:</td>
+                      <td>{numSpd}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="clear-both"></div>
+
+              {/* DOCUMENT MAIN HEADING */}
+              <div className="doc-title-box mt-3 text-center">
+                <h3 className="doc-title text-base font-bold tracking-wide m-0">
+                  SURAT PERJALANAN DINAS (SPD)
+                </h3>
+              </div>
+
+              {/* ROW ITEMS TABLE */}
+              <table className="spd-main-table" style={{ borderCollapse: 'collapse', border: '1px solid black', width: '100%', fontSize: '11.5px' }}>
+                <tbody>
+                  {/* Row 1 */}
+                  <tr>
+                    <td className="center-align w-8 font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>1</td>
+                    <td className="w-56 font-bold" style={{ border: '1px solid black', padding: '6px 8px' }}>Pengguna Anggaran</td>
+                    <td className="font-bold" style={{ border: '1px solid black', padding: '6px 8px' }}>{paName}</td>
+                  </tr>
+
+                  {/* Row 2 */}
+                  <tr>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>2</td>
+                    <td className="font-bold" style={{ border: '1px solid black', padding: '6px 8px' }}>Nama/NIP Pegawai yang melaksanakan perjalanan dinas</td>
+                    <td style={{ border: '1px solid black', padding: '6px 8px' }}>
+                      <div className="font-bold">{activeEmployee.name}</div>
+                      <div className="mt-1 font-mono">{activeEmployee.nip !== "-" ? activeEmployee.nip : "Non-ASN"}</div>
+                    </td>
+                  </tr>
+
+                  {/* Row 3 */}
+                  <tr>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>3</td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
+                      <div className="font-bold py-0.5">a. Pangkat dan Golongan</div>
+                      <div className="font-bold py-0.5">b. Jabatan / Instansi</div>
+                      <div className="font-bold py-0.5">c. Tingkat Perjalanan Dinas</div>
+                    </td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
+                      <div className="py-0.5">a. {pangkatTraveler}</div>
+                      <div className="py-0.5">b. {jabatanTraveler}</div>
+                      <div className="py-0.5">c. {tingkatBiaya}</div>
+                    </td>
+                  </tr>
+
+                  {/* Row 4 */}
+                  <tr>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>4</td>
+                    <td className="font-bold" style={{ border: '1px solid black', padding: '6px 8px' }}>Maksud Perjalanan Dinas</td>
+                    <td className="text-justify leading-relaxed" style={{ border: '1px solid black', padding: '6px 8px' }}>{maksudDinas}</td>
+                  </tr>
+
+                  {/* Row 5 */}
+                  <tr>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>5</td>
+                    <td className="font-bold" style={{ border: '1px solid black', padding: '6px 8px' }}>Alat angkut yang dipergunakan</td>
+                    <td style={{ border: '1px solid black', padding: '6px 8px' }}>{alatTransport}</td>
+                  </tr>
+
+                  {/* Row 6 */}
+                  <tr>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>6</td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
+                      <div className="font-bold py-0.5">a. Tempat berangkat</div>
+                      <div className="font-bold py-0.5">b. Tempat tujuan</div>
+                    </td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
+                      <div className="py-0.5">a. {tempatBerangkat}</div>
+                      <div className="py-0.5">b. {tempatTujuan}</div>
+                    </td>
+                  </tr>
+
+                  {/* Row 7 */}
+                  <tr>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>7</td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
+                      <div className="font-bold py-0.5">a. Lamanya Perjalanan Dinas</div>
+                      <div className="font-bold py-0.5">b. Tanggal berangkat</div>
+                      <div className="font-bold py-0.5">c. Tanggal harus kembali/tiba di tempat</div>
+                    </td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
+                      <div className="py-0.5">a. {lamanyaDinas}</div>
+                      <div className="py-0.5">b. {tglBerangkat}</div>
+                      <div className="py-0.5">c. {tglKembali}</div>
+                    </td>
+                  </tr>
+
+                  {/* Row 8 */}
+                  <tr>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>8</td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
+                      <div className="font-bold py-0.5">Pengikut : Nama</div>
+                      <div className="py-0.5">1.</div>
+                      <div className="py-0.5">2.</div>
+                    </td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
+                      <div className="flex w-full">
+                        <div className="w-1/2 font-bold text-center">Tanggal Lahir</div>
+                        <div className="w-1/2 font-bold text-center">Keterangan</div>
+                      </div>
+                      <div className="flex w-full">
+                        <div className="w-1/2 text-center py-0.5">-</div>
+                        <div className="w-1/2 text-center py-0.5">-</div>
+                      </div>
+                      <div className="flex w-full">
+                        <div className="w-1/2 text-center py-0.5">-</div>
+                        <div className="w-1/2 text-center py-0.5">-</div>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* Row 9 */}
+                  <tr>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>9</td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
+                      <div className="font-bold py-0.5">Pembebanan anggaran</div>
+                      <div className="font-bold py-0.5">a. Instansi</div>
+                      <div className="font-bold py-0.5">b. Akun</div>
+                    </td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
+                      <div className="py-0.5">&nbsp;</div>
+                      <div className="py-0.5">a. {akunInstansi}</div>
+                      <div className="py-0.5">b. {akunKode}</div>
+                    </td>
+                  </tr>
+
+                  {/* Row 10 */}
+                  <tr>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>10</td>
+                    <td className="font-bold" style={{ border: '1px solid black', padding: '6px 8px' }}>Keterangan lain-lain</td>
+                    <td style={{ border: '1px solid black', padding: '6px 8px' }}>-</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              {/* FOOTER SIGN-OFF PAGE 1 */}
+              <div className="mt-5 flex justify-end">
+                <div className="footer-sig-block w-72 text-left" style={{ fontSize: '12px' }}>
+                  <p className="m-0">Dikeluarkan di Tanjung</p>
+                  <p className="m-0">Tanggal {formatIndoDate(travel.taskLetterDate)}</p>
+                  
+                  <div className="mt-3 text-left">
+                    <p className="m-0 font-bold leading-tight">Pengguna Anggaran,</p>
+                    <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
+                    <div className="sig-box h-16"></div>
+                    <p className="m-0 font-bold leading-tight uppercase text-[12px]">{paName}</p>
+                    <p className="m-0 leading-tight text-[11px]">NIP. {paNip}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="clear-both"></div>
+            </div>
+          )}
+
+          {/* PAGE BREAK CONDITION ON ALL MODE */}
+          {activeTab === "all" && (
+            <div className="page-break border-t-2 border-dashed border-slate-350 my-10 relative">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-100 border text-slate-400 text-[10px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider print:hidden select-none">PAGE BREAK (Cetak Bolak-Balik)</span>
+            </div>
+          )}
+
+          {/* HALAMAN 2 (HALAMAN BELAKANG) */}
+          {(activeTab === "all" || activeTab === "belakang") && (
+            <div className="page-container select-text text-black">
+              
+              {/* BACK MATRIX BOX */}
+              <table className="back-table w-full">
+                <tbody>
+                  {/* Row 1: Left is completely empty, Right is departure */}
+                  <tr>
+                    <td className="back-half-col w-1/2" style={{ border: '1px solid black' }}></td>
+                    <td className="back-half-col w-1/2 text-xs leading-5" style={{ border: '1px solid black', padding: '10px 12px' }}>
+                      <div className="flex mb-1">
+                        <div className="w-24 shrink-0">Berangkat dari</div>
+                        <div className="w-4 text-center">:</div>
+                        <div>{p2BerangkatDari}</div>
+                      </div>
+                      <div className="italic text-[9.5px] pl-28 mb-1 leading-normal">(Tempat Kedudukan)</div>
+                      <div className="flex mb-1">
+                        <div className="w-24 shrink-0">Ke</div>
+                        <div className="w-4 text-center">:</div>
+                        <div>{p2Ke}</div>
+                      </div>
+                      <div className="flex mb-1">
+                        <div className="w-24 shrink-0">Pada Tanggal</div>
+                        <div className="w-4 text-center">:</div>
+                        <div>{p2TglBerangkat}</div>
+                      </div>
+                      
+                      <div className="mt-4">
+                        <p className="m-0 text-[10.5px]">{p2TopRightLabel}</p>
+                        <div className="signature-box-mini h-12"></div>
+                        <p className="m-0 font-bold text-left text-[10.5px]">{pptkName}</p>
+                        <p className="m-0 text-[10px]">NIP. {pptkNip}</p>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* Row 2 (labeled "I."): Left is I. Tiba di, Right is Berangkat Dari */}
+                  <tr>
+                    <td className="text-xs leading-5 w-1/2" style={{ border: '1px solid black', padding: '10px 12px', verticalAlign: 'top' }}>
+                      <div className="flex mb-1">
+                        <div className="w-5 font-bold shrink-0">I.</div>
+                        <div className="w-24 shrink-0">Tiba di</div>
+                        <div className="w-4 text-center">:</div>
+                        <div>{p2Row1TibaDi}</div>
+                      </div>
+                      <div className="flex mb-1">
+                        <div className="w-5 shrink-0"></div>
+                        <div className="w-24 shrink-0">Pada Tanggal</div>
+                        <div className="w-4 text-center">:</div>
+                        <div>{p2Row1TibaTgl}</div>
+                      </div>
+                    </td>
+                    <td className="text-xs leading-5 w-1/2" style={{ border: '1px solid black', padding: '10px 12px', verticalAlign: 'top' }}>
+                      <div className="flex mb-1">
+                        <div className="w-24 shrink-0">Berangkat dari</div>
+                        <div className="w-4 text-center">:</div>
+                        <div>{p2Row1BerangkatDari}</div>
+                      </div>
+                      <div className="flex mb-1">
+                        <div className="w-24 shrink-0">Ke</div>
+                        <div className="w-4 text-center">:</div>
+                        <div>{p2Row1BerangkatKe}</div>
+                      </div>
+                      <div className="flex mb-1">
+                        <div className="w-24 shrink-0">Pada Tanggal</div>
+                        <div className="w-4 text-center">:</div>
+                        <div>{p2Row1BerangkatTgl}</div>
+                      </div>
+                    </td>
+                  </tr>
+
+                  {/* Row 3 (labeled "III."): Left is III. Tiba di + PPTK signature, Right is general text */}
+                  <tr>
+                    <td className="text-xs leading-5 w-1/2" style={{ border: '1px solid black', padding: '10px 12px', verticalAlign: 'top' }}>
+                      <div className="flex mb-1">
+                        <div className="w-5 font-bold shrink-0">III.</div>
+                        <div className="w-24 shrink-0">Tiba di</div>
+                        <div className="w-4 text-center">:</div>
+                        <div>{p2Row3TibaDi}</div>
+                      </div>
+                      <div className="flex mb-1">
+                        <div className="w-5 shrink-0"></div>
+                        <div className="w-24 shrink-0">Pada Tanggal</div>
+                        <div className="w-4 text-center">:</div>
+                        <div>{p2Row3TibaTgl}</div>
+                      </div>
+                      
+                      <div className="mt-4">
+                        <p className="m-0 text-[10.5px]">{p2Row4LeftLabel}</p>
+                        <div className="signature-box-mini h-12"></div>
+                        <p className="m-0 font-bold text-left text-[10.5px]">{pptkName}</p>
+                        <p className="m-0 text-[10px]">NIP. {pptkNip}</p>
+                      </div>
+                    </td>
+                    <td className="text-xs w-1/2" style={{ border: '1px solid black', padding: '10px 12px', verticalAlign: 'top' }}>
+                      <p className="m-0 text-justify leading-relaxed">
+                        Telah diperiksa, dengan keterangan bahwa perjalanan tersebut di atas benar dilakukan atas perintahnya dan semata-mata untuk kepentingan jabatan dalam waktu yang sesingkat-singkatnya.
+                      </p>
+                    </td>
+                  </tr>
+
+                  {/* Row 4: Catatan Lain-Lain */}
+                  <tr>
+                    <td colSpan={2} className="text-xs" style={{ border: '1px solid black', padding: '10px 12px' }}>
+                      <span className="font-bold">IV. Catatan lain-lain :</span> {p2Notes}
+                    </td>
+                  </tr>
+
+                  {/* Row 5: Perhatian */}
+                  <tr>
+                    <td colSpan={2} className="text-xs text-justify leading-normal" style={{ border: '1px solid black', padding: '10px 12px' }}>
+                      <span className="font-bold">V. PERHATIAN :</span>
+                      <p className="m-0 mt-1 leading-relaxed">
+                        PA yang menerbitkan SPD, pegawai yang melakukan perjalanan dinas, para pejabat yang mengesahkan tanggal berangkat/tiba, serta bendahara pengeluaran bertanggung jawab berdasarkan peraturan-peraturan Keuangan Negara apabila negara menderita rugi akibat kesalahan, kelalaian, dan kealpaannya.
+                      </p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              {/* OUTSIDE TABLE footer block for Halaman 2 bottom right signature */}
+              <div className="mt-6 flex justify-end">
+                <div className="w-72 text-left" style={{ fontSize: '12px' }}>
+                  <p className="m-0 font-bold leading-tight">{p2Row4RightLabel},</p>
+                  <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
+                  <div className="sig-box h-16"></div>
+                  <p className="m-0 font-bold leading-tight uppercase text-[12px]">{paName}</p>
+                  <p className="m-0 leading-tight text-[11px]">NIP. {paNip}</p>
+                </div>
+              </div>
+
+              <div className="clear-both"></div>
+            </div>
+          )}
+
+        </div>
+      </div>
     </div>
   );
 }
