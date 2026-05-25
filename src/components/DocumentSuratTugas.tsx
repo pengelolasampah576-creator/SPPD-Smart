@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Employee, Travel } from "../types";
-import { Printer, FileBadge2 } from "lucide-react";
+import { Printer, FileBadge2, Settings } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
+import { getFormattedPangkatGolongan } from "../utils/pangkat";
 
 interface DocumentSuratTugasProps {
   travel: Travel;
@@ -10,6 +12,11 @@ interface DocumentSuratTugasProps {
 export default function DocumentSuratTugas({ travel, employees }: DocumentSuratTugasProps) {
   const signatory = employees.find(e => e.id === travel.signatoryId);
   const participants = travel.employeeIds.map(id => employees.find(e => e.id === id)).filter(Boolean) as Employee[];
+
+  const [showConfig, setShowConfig] = useState(false);
+  const [signSpecialCode, setSignSpecialCode] = useState("");
+  const [signCodeCase, setSignCodeCase] = useState<"as-is" | "uppercase" | "lowercase">("as-is");
+  const [signCodeSize, setSignCodeSize] = useState<"9px" | "11px" | "13px" | "15px">("11px");
 
   // Helper to format Indonesian dates
   const formatIndoDate = (dateStr: string) => {
@@ -197,19 +204,83 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
 
   return (
     <div className="bg-white rounded-2xl border border-slate-150 p-6 shadow-xs space-y-6">
-      <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
         <span className="text-xs text-slate-500 font-medium flex items-center gap-2">
-          <FileBadge2 className="w-4 h-4 text-blue-600" />
-          Preview Format Surat Tugas Resmi Daerah (Standard Kepbup/Inpres)
+          <FileBadge2 className="w-4 h-4 text-blue-600 shrink-0" />
+          <span>Preview Format Surat Tugas Resmi Daerah (Standard Kepbup/Inpres)</span>
         </span>
-        <button
-          onClick={handlePrint}
-          className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-xs cursor-pointer"
-        >
-          <Printer className="w-3.5 h-3.5" />
-          Cetak Surat Tugas
-        </button>
+        
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setShowConfig(!showConfig)}
+            className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg border transition duration-150 cursor-pointer ${
+              showConfig 
+                ? "bg-slate-200 border-slate-300 text-slate-800" 
+                : "bg-white border-slate-200 hover:bg-slate-50 text-slate-600"
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5 text-slate-500" />
+            {showConfig ? "Sembunyikan Pengaturan" : "Sesuaikan Dokumen"}
+          </button>
+          
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-xs cursor-pointer"
+          >
+            <Printer className="w-3.5 h-3.5" />
+            Cetak Surat Tugas
+          </button>
+        </div>
       </div>
+
+      {showConfig && (
+        <div className="bg-slate-50 border border-slate-200 p-5 rounded-xl space-y-4 animate-fadeIn">
+          <div className="border-b border-slate-200 pb-2">
+            <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+              <Settings className="w-4 h-4 text-blue-500" />
+              Kontrol Redaksi & Tata Letak Surat Tugas
+            </h4>
+          </div>
+          <div className="bg-white p-3 rounded-lg border border-slate-150 space-y-2">
+            <label className="text-[10px] text-emerald-600 font-bold block uppercase tracking-wider">KODE KHUSUS TANDA TANGAN (DI ANTARA JABATAN & NAMA)</label>
+            <textarea
+              rows={4}
+              value={signSpecialCode}
+              onChange={(e) => setSignSpecialCode(e.target.value)}
+              placeholder="Contoh: Kode Khusus (Gunakan Enter, Spasi, atau Backspace untuk memindahkan lokasinya)"
+              className="w-full text-xs p-1.5 bg-emerald-50/30 border border-emerald-200 rounded font-mono text-emerald-950 placeholder:text-emerald-700/50"
+            />
+            
+            <div className="grid grid-cols-2 gap-1.5 mt-1 bg-emerald-50/20 p-1.5 rounded border border-emerald-100/60">
+              <div>
+                <label className="text-[8px] text-emerald-700 font-bold block mb-0.5">BESAR/KECIL HURUF (CASING)</label>
+                <select
+                  value={signCodeCase}
+                  onChange={(e) => setSignCodeCase(e.target.value as any)}
+                  className="w-full text-[10px] p-1 border border-emerald-250 rounded bg-white text-emerald-900 font-medium"
+                >
+                  <option value="as-is">Sesuai Ketikan</option>
+                  <option value="uppercase">HURUF BESAR (UPPER)</option>
+                  <option value="lowercase">huruf kecil (lower)</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[8px] text-emerald-700 font-bold block mb-0.5">UKURAN HURUF (SIZE)</label>
+                <select
+                  value={signCodeSize}
+                  onChange={(e) => setSignCodeSize(e.target.value as any)}
+                  className="w-full text-[10px] p-1 border border-emerald-250 rounded bg-white text-emerald-900 font-medium"
+                >
+                  <option value="9px">Kecil sekali (9px)</option>
+                  <option value="11px">Sesuai Standard (11px)</option>
+                  <option value="13px">Besar (13px)</option>
+                  <option value="15px">Sangat Besar (15px)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* RENDER SHEET */}
       <div className="border border-slate-300 p-8 md:p-12 bg-white max-w-3xl mx-auto shadow-sm select-text overflow-x-auto min-w-[320px]">
@@ -291,7 +362,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                           <div className="md:col-span-9 font-mono text-xs">{emp.nip !== "-" ? emp.nip : "-"}</div>
                           
                           <div className="md:col-span-3 text-slate-500 text-xs">Pangkat/Golongan</div>
-                          <div className="md:col-span-9 text-xs">{emp.pangkat !== "-" ? emp.pangkat : "Non-Eselon / Non-ASN"}</div>
+                          <div className="md:col-span-9 text-xs">{emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "Non-Eselon / Non-ASN"}</div>
                           
                           <div className="md:col-span-3 text-slate-500 text-xs">Dalam Jabatan</div>
                           <div className="md:col-span-9 text-xs font-semibold">{emp.jabatan}</div>
@@ -341,11 +412,23 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               
               <div className="mt-3">
                 <p className="m-0 text-center font-bold uppercase">{signatory?.jabatan || "Inspektur Daerah"},</p>
-                <div className="sig-box h-20"></div>
+                <div className="sig-box h-20 flex flex-col justify-center" style={{ minHeight: '80px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  {signSpecialCode ? (
+                    <p className="m-0 font-mono text-slate-800 font-semibold text-center" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                      {signCodeCase === "uppercase" 
+                        ? signSpecialCode.toUpperCase() 
+                        : signCodeCase === "lowercase" 
+                          ? signSpecialCode.toLowerCase() 
+                          : signSpecialCode}
+                    </p>
+                  ) : (
+                    <div className="h-full"></div>
+                  )}
+                </div>
                 <p className="m-0 text-center font-bold underline uppercase">{signatory?.name || "DIYANTO, SE, MT"}</p>
                 {signatory?.nip && signatory.nip !== "-" && (
                   <p className="m-0 text-center text-xs">
-                    Pangkat: {signatory.pangkat} <br/>
+                    Pangkat: {getFormattedPangkatGolongan(signatory.pangkat)} <br/>
                     NIP. {signatory.nip}
                   </p>
                 )}

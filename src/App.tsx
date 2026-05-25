@@ -8,7 +8,6 @@ import KPISection from "./components/KPISection";
 import DocumentNotaDinas from "./components/DocumentNotaDinas";
 import DocumentSuratTugas from "./components/DocumentSuratTugas";
 import DocumentSPD from "./components/DocumentSPD";
-import DocumentRincianBiaya from "./components/DocumentRincianBiaya";
 
 import {
   Briefcase,
@@ -18,7 +17,6 @@ import {
   Compass,
   FileText,
   FileBadge,
-  BadgeDollarSign,
   Printer,
   Calendar,
   MapPin,
@@ -42,7 +40,7 @@ export default function App() {
   const [selectedTravelId, setSelectedTravelId] = useState<string | null>(null);
   
   // Document Sub-tab state
-  const [activeDocTab, setActiveDocTab] = useState<"nota" | "tugas" | "spd" | "biaya">("nota");
+  const [activeDocTab, setActiveDocTab] = useState<"nota" | "tugas" | "spd">("nota");
 
   // Form toggles
   const [isCreatingTravel, setIsCreatingTravel] = useState(false);
@@ -662,17 +660,6 @@ export default function App() {
                   <ArrowRightLeft className="w-4 h-4" />
                   3. Format SPD Lembaran
                 </button>
-                <button
-                  onClick={() => setActiveDocTab("biaya")}
-                  className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer min-w-[120px] ${
-                    activeDocTab === "biaya"
-                      ? "bg-blue-600 text-white shadow-xs"
-                      : "text-slate-600 hover:bg-white/40"
-                  }`}
-                >
-                  <BadgeDollarSign className="w-4 h-4" />
-                  4. Rincian Biaya Riil
-                </button>
               </div>
 
               {/* RENDERING DOCUMENTS */}
@@ -685,13 +672,6 @@ export default function App() {
                 )}
                 {activeDocTab === "spd" && (
                   <DocumentSPD travel={selectedTravelObj} employees={employees} />
-                )}
-                {activeDocTab === "biaya" && (
-                  <DocumentRincianBiaya
-                    travel={selectedTravelObj}
-                    employees={employees}
-                    onUpdateExpenses={handleUpdateExpenses}
-                  />
                 )}
               </div>
             </div>

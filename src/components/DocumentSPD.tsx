@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Employee, Travel } from "../types";
 import { Printer, Settings, RefreshCw, FileText, Layers } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
+import { getFormattedPangkatGolongan } from "../utils/pangkat";
 
 interface DocumentSPDProps {
   travel: Travel;
@@ -122,6 +123,23 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
   const [p2TopRightLabel, setP2TopRightLabel] = useState("selaku pelaksana teknis kegiatan");
   const [p2Row4LeftLabel, setP2Row4LeftLabel] = useState("selaku pelaksana teknis kegiatan");
   const [p2Row4RightLabel, setP2Row4RightLabel] = useState("Pengguna Anggaran");
+  const [signSpecialCode, setSignSpecialCode] = useState("");
+  const [showPaSuggestions, setShowPaSuggestions] = useState(false);
+  const [showPptkSuggestions, setShowPptkSuggestions] = useState(false);
+  const [signCodeCase, setSignCodeCase] = useState<"as-is" | "uppercase" | "lowercase">("as-is");
+  const [signCodeSize, setSignCodeSize] = useState<"9px" | "11px" | "13px" | "15px">("11px");
+
+  const matchingPaEmployees = paName.trim() === "" ? [] : employees.filter(emp => 
+    emp.name.toLowerCase().includes(paName.toLowerCase()) || 
+    emp.nip.toLowerCase().includes(paName.toLowerCase()) ||
+    emp.jabatan.toLowerCase().includes(paName.toLowerCase())
+  );
+
+  const matchingPptkEmployees = pptkName.trim() === "" ? [] : employees.filter(emp => 
+    emp.name.toLowerCase().includes(pptkName.toLowerCase()) || 
+    emp.nip.toLowerCase().includes(pptkName.toLowerCase()) ||
+    emp.jabatan.toLowerCase().includes(pptkName.toLowerCase())
+  );
 
   // Keep state synchronized with travel select choices
   useEffect(() => {
@@ -135,7 +153,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     if (matchedPpk) {
       setPaName(matchedPpk.name);
       setPaNip(matchedPpk.nip);
-      setPaPangkat(matchedPpk.pangkat);
+      setPaPangkat(getFormattedPangkatGolongan(matchedPpk.pangkat));
     } else {
       setPaName("Diyanto, SE, MT, FRMP");
       setPaNip("197110132005011005");
@@ -143,7 +161,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     }
 
     // Traveler details
-    setPangkatTraveler(activeEmployee.pangkat);
+    setPangkatTraveler(getFormattedPangkatGolongan(activeEmployee.pangkat));
     setJabatanTraveler(activeEmployee.jabatan);
     setTingkatBiaya(getTingkatBiaya(activeEmployee.pangkat));
 
@@ -240,6 +258,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     setP2TopRightLabel("selaku pelaksana teknis kegiatan");
     setP2Row4LeftLabel("selaku pelaksana teknis kegiatan");
     setP2Row4RightLabel("Pengguna Anggaran");
+    setSignSpecialCode("");
+    setSignCodeCase("as-is");
+    setSignCodeSize("11px");
   };
 
   const handlePrint = () => {
@@ -581,10 +602,108 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   <input type="text" value={numSpd} onChange={(e) => setNumSpd(e.target.value)} className="w-full text-xs p-1 bg-slate-50 border rounded font-semibold" />
                 </div>
                 <div className="border-t pt-2 space-y-1">
-                  <label className="text-[9px] text-slate-400 font-bold block">PENGGUNA ANGGARAN (PA) LINE 1</label>
-                  <input type="text" value={paName} onChange={(e) => setPaName(e.target.value)} className="w-full text-xs p-1 bg-slate-50 border rounded font-bold" />
+                  {/* Quick Select PA */}
+                  <div className="bg-emerald-50/40 p-1.5 rounded border border-emerald-100/60 mb-1.5">
+                    <label className="text-[8px] text-emerald-800 font-black block mb-0.5 uppercase tracking-wide">Cari PA dari Basis Data</label>
+                    <select
+                      onChange={(e) => {
+                        const emp = employees.find(x => x.id === e.target.value);
+                        if (emp) {
+                          setPaName(emp.name);
+                          setPaNip(emp.nip);
+                          setPaPangkat(getFormattedPangkatGolongan(emp.pangkat));
+                        }
+                      }}
+                      value=""
+                      className="w-full text-[10px] p-0.5 border border-emerald-200 rounded bg-white text-emerald-950 font-semibold"
+                    >
+                      <option value="">-- Pilih PA --</option>
+                      {employees.map(emp => (
+                        <option key={emp.id} value={emp.id}>
+                          {emp.name} ({getFormattedPangkatGolongan(emp.pangkat)})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="relative">
+                    <label className="text-[9px] text-slate-400 font-bold block">PENGGUNA ANGGARAN (PA) LINE 1</label>
+                    <input
+                      type="text"
+                      value={paName}
+                      onChange={(e) => {
+                        setPaName(e.target.value);
+                        setShowPaSuggestions(true);
+                      }}
+                      onFocus={() => setShowPaSuggestions(true)}
+                      onBlur={() => {
+                        setTimeout(() => setShowPaSuggestions(false), 200);
+                      }}
+                      className="w-full text-xs p-1 bg-slate-50 border rounded font-bold"
+                      placeholder="Ketik untuk pencarian otomatis..."
+                    />
+                    {showPaSuggestions && matchingPaEmployees.length > 0 && (
+                      <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-md shadow-lg max-h-40 overflow-y-auto z-50 text-left">
+                        {matchingPaEmployees.map((emp) => (
+                          <div
+                            key={`pa-sugg-${emp.id}`}
+                            onMouseDown={() => {
+                              setPaName(emp.name);
+                              setPaNip(emp.nip);
+                              setPaPangkat(getFormattedPangkatGolongan(emp.pangkat));
+                              setShowPaSuggestions(false);
+                            }}
+                            className="p-1.5 hover:bg-emerald-50 cursor-pointer border-b border-slate-100 last:border-b-0 text-[10px]"
+                          >
+                            <p className="m-0 font-bold text-slate-800">{emp.name}</p>
+                            <p className="m-0 text-[8.5px] text-slate-500 font-mono leading-tight">{emp.jabatan} | {emp.nip}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <label className="text-[9px] text-slate-400 font-bold block">NIP PA</label>
                   <input type="text" value={paNip} onChange={(e) => setPaNip(e.target.value)} className="w-full text-xs p-1 bg-slate-50 border rounded" />
+                  <label className="text-[9px] text-emerald-600 font-bold block">KODE KHUSUS TANDA TANGAN (DI ANTARA JABATAN & NAMA)</label>
+                  <textarea
+                    rows={4}
+                    value={signSpecialCode}
+                    onChange={(e) => setSignSpecialCode(e.target.value)}
+                    placeholder="Contoh:
+  - Kode 1
+    Sub-kode 2
+
+(Gunakan Enter untuk baris baru, Spasi atau Backspace untuk mengatur letak posisi)"
+                    className="w-full text-xs p-1.5 bg-emerald-50/30 border border-emerald-200 rounded font-mono text-emerald-950 placeholder:text-emerald-700/50"
+                  />
+                  
+                  <div className="grid grid-cols-2 gap-1.5 mt-1 bg-emerald-50/20 p-1.5 rounded border border-emerald-100/60">
+                    <div>
+                      <label className="text-[8px] text-emerald-700 font-bold block mb-0.5">BESAR/KECIL HURUF (CASING)</label>
+                      <select
+                        value={signCodeCase}
+                        onChange={(e) => setSignCodeCase(e.target.value as any)}
+                        className="w-full text-[10px] p-1 border border-emerald-250 rounded bg-white text-emerald-900 font-medium"
+                      >
+                        <option value="as-is">Sesuai Ketikan</option>
+                        <option value="uppercase">HURUF BESAR (UPPER)</option>
+                        <option value="lowercase">huruf kecil (lower)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[8px] text-emerald-700 font-bold block mb-0.5">UKURAN HURUF (SIZE)</label>
+                      <select
+                        value={signCodeSize}
+                        onChange={(e) => setSignCodeSize(e.target.value as any)}
+                        className="w-full text-[10px] p-1 border border-emerald-250 rounded bg-white text-emerald-900 font-medium"
+                      >
+                        <option value="9px">Kecil sekali (9px)</option>
+                        <option value="11px">Sesuai Standard (11px)</option>
+                        <option value="13px">Besar (13px)</option>
+                        <option value="15px">Sangat Besar (15px)</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -667,9 +786,64 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
               <div className="space-y-2 bg-stone-50/50 p-2.5 rounded border">
                 <span className="text-[10px] font-bold text-slate-500 block">B. PENANDATANGAN HALAMAN 2</span>
-                <div>
+                
+                {/* Quick Select PPTK */}
+                <div className="bg-emerald-50/40 p-1 rounded border border-emerald-100/60 mb-1">
+                  <label className="text-[8px] text-emerald-800 font-black block mb-0.5 uppercase tracking-wide">Cari PPTK dari Basis Data</label>
+                  <select
+                    onChange={(e) => {
+                      const emp = employees.find(x => x.id === e.target.value);
+                      if (emp) {
+                        setPptkName(emp.name);
+                        setPptkNip(emp.nip);
+                      }
+                    }}
+                    value=""
+                    className="w-full text-[9px] p-0.5 border border-emerald-250 rounded bg-white text-emerald-900 font-medium"
+                  >
+                    <option value="">-- Pilih PPTK --</option>
+                    {employees.map(emp => (
+                      <option key={emp.id} value={emp.id}>
+                        {emp.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="relative">
                   <label className="text-[8px] text-slate-400 font-bold block">NAMA LENGKAP PPTK</label>
-                  <input type="text" value={pptkName} onChange={(e) => setPptkName(e.target.value)} className="w-full text-[11px] p-1 border rounded bg-white" />
+                  <input
+                    type="text"
+                    value={pptkName}
+                    onChange={(e) => {
+                      setPptkName(e.target.value);
+                      setShowPptkSuggestions(true);
+                    }}
+                    onFocus={() => setShowPptkSuggestions(true)}
+                    onBlur={() => {
+                      setTimeout(() => setShowPptkSuggestions(false), 200);
+                    }}
+                    className="w-full text-[11px] p-1 border rounded bg-white font-medium"
+                    placeholder="Ketik untuk pencarian otomatis..."
+                  />
+                  {showPptkSuggestions && matchingPptkEmployees.length > 0 && (
+                    <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-md shadow-lg max-h-32 overflow-y-auto z-50 text-left">
+                      {matchingPptkEmployees.map((emp) => (
+                        <div
+                          key={`pptk-sugg-${emp.id}`}
+                          onMouseDown={() => {
+                            setPptkName(emp.name);
+                            setPptkNip(emp.nip);
+                            setShowPptkSuggestions(false);
+                          }}
+                          className="p-1 hover:bg-emerald-50 cursor-pointer border-b border-slate-100 last:border-b-0 text-[10px]"
+                        >
+                          <p className="m-0 font-bold text-slate-800">{emp.name}</p>
+                          <p className="m-0 text-[8.5px] text-slate-500 font-mono leading-tight">{emp.jabatan} | {emp.nip}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="text-[8px] text-slate-400 font-bold block">NIP PPTK</label>
@@ -1064,7 +1238,19 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   <div className="mt-3 text-left">
                     <p className="m-0 font-bold leading-tight">Pengguna Anggaran,</p>
                     <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
-                    <div className="sig-box h-16"></div>
+                    <div className="sig-box h-16 flex flex-col justify-center" style={{ minHeight: '64px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      {signSpecialCode ? (
+                        <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                          {signCodeCase === "uppercase" 
+                            ? signSpecialCode.toUpperCase() 
+                            : signCodeCase === "lowercase" 
+                              ? signSpecialCode.toLowerCase() 
+                              : signSpecialCode}
+                        </p>
+                      ) : (
+                        <div className="h-full"></div>
+                      )}
+                    </div>
                     <p className="m-0 font-bold leading-tight uppercase text-[12px]">{paName}</p>
                     <p className="m-0 leading-tight text-[11px]">NIP. {paNip}</p>
                   </div>
@@ -1204,11 +1390,23 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               </table>
 
               {/* OUTSIDE TABLE footer block for Halaman 2 bottom right signature */}
-              <div className="mt-6 flex justify-end">
-                <div className="w-72 text-left" style={{ fontSize: '12px' }}>
+              <div className="mt-5 flex justify-end">
+                <div className="footer-sig-block w-72 text-left" style={{ fontSize: '12px' }}>
                   <p className="m-0 font-bold leading-tight">{p2Row4RightLabel},</p>
                   <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
-                  <div className="sig-box h-16"></div>
+                  <div className="sig-box h-16 flex flex-col justify-center" style={{ minHeight: '64px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    {signSpecialCode ? (
+                      <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                        {signCodeCase === "uppercase" 
+                          ? signSpecialCode.toUpperCase() 
+                          : signCodeCase === "lowercase" 
+                            ? signSpecialCode.toLowerCase() 
+                            : signSpecialCode}
+                      </p>
+                    ) : (
+                      <div className="h-full"></div>
+                    )}
+                  </div>
                   <p className="m-0 font-bold leading-tight uppercase text-[12px]">{paName}</p>
                   <p className="m-0 leading-tight text-[11px]">NIP. {paNip}</p>
                 </div>

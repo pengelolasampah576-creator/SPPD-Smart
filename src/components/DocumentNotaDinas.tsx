@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Employee, Travel } from "../types";
 import { Printer, FileText, Settings, RefreshCw } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
+import { getFormattedPangkatGolongan } from "../utils/pangkat";
 
 interface DocumentNotaDinasProps {
   travel: Travel;
@@ -96,6 +97,16 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
   const [sigNama, setSigNama] = useState("Ida Lusia Wahyuti, S.Sos, MM");
   const [sigPangkat, setSigPangkat] = useState("Pembina / IV/a");
   const [sigNip, setSigNip] = useState("197904092000032002");
+  const [showSigSuggestions, setShowSigSuggestions] = useState(false);
+  const [signSpecialCode, setSignSpecialCode] = useState("");
+  const [signCodeCase, setSignCodeCase] = useState<"as-is" | "uppercase" | "lowercase">("as-is");
+  const [signCodeSize, setSignCodeSize] = useState<"9px" | "11px" | "13px" | "15px">("11px");
+
+  const matchingSigEmployees = sigNama.trim() === "" ? [] : employees.filter(emp => 
+    emp.name.toLowerCase().includes(sigNama.toLowerCase()) || 
+    emp.nip.toLowerCase().includes(sigNama.toLowerCase()) ||
+    emp.jabatan.toLowerCase().includes(sigNama.toLowerCase())
+  );
 
   // Text paragraphs
   const [textAnggaran, setTextAnggaran] = useState("");
@@ -164,6 +175,9 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
     setTextAnggaran(formatBudgetSentence(travel.budgetSource));
     setTextPenutup("Demikian nota dinas ini disampaikan, mohon petunjuk, arahan dan persetujuan.");
     setFormatPeserta("list");
+    setSignSpecialCode("");
+    setSignCodeCase("as-is");
+    setSignCodeSize("11px");
   };
 
   const handlePrint = () => {
@@ -571,13 +585,72 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
           </div>
 
           {/* Expanded Bottom Row: Signatory and Budget text overrides */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-3 rounded-lg border border-slate-150">
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-3 rounded-lg border border-slate-150">
             <div className="space-y-2">
               <p className="text-[10px] font-bold uppercase text-blue-600 border-b pb-1">4. Penanda Tangan Dinas (Sign-Off)</p>
+              
+              {/* Quick Select Employee */}
+              <div className="bg-blue-50/50 p-1.5 rounded border border-blue-100/60 mb-2">
+                <label className="text-[8px] text-blue-700 font-black block mb-0.5 uppercase tracking-wide">CARI CEPAT DARI BASIS DATA</label>
+                <select
+                  onChange={(e) => {
+                    const emp = employees.find(x => x.id === e.target.value);
+                    if (emp) {
+                      setSigNama(emp.name);
+                      setSigJabatan(emp.jabatan);
+                      setSigPangkat(getFormattedPangkatGolongan(emp.pangkat));
+                      setSigNip(emp.nip);
+                    }
+                  }}
+                  value=""
+                  className="w-full text-[10px] p-1 border border-blue-200 rounded bg-white text-blue-900 font-medium"
+                >
+                  <option value="">-- Pilih Karyawan --</option>
+                  {employees.map(emp => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.name} ({getFormattedPangkatGolongan(emp.pangkat)})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div>
+                <div className="relative">
                   <label className="text-[10px] text-slate-400 block font-bold">NAMA LENGKAP TTD</label>
-                  <input type="text" value={sigNama} onChange={(e) => setSigNama(e.target.value)} className="w-full p-1 border rounded bg-slate-50" />
+                  <input
+                    type="text"
+                    value={sigNama}
+                    onChange={(e) => {
+                      setSigNama(e.target.value);
+                      setShowSigSuggestions(true);
+                    }}
+                    onFocus={() => setShowSigSuggestions(true)}
+                    onBlur={() => {
+                      setTimeout(() => setShowSigSuggestions(false), 200);
+                    }}
+                    className="w-full p-1 border rounded bg-slate-50 font-semibold"
+                    placeholder="Ketik untuk pencarian otomatis..."
+                  />
+                  {showSigSuggestions && matchingSigEmployees.length > 0 && (
+                    <div className="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-md shadow-lg max-h-40 overflow-y-auto z-50 text-left">
+                      {matchingSigEmployees.map((emp) => (
+                        <div
+                          key={`sig-sugg-${emp.id}`}
+                          onMouseDown={() => {
+                            setSigNama(emp.name);
+                            setSigJabatan(emp.jabatan);
+                            setSigPangkat(getFormattedPangkatGolongan(emp.pangkat));
+                            setSigNip(emp.nip);
+                            setShowSigSuggestions(false);
+                          }}
+                          className="p-1.5 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-b-0 text-[10px]"
+                        >
+                          <p className="m-0 font-bold text-slate-800">{emp.name}</p>
+                          <p className="m-0 text-[8.5px] text-slate-500 font-mono leading-tight">{emp.jabatan} | {emp.nip}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <label className="text-[10px] text-slate-400 block font-bold">JABATAN TTD</label>
@@ -590,6 +663,43 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                 <div>
                   <label className="text-[10px] text-slate-400 block font-bold">NIP PEJABAT</label>
                   <input type="text" value={sigNip} onChange={(e) => setSigNip(e.target.value)} className="w-full p-1 border rounded bg-slate-50" />
+                </div>
+              </div>
+              <div className="mt-2 pt-2 border-t border-slate-100">
+                <label className="text-[9px] text-emerald-600 font-bold block uppercase">KODE KHUSUS TANDA TANGAN (DI ANTARA JABATAN & NAMA)</label>
+                <textarea
+                  rows={2}
+                  value={signSpecialCode}
+                  onChange={(e) => setSignSpecialCode(e.target.value)}
+                  placeholder="Contoh: Kode 1 (Gunakan Enter, Spasi, atau Backspace)"
+                  className="w-full text-xs p-1.5 bg-emerald-50/30 border border-emerald-200 rounded font-mono text-emerald-950 placeholder:text-emerald-700/50 mt-1"
+                />
+                <div className="grid grid-cols-2 gap-1.5 mt-1 bg-emerald-50/20 p-1 rounded border border-emerald-100/60">
+                  <div>
+                    <label className="text-[8px] text-emerald-700 font-bold block mb-0.5">BESAR/KECIL HURUF</label>
+                    <select
+                      value={signCodeCase}
+                      onChange={(e) => setSignCodeCase(e.target.value as any)}
+                      className="w-full text-[9px] p-0.5 border border-emerald-250 rounded bg-white text-emerald-900 font-medium"
+                    >
+                      <option value="as-is">Sesuai Ketikan</option>
+                      <option value="uppercase">HURUF BESAR</option>
+                      <option value="lowercase">huruf kecil</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[8px] text-emerald-700 font-bold block mb-0.5">UKURAN HURUF</label>
+                    <select
+                      value={signCodeSize}
+                      onChange={(e) => setSignCodeSize(e.target.value as any)}
+                      className="w-full text-[9px] p-0.5 border border-emerald-250 rounded bg-white text-emerald-900 font-medium"
+                    >
+                      <option value="9px">Kecil (9px)</option>
+                      <option value="11px">Standard (11px)</option>
+                      <option value="13px">Besar (13px)</option>
+                      <option value="15px">Sangat Besar (15px)</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -737,7 +847,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                           <tr>
                             <td className="w-24 p-0 align-top">Pangkat/Gol</td>
                             <td className="w-4 p-0 align-top text-center">:</td>
-                            <td className="p-0 align-top text-black">{emp.pangkat}</td>
+                            <td className="p-0 align-top text-black">{getFormattedPangkatGolongan(emp.pangkat)}</td>
                           </tr>
                           <tr>
                             <td className="w-24 p-0 align-top">NIP</td>
@@ -776,7 +886,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                           {emp.nip !== "-" ? `NIP: ${emp.nip}` : "Pramubakti / Non-ASN"}
                         </div>
                       </td>
-                      <td className="border border-black p-2 text-black">{emp.pangkat}</td>
+                      <td className="border border-black p-2 text-black">{getFormattedPangkatGolongan(emp.pangkat)}</td>
                       <td className="border border-black p-2 text-black">{emp.jabatan}</td>
                     </tr>
                   ))}
@@ -801,7 +911,19 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
               <p className="m-0 leading-snug">{sigJabatan},</p>
               
               {/* Spaces for signature */}
-              <div className="sig-box h-16"></div>
+              <div className="sig-box h-16 flex flex-col justify-center" style={{ minHeight: '64px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                {signSpecialCode ? (
+                  <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                    {signCodeCase === "uppercase" 
+                      ? signSpecialCode.toUpperCase() 
+                      : signCodeCase === "lowercase" 
+                        ? signSpecialCode.toLowerCase() 
+                        : signSpecialCode}
+                  </p>
+                ) : (
+                  <div className="h-full"></div>
+                )}
+              </div>
               
               <p className="m-0 font-bold underline leading-snug">{sigNama}</p>
               <p className="m-0 leading-snug">{sigPangkat}</p>
