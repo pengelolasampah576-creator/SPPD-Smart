@@ -146,7 +146,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     if (!activeEmployee) return;
 
     // Default metadata fields
-    setNumSpd(`${travel.spdNumberPrefix}/${serialNo}`);
+    const cleanPrefix = travel.spdNumberPrefix.replace(/\/\d+$/, '');
+    setNumSpd(`${cleanPrefix}/${serialNo}`);
 
     // Try to find the actual PA/PPK or default to Diyanto
     const matchedPpk = employees.find(e => e.id === travel.ppkId);
@@ -167,7 +168,18 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
     // Travel particulars
     setMaksudDinas(travel.purpose);
-    setAlatTransport(travel.transportMode);
+    let mappedAlat = "Transportasi Darat";
+    if (travel.transportMode) {
+      const lowerMode = travel.transportMode.toLowerCase();
+      if (lowerMode.includes("udara") || lowerMode.includes("pesawat")) {
+        mappedAlat = "Transportasi Udara";
+      } else if (lowerMode.includes("laut") || lowerMode.includes("feri") || lowerMode.includes("kapal")) {
+        mappedAlat = "Transportasi Laut";
+      } else {
+        mappedAlat = "Transportasi Darat";
+      }
+    }
+    setAlatTransport(mappedAlat);
     setTempatBerangkat(travel.departurePlace || "Tanjung");
     setTempatTujuan(travel.destination);
     setLamanyaDinas(`${durationDays} (${durationDaysToWords(durationDays)}) hari`);
@@ -217,7 +229,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
     setLembarKe("");
     setKodeNo("");
-    setNumSpd("090/084/ND-INSP/2026");
+    setNumSpd("090/084/ND-INSP/2026/01");
 
     setPaName("Diyanto, SE, MT, FRMP");
     setPaNip("197110132005011005");
@@ -738,7 +750,11 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 <div className="grid grid-cols-2 gap-1">
                   <div>
                     <label className="text-[9px] text-slate-400 font-bold block">B.5 TRANS.</label>
-                    <input type="text" value={alatTransport} onChange={(e) => setAlatTransport(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                    <select value={alatTransport} onChange={(e) => setAlatTransport(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded cursor-pointer">
+                      <option value="Transportasi Darat">Transportasi Darat</option>
+                      <option value="Transportasi Udara">Transportasi Udara</option>
+                      <option value="Transportasi Laut">Transportasi Laut</option>
+                    </select>
                   </div>
                   <div>
                     <label className="text-[9px] text-slate-400 font-bold block">B.7A LAMANYA</label>

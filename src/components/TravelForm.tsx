@@ -28,7 +28,7 @@ export default function TravelForm({
   const [destination, setDestination] = useState("");
   const [departureDate, setDepartureDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
-  const [transportMode, setTransportMode] = useState("Mobil Dinas (OPR)");
+  const [transportMode, setTransportMode] = useState("Transportasi Darat");
   
   // Finance
   const [budgetSource, setBudgetSource] = useState("DPA-SKPD Inspektorat Daerah Kabupaten Tabalong Tahun Anggaran 2026");
@@ -61,7 +61,18 @@ export default function TravelForm({
       setDestination(initialTravel.destination);
       setDepartureDate(initialTravel.departureDate);
       setReturnDate(initialTravel.returnDate);
-      setTransportMode(initialTravel.transportMode);
+      let mappedMode = "Transportasi Darat";
+      if (initialTravel.transportMode) {
+        const lowerMode = initialTravel.transportMode.toLowerCase();
+        if (lowerMode.includes("udara") || lowerMode.includes("pesawat")) {
+          mappedMode = "Transportasi Udara";
+        } else if (lowerMode.includes("laut") || lowerMode.includes("feri") || lowerMode.includes("kapal")) {
+          mappedMode = "Transportasi Laut";
+        } else {
+          mappedMode = "Transportasi Darat";
+        }
+      }
+      setTransportMode(mappedMode);
       setBudgetSource(initialTravel.budgetSource);
       setBudgetCode(initialTravel.budgetCode);
       setSignatoryId(initialTravel.signatoryId);
@@ -344,11 +355,9 @@ export default function TravelForm({
                 onChange={(e) => setTransportMode(e.target.value)}
                 className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 cursor-pointer"
               >
-                <option value="Pesawat Udara (Komersil)">Pesawat Udara (Komersil)</option>
-                <option value="Mobil Dinas (OPR)">Mobil Dinas (OPR) / Kendaraan Dinas</option>
-                <option value="Mobil Travel / Angkutan Umum">Mobil Travel / Angkutan Umum</option>
-                <option value="Kereta Api Kelas Eksekutif">Kereta Api Kelas Eksekutif</option>
-                <option value="Kapal Laut / Feri">Kapal Laut / Feri</option>
+                <option value="Transportasi Darat">Transportasi Darat</option>
+                <option value="Transportasi Udara">Transportasi Udara</option>
+                <option value="Transportasi Laut">Transportasi Laut</option>
               </select>
             </div>
           </div>
