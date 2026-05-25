@@ -59,13 +59,15 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
   };
 
   // Determine Level of Cost ("Tingkat Biaya Perjalanan Dinas")
-  const getTingkatBiaya = (pangkat: string) => {
-    if (!pangkat || pangkat === "-") return "Tingkat C";
-    const pLower = pangkat.toLowerCase();
-    if (pLower.includes("pembina") || pLower.includes("iv/")) return "Tingkat A";
-    if (pLower.includes("penata") || pLower.includes("iii/")) return "Tingkat B";
-    if (pLower.includes("pengatur") || pLower.includes("ii/")) return "Tingkat C";
-    return "Tingkat D";
+  const getTingkatBiaya = (destination: string) => {
+    if (!destination) return "Perjalanan Dinas Luar Daerah Dalam Provinsi";
+    const lowerDest = destination.toLowerCase();
+    const outsideKeywords = ["jakarta", "jawa", "yogyakarta", "jogja", "surabaya", "bali", "bogor", "bandung", "sulawesi", "sumatera", "balikpapan", "samarinda", "kaltim", "kalteng", "kalbar", "luar provinsi", "kepri", "banten", "medan", "makassar", "ntb", "ntt", "papua"];
+    const isOutside = outsideKeywords.some(keyword => lowerDest.includes(keyword));
+    if (isOutside) {
+      return "Perjalanan Dinas Luar Daerah Luar Provinsi";
+    }
+    return "Perjalanan Dinas Luar Daerah Dalam Provinsi";
   };
 
   // --- INTERACTIVE CONFIGURATION PANEL STATES ---
@@ -164,7 +166,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     // Traveler details
     setPangkatTraveler(getFormattedPangkatGolongan(activeEmployee.pangkat));
     setJabatanTraveler(activeEmployee.jabatan);
-    setTingkatBiaya(getTingkatBiaya(activeEmployee.pangkat));
+    setTingkatBiaya(getTingkatBiaya(travel.destination));
 
     // Travel particulars
     setMaksudDinas(travel.purpose);
@@ -248,7 +250,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     setTglKembali("02 November 2025");
 
     setAkunInstansi("Inspektorat Daerah Kabupaten Tabalong");
-    setAkunKode("5.1.02.04.01.0001 Pendidikan dan Pelatihan Pegawai Berdasarkan Tugas dan Fungsi");
+    setAkunKode("5.1.02.04.001.00001 Pendidikan dan Pelatihan Pegawai Berdasarkan Tugas dan Fungsi");
 
     setP2BerangkatDari("Tanjung");
     setP2Ke("Banjarbaru");
@@ -734,7 +736,10 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 </div>
                 <div>
                   <label className="text-[9px] text-slate-400 font-bold block">BUTIR 3C. TINGKAT PERJALANAN DINAS</label>
-                  <input type="text" value={tingkatBiaya} onChange={(e) => setTingkatBiaya(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                  <select value={tingkatBiaya} onChange={(e) => setTingkatBiaya(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded cursor-pointer">
+                    <option value="Perjalanan Dinas Luar Daerah Dalam Provinsi">Perjalanan Dinas Luar Daerah Dalam Provinsi</option>
+                    <option value="Perjalanan Dinas Luar Daerah Luar Provinsi">Perjalanan Dinas Luar Daerah Luar Provinsi</option>
+                  </select>
                 </div>
                 <div>
                   <label className="text-[9px] text-slate-400 font-bold block">BUTIR 4. MAKSUD PERJALANAN DINAS</label>
@@ -771,9 +776,15 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                     <input type="text" value={tempatTujuan} onChange={(e) => setTempatTujuan(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
                   </div>
                 </div>
-                <div className="border-t pt-2 space-y-1">
-                  <label className="text-[9px] text-slate-400 font-bold block">MATA ANGGARAN (BUTIR 9B)</label>
-                  <textarea rows={2} value={akunKode} onChange={(e) => setAkunKode(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                <div className="border-t pt-2 space-y-2">
+                  <div>
+                    <label className="text-[9px] text-slate-400 font-bold block mb-0.5">BUTIR 9A. INSTANSI (PEMBEBANAN ANGGARAN)</label>
+                    <input type="text" value={akunInstansi} onChange={(e) => setAkunInstansi(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-slate-400 font-bold block mb-0.5">BUTIR 9B. AKUN (PEMBEBANAN ANGGARAN)</label>
+                    <textarea rows={2} value={akunKode} onChange={(e) => setAkunKode(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                  </div>
                 </div>
               </div>
             </div>

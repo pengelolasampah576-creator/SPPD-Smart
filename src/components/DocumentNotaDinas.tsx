@@ -91,6 +91,8 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
   const [rujakanNomor, setRujukanNomor] = useState("B-95/INSP/700.1.2.9/X/2025");
   const [rujakanTanggal, setRujukanTanggal] = useState("9 Oktober 2025");
   const [rujakanHal, setRujukanHal] = useState("Undangan");
+  const [isCustomRujukan, setIsCustomRujukan] = useState(false);
+  const [customRujukanText, setCustomRujukanText] = useState("Sehubungan dengan surat dari Bupati Tabalong Nomor B-95/INSP/700.1.2.9/X/2025 Tanggal 9 Oktober 2025 Hal: Undangan.");
 
   // Signature Block States
   const [sigJabatan, setSigJabatan] = useState("Kasubbag Umum dan Kepegawaian");
@@ -109,6 +111,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
   );
 
   // Text paragraphs
+  const [useAnggaran, setUseAnggaran] = useState(true);
   const [textAnggaran, setTextAnggaran] = useState("");
   const [textPenutup, setTextPenutup] = useState("Demikian nota dinas ini disampaikan, mohon petunjuk, arahan dan persetujuan.");
 
@@ -119,6 +122,9 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
     
     // Default Hal based on current travel purpose
     setHal(`Mohon persetujuan mengikuti Kegiatan ${travel.purpose}`);
+
+    // Set initial rujukan text
+    setCustomRujukanText(`Sehubungan dengan surat dari ${rujalanDari} Nomor ${rujakanNomor} Tanggal ${rujakanTanggal} Hal: ${rujakanHal}.`);
 
     // Try to search for a Kasubbag / Kepegawaian role in our employees list
     const kasubbag = employees.find(e => 
@@ -144,7 +150,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
 
     // Populate dynamic Budget and Reckoning Sentence
     setTextAnggaran(formatBudgetSentence(travel.budgetSource));
-  }, [travel.id, employees]);
+  }, [travel.id, employees, rujalanDari, rujakanNomor, rujakanTanggal, rujakanHal]);
 
   // Handle restoring exact capture defaults immediately on request
   const handleLoadCaptureDefaults = () => {
@@ -166,6 +172,8 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
     setRujukanNomor("B-95/INSP/700.1.2.9/X/2025");
     setRujukanTanggal("9 Oktober 2025");
     setRujukanHal("Undangan");
+    setIsCustomRujukan(false);
+    setCustomRujukanText("Sehubungan dengan surat dari Bupati Tabalong Nomor B-95/INSP/700.1.2.9/X/2025 Tanggal 9 Oktober 2025 Hal: Undangan.");
 
     setSigJabatan("Kasubbag Umum dan Kepegawaian");
     setSigNama("Ida Lusia Wahyuti, S.Sos, MM");
@@ -173,6 +181,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
     setSigNip("197904092000032002");
 
     setTextAnggaran(formatBudgetSentence(travel.budgetSource));
+    setUseAnggaran(true);
     setTextPenutup("Demikian nota dinas ini disampaikan, mohon petunjuk, arahan dan persetujuan.");
     setFormatPeserta("list");
     setSignSpecialCode("");
@@ -539,18 +548,89 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   <label htmlFor="enable-rujukan" className="text-[10px] text-slate-600 font-bold uppercase cursor-pointer">Pasang Paragraf Rujukan</label>
                 </div>
                 {useRujukan && (
-                  <div className="p-2 bg-slate-50 rounded border border-slate-250 grid grid-cols-1 gap-1.5">
-                    <div>
-                      <label className="text-[9px] text-slate-400 font-bold block">Surat Rujukan Dari</label>
-                      <input type="text" value={rujalanDari} onChange={(e) => setRujukanDari(e.target.value)} className="w-full text-[11px] p-1 border rounded" />
-                    </div>
-                    <div>
-                      <label className="text-[9px] text-slate-400 font-bold block">Nomor Rujukan</label>
-                      <input type="text" value={rujakanNomor} onChange={(e) => setRujukanNomor(e.target.value)} className="w-full text-[11px] p-1 border rounded" />
-                    </div>
-                    <div>
-                      <label className="text-[9px] text-slate-400 font-bold block">Tanggal Rujukan</label>
-                      <input type="text" value={rujakanTanggal} onChange={(e) => setRujukanTanggal(e.target.value)} className="w-full text-[11px] p-1 border rounded" />
+                  <div className="p-2 bg-slate-50 rounded border border-slate-200 grid grid-cols-1 gap-2">
+                    {!isCustomRujukan ? (
+                      <>
+                        <div>
+                          <label className="text-[9px] text-slate-400 font-bold block mb-0.5">Surat Rujukan Dari</label>
+                          <input 
+                            type="text" 
+                            value={rujalanDari} 
+                            onChange={(e) => setRujukanDari(e.target.value)} 
+                            className="w-full text-[11px] p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white" 
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[9px] text-slate-400 font-bold block mb-0.5">Nomor Rujukan</label>
+                          <input 
+                            type="text" 
+                            value={rujakanNomor} 
+                            onChange={(e) => setRujukanNomor(e.target.value)} 
+                            className="w-full text-[11px] p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white font-mono" 
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="text-[9px] text-slate-400 font-bold block mb-0.5">Tanggal Rujukan</label>
+                            <input 
+                              type="text" 
+                              value={rujakanTanggal} 
+                              onChange={(e) => setRujukanTanggal(e.target.value)} 
+                              className="w-full text-[11px] p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white" 
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[9px] text-slate-400 font-bold block mb-0.5">Hal Rujukan</label>
+                            <input 
+                              type="text" 
+                              value={rujakanHal} 
+                              onChange={(e) => setRujukanHal(e.target.value)} 
+                              className="w-full text-[11px] p-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white" 
+                              placeholder="Undangan"
+                            />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <label className="text-[9px] text-amber-600 font-extrabold block uppercase">Kalimat Rujukan Manual</label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm("Kembalikan kalimat rujukan ke setelan otomatis?")) {
+                                setIsCustomRujukan(false);
+                              }
+                            }}
+                            className="text-[8px] text-slate-400 hover:text-blue-500 font-bold"
+                          >
+                            Reset ke Otomatis
+                          </button>
+                        </div>
+                        <textarea
+                          rows={4}
+                          value={customRujukanText}
+                          onChange={(e) => setCustomRujukanText(e.target.value)}
+                          className="w-full text-[11px] p-1.5 border border-amber-200 rounded focus:outline-none focus:ring-1 focus:ring-amber-500 bg-white font-sans text-slate-800"
+                          placeholder="Ketik kalimat rujukan secara manual di sini..."
+                        />
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-1.5 py-1 border-t border-slate-200 mt-1 pt-1.5">
+                      <input
+                        id="custom-rujukan-check"
+                        type="checkbox"
+                        checked={isCustomRujukan}
+                        onChange={(e) => {
+                          setIsCustomRujukan(e.target.checked);
+                          if (e.target.checked) {
+                            setCustomRujukanText(`Sehubungan dengan surat dari ${rujalanDari} Nomor ${rujakanNomor} Tanggal ${rujakanTanggal} Hal: ${rujakanHal}.`);
+                          }
+                        }}
+                        className="rounded text-blue-600 focus:ring-blue-500 cursor-pointer w-3.5 h-3.5"
+                      />
+                      <label htmlFor="custom-rujukan-check" className="text-[9px] text-slate-600 font-extrabold uppercase cursor-pointer select-none">Edit Kalimat Secara Bebas (Manual)</label>
                     </div>
                   </div>
                 )}
@@ -705,14 +785,30 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
             </div>
 
             <div className="space-y-2">
-              <p className="text-[10px] font-bold uppercase text-blue-600 border-b pb-1">5. Redaksi Pembebanan Anggaran</p>
-              <textarea
-                rows={3}
-                value={textAnggaran}
-                onChange={(e) => setTextAnggaran(e.target.value)}
-                className="w-full text-xs p-2 border rounded bg-slate-50 focus:bg-white"
-                placeholder="Sesuaikan redaksi anggaran belanja..."
-              />
+              <div className="flex items-center justify-between border-b pb-1 mb-1.5">
+                <p className="text-[10px] font-bold uppercase text-blue-600">5. Redaksi Pembebanan Anggaran</p>
+                <div className="flex items-center gap-1.5">
+                  <input
+                    id="enable-anggaran"
+                    type="checkbox"
+                    checked={useAnggaran}
+                    onChange={(e) => setUseAnggaran(e.target.checked)}
+                    className="rounded text-blue-600 focus:ring-blue-500 cursor-pointer w-3.5 h-3.5"
+                  />
+                  <label htmlFor="enable-anggaran" className="text-[9px] text-slate-600 font-bold uppercase cursor-pointer select-none">Tampilkan</label>
+                </div>
+              </div>
+              {useAnggaran ? (
+                <textarea
+                  rows={3}
+                  value={textAnggaran}
+                  onChange={(e) => setTextAnggaran(e.target.value)}
+                  className="w-full text-xs p-2 border rounded bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="Sesuaikan redaksi anggaran belanja..."
+                />
+              ) : (
+                <p className="text-[10px] text-slate-400 italic">Paragraf anggaran disembunyikan dari nota dinas.</p>
+              )}
             </div>
           </div>
         </div>
@@ -817,7 +913,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
             
             {useRujukan && (
               <p className="body-text text-black">
-                Sehubungan dengan surat dari {rujalanDari} Nomor {rujakanNomor} Tanggal {rujakanTanggal} Hal: {rujakanHal}.
+                {isCustomRujukan ? customRujukanText : `Sehubungan dengan surat dari ${rujalanDari} Nomor ${rujakanNomor} Tanggal ${rujakanTanggal} Hal: ${rujakanHal}.`}
               </p>
             )}
 
@@ -895,9 +991,11 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
             )}
 
             {/* BUDGET SUB-STATEMENT */}
-            <p className="body-text text-justify text-black">
-              {textAnggaran}
-            </p>
+            {useAnggaran && textAnggaran && (
+              <p className="body-text text-justify text-black">
+                {textAnggaran}
+              </p>
+            )}
 
             {/* CLOSING STATEMENT */}
             <p className="body-text text-justify text-black">

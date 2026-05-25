@@ -34,7 +34,7 @@ export interface Travel {
   
   // Pembiayaan & Anggaran
   budgetSource: string; // Instansi Pembayar / Sumber Anggaran, e.g. "DPA-SKPD Inspektorat Daerah Kabupaten Tabalong"
-  budgetCode: string; // Kode Rekening Anggaran, e.g. "5.1.02.04.01.0001"
+  budgetCode: string; // Kode Rekening Anggaran, e.g. "5.1.02.04.001.00001"
   
   // Tanda Tangan & Pejabat
   signatoryId: string; // Pejabat penandatangan Surat Tugas (biasanya Inspektur)

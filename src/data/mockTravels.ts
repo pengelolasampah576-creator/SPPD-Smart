@@ -61,7 +61,7 @@ export const MOCK_TRAVELS: Travel[] = [
     returnDate: "2026-06-19",
     transportMode: "Mobil Dinas & Kereta Api",
     budgetSource: "DPA-SKPD Inspektorat Daerah Kabupaten Tabalong Tahun Anggaran 2026",
-    budgetCode: "5.1.02.04.01.0001",
+    budgetCode: "5.1.02.04.001.00001",
     signatoryId: "emp-1",
     ppkId: "emp-9",
     employeeIds: ["emp-5", "emp-8", "emp-28"], // SYAHRIADI, RINI HAYATI, MOHAMMAD JA'FAR

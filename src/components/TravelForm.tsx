@@ -32,7 +32,7 @@ export default function TravelForm({
   
   // Finance
   const [budgetSource, setBudgetSource] = useState("DPA-SKPD Inspektorat Daerah Kabupaten Tabalong Tahun Anggaran 2026");
-  const [budgetCode, setBudgetCode] = useState("5.1.02.04.01.0001");
+  const [budgetCode, setBudgetCode] = useState("5.1.02.04.001.00001");
 
   // Signatories
   const [signatoryId, setSignatoryId] = useState("");
@@ -96,7 +96,7 @@ export default function TravelForm({
       setReturnDate("");
       setTransportMode("Pesawat Udara (Komersil)");
       setBudgetSource("DPA-SKPD Inspektorat Daerah Kabupaten Tabalong Tahun Anggaran 2026");
-      setBudgetCode("5.1.02.04.01.0001");
+      setBudgetCode("5.1.02.04.001.00001");
       setSignatoryId(defaultSignatory);
       setPPKId(defaultPPK);
       setSelectedEmployeeIds([]);

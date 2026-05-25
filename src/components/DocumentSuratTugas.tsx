@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Employee, Travel } from "../types";
 import { Printer, FileBadge2, Settings } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
@@ -17,6 +17,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
   const [signSpecialCode, setSignSpecialCode] = useState("");
   const [signCodeCase, setSignCodeCase] = useState<"as-is" | "uppercase" | "lowercase">("as-is");
   const [signCodeSize, setSignCodeSize] = useState<"9px" | "11px" | "13px" | "15px">("11px");
+  const [dasarList, setDasarList] = useState<string[]>([]);
 
   // Helper to format Indonesian dates
   const formatIndoDate = (dateStr: string) => {
@@ -43,6 +44,14 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
   };
 
   const durationDays = calculateDays(travel.departureDate, travel.returnDate);
+
+  // Synchronize or initialize default Dasar lists based on active travel and signatory configuration
+  useEffect(() => {
+    setDasarList([
+      "Peraturan Daerah Kabupaten Tabalong Nomor 3 Tahun 2021 tentang Organisasi dan Tata Kerja Inspektorat Daerah Kabupaten Tabalong.",
+      `Nota Dinas ${signatory?.name || "DIYANTO, SE, MT, FRMP"} (${signatory?.jabatan || "Inspektur"}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`
+    ]);
+  }, [travel.id, travel.notaNumber, travel.notaDate, travel.destination, signatory?.id, signatory?.name, signatory?.jabatan]);
 
   const handlePrint = () => {
     const printContent = document.getElementById("surat-tugas-printable")?.innerHTML;
@@ -279,6 +288,91 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </div>
             </div>
           </div>
+
+          {/* EDIT REDAKSI DASAR SURAT TUGAS */}
+          <div className="bg-white p-4 rounded-lg border border-slate-150 space-y-3">
+            <div className="flex items-center justify-between border-b pb-1.5">
+              <label className="text-[10px] text-blue-600 font-extrabold block uppercase tracking-wider">
+                Edit Redaksi Dasar Surat Tugas
+              </label>
+              <button
+                type="button"
+                onClick={() => setDasarList([...dasarList, ""])}
+                className="text-[10px] font-bold bg-blue-50 text-blue-600 border border-blue-200 px-2.5 py-1 rounded-md hover:bg-blue-100 transition cursor-pointer"
+              >
+                + Tambah Dasar Hukum/Nota
+              </button>
+            </div>
+            
+            <div className="space-y-3">
+              {dasarList.map((item, index) => (
+                <div key={`edit-dasar-${index}`} className="flex flex-col gap-1 bg-slate-50/50 p-2.5 rounded-lg border border-slate-150">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[10px] font-extrabold text-slate-500">Dasar Poin {index + 1}</span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        disabled={index === 0}
+                        onClick={() => {
+                          const newList = [...dasarList];
+                          const temp = newList[index];
+                          newList[index] = newList[index - 1];
+                          newList[index - 1] = temp;
+                          setDasarList(newList);
+                        }}
+                        className="text-[9px] font-semibold px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
+                        title="Geser ke atas"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        disabled={index === dasarList.length - 1}
+                        onClick={() => {
+                          const newList = [...dasarList];
+                          const temp = newList[index];
+                          newList[index] = newList[index + 1];
+                          newList[index + 1] = temp;
+                          setDasarList(newList);
+                        }}
+                        className="text-[9px] font-semibold px-2 py-0.5 bg-white border border-slate-200 rounded text-slate-600 hover:bg-slate-50 disabled:opacity-40 cursor-pointer"
+                        title="Geser ke bawah"
+                      >
+                        ↓
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newList = dasarList.filter((_, i) => i !== index);
+                          setDasarList(newList);
+                        }}
+                        className="text-[9px] font-bold px-2 py-0.5 bg-rose-50 border border-rose-200 rounded text-rose-600 hover:bg-rose-100 cursor-pointer"
+                        title="Hapus"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  </div>
+                  <textarea
+                    rows={2}
+                    value={item}
+                    onChange={(e) => {
+                      const newList = [...dasarList];
+                      newList[index] = e.target.value;
+                      setDasarList(newList);
+                    }}
+                    placeholder={`Ketik dasar poin ${index + 1} di sini...`}
+                    className="w-full text-xs p-2 bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              ))}
+              {dasarList.length === 0 && (
+                <p className="text-[11px] text-slate-400 italic text-center py-2 animate-pulse">
+                  Belum ada poin dasar. Klik "+ Tambah Dasar Hukum/Nota" di atas untuk menambahkan.
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -326,12 +420,11 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                 <td className="w-3 py-1">:</td>
                 <td className="py-1 text-justify">
                   <ol className="list-decimal list-outside ml-4 p-0 space-y-2 text-slate-900">
-                    <li>
-                      Peraturan Daerah Kabupaten Tabalong Nomor 3 Tahun 2021 tentang Organisasi dan Tata Kerja Inspektorat Daerah Kabupaten Tabalong.
-                    </li>
-                    <li>
-                      Nota Dinas {signatory?.name} ({signatory?.jabatan}) Inspektorat Daerah Kabupaten Tabalong Nomor <span className="font-mono bg-slate-50 px-0.5">{travel.notaNumber}</span> tanggal {formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas {travel.destination}.
-                    </li>
+                    {dasarList.map((item, index) => (
+                      <li key={`st-dasar-${index}`}>
+                        {item}
+                      </li>
+                    ))}
                   </ol>
                 </td>
               </tr>
