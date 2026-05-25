@@ -8,6 +8,7 @@ import KPISection from "./components/KPISection";
 import DocumentNotaDinas from "./components/DocumentNotaDinas";
 import DocumentSuratTugas from "./components/DocumentSuratTugas";
 import DocumentSPD from "./components/DocumentSPD";
+import LoginPortal from "./components/LoginPortal";
 
 import {
   Briefcase,
@@ -32,6 +33,37 @@ import {
 } from "lucide-react";
 
 export default function App() {
+  // --- AUTHENTICATION STATE ---
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem("sppd_authenticated") === "true";
+  });
+  const [userRole, setUserRole] = useState<string>(() => {
+    return localStorage.getItem("sppd_user_role") || "";
+  });
+  const [userName, setUserName] = useState<string>(() => {
+    return localStorage.getItem("sppd_user_name") || "";
+  });
+
+  const handleLoginSuccess = (role: string, name: string) => {
+    setIsAuthenticated(true);
+    setUserRole(role);
+    setUserName(name);
+    localStorage.setItem("sppd_authenticated", "true");
+    localStorage.setItem("sppd_user_role", role);
+    localStorage.setItem("sppd_user_name", name);
+  };
+
+  const handleLogout = () => {
+    if (window.confirm("Apakah Anda yakin ingin keluar dari sistem e-Perjadin?")) {
+      setIsAuthenticated(false);
+      setUserRole("");
+      setUserName("");
+      localStorage.removeItem("sppd_authenticated");
+      localStorage.removeItem("sppd_user_role");
+      localStorage.removeItem("sppd_user_name");
+    }
+  };
+
   // --- STATE ---
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [travels, setTravels] = useState<Travel[]>([]);
@@ -183,6 +215,10 @@ export default function App() {
 
   const selectedTravelObj = travels.find(t => t.id === selectedTravelId);
 
+  if (!isAuthenticated) {
+    return <LoginPortal onLoginSuccess={handleLoginSuccess} />;
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans select-none antialiased">
       
@@ -214,11 +250,27 @@ export default function App() {
           </div>
           
           <div className="flex items-center gap-4">
-            <span className="hidden md:inline text-xs text-right text-slate-500 font-mono leading-relaxed">
-              Lokasi Utama: <b className="text-slate-700">Tabalong, Kalsel</b><br/>
-              Waktu: {new Date().toLocaleDateString("id-ID", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            <span className="hidden lg:inline text-xs text-right text-slate-500 font-mono leading-relaxed">
+              Lokasi: <b className="text-slate-700">Tabalong, Kalsel</b><br/>
+              Waktu: {new Date().toLocaleDateString("id-ID", { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
             </span>
-            <div className="h-8 w-px bg-slate-200 hidden md:block"></div>
+            <div className="h-8 w-px bg-slate-200 hidden lg:block"></div>
+            
+            {/* User Session Profile Widget */}
+            <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-1.5 px-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-xs font-black text-slate-800 leading-tight">{userName}</p>
+                <p className="text-[9px] text-blue-600 font-extrabold uppercase tracking-wider">{userRole}</p>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="text-[10px] sm:text-xs font-black text-rose-600 hover:bg-rose-50 hover:text-rose-700 border border-transparent hover:border-rose-100 px-2.5 py-1 rounded-lg transition shrink-0 cursor-pointer"
+                title="Keluar dari sistem"
+              >
+                Keluar
+              </button>
+            </div>
+            
             <button
               id="quick-travel-btn"
               onClick={() => {
