@@ -287,6 +287,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
             <head>
               <title>SPD - ${numSpd.replace(/\//g, '_')}</title>
               <style>
+                *, *:before, *:after {
+                  box-sizing: border-box !important;
+                }
                 body {
                   font-family: "Times New Roman", Times, serif;
                   line-height: 1.4;
@@ -300,6 +303,36 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 .text-justify { text-align: justify; }
                 .font-bold { font-weight: bold; }
                 .uppercase { text-transform: uppercase; }
+                
+                /* Layout Utility classes to replace Tailwind since it is not loaded in print window */
+                .flex { display: flex !important; }
+                .flex-col { flex-direction: column !important; }
+                .justify-end { justify-content: flex-end !important; }
+                .justify-between { justify-content: space-between !important; }
+                .items-center { align-items: center !important; }
+                .shrink-0 { flex-shrink: 0 !important; }
+                .italic { font-style: italic !important; }
+                .mb-1 { margin-bottom: 4px !important; }
+                .mb-2 { margin-bottom: 8px !important; }
+                .mt-1 { margin-top: 4px !important; }
+                .mt-2 { margin-top: 8px !important; }
+                .mt-3 { margin-top: 12px !important; }
+                .mt-4 { margin-top: 16px !important; }
+                .mt-5 { margin-top: 20px !important; }
+                .w-1\/2 { width: 50% !important; }
+                .w-full { width: 100% !important; }
+                .w-24 { width: 96px !important; }
+                .w-4 { width: 16px !important; }
+                .w-5 { width: 20px !important; }
+                .w-8 { width: 32px !important; }
+                .w-20 { width: 80px !important; }
+                .w-56 { width: 224px !important; }
+                .w-72 { width: 288px !important; }
+                .pl-16 { padding-left: 64px !important; }
+                .pr-4 { padding-right: 16px !important; }
+                .px-16 { padding-left: 64px !important; padding-right: 64px !important; }
+                .px-20 { padding-left: 80px !important; padding-right: 80px !important; }
+                .pl-28 { padding-left: 112px !important; }
                 
                 /* Letterhead Kop */
                 .kop-header {
@@ -320,18 +353,19 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   align-items: center;
                 }
                 .kop-logo {
-                  height: 64px;
-                  width: 56px;
+                  height: 80px;
+                  width: 70px;
                   object-fit: contain;
                 }
                 .kop-text-container {
-                  padding-left: 64px;
-                  padding-right: 20px;
-                  width: 105%;
+                  padding-left: 80px;
+                  padding-right: 80px;
+                  width: 100%;
+                  box-sizing: border-box;
                   text-align: center;
                 }
                 .kop-pemkab {
-                  font-size: 15px;
+                  font-size: 16px;
                   font-weight: bold;
                   letter-spacing: 0.5px;
                   margin: 0;
@@ -346,13 +380,13 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   line-height: 1.2;
                 }
                 .kop-alamat {
-                  font-size: 10px;
+                  font-size: 11px;
                   margin: 0;
                   margin-top: 3.5px;
                   line-height: 1.3;
                 }
                 .kop-laman {
-                  font-size: 10px;
+                  font-size: 11px;
                   margin: 0;
                   margin-top: 1px;
                   line-height: 1.3;
@@ -364,7 +398,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   width: 250px;
                   margin-top: 10px;
                   margin-bottom: 12px;
-                  font-size: 11.5px;
+                  font-size: 14px;
                 }
                 .top-meta-container table {
                   width: 100%;
@@ -383,7 +417,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   clear: both;
                 }
                 .doc-title {
-                  font-size: 14.5px;
+                  font-size: 16px;
                   font-weight: bold;
                   letter-spacing: 0.5px;
                   text-decoration: none;
@@ -395,13 +429,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   width: 100%;
                   border-collapse: collapse;
                   border: 1px solid #000;
-                  font-size: 11.5px;
+                  font-size: 14.5px;
                   margin-bottom: 20px;
                 }
                 .spd-main-table td {
                   border: 1px solid #000;
                   padding: 6px 8px;
                   vertical-align: top;
+                  font-size: 14.5px !important;
                 }
                 .spd-main-table .center-align {
                   text-align: center;
@@ -450,12 +485,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   width: 100%;
                   border-collapse: collapse;
                   border: 1px solid #000;
-                  font-size: 10.5px;
+                  font-size: 13.5px;
+                  margin-bottom: 12px;
                 }
                 .back-table td {
                   border: 1px solid #000;
-                  padding: 7px 9px;
+                  padding: 5px 8px !important;
                   vertical-align: top;
+                  font-size: 13.5px !important;
                 }
                 .back-table td:not([colspan]) {
                   width: 50%;
@@ -464,29 +501,29 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   width: 50%;
                 }
                 .signature-box-mini {
-                  height: 50px;
+                  height: 75px;
                 }
 
                 /* Traditional bottom signatories */
                 .footer-sig-block {
-                  margin-top: 20px;
+                  margin-top: 12px;
                   float: right;
                   width: 270px;
-                  font-size: 12px;
+                  font-size: 14px;
                   text-align: left;
                 }
                 .sig-box {
-                  height: 60px;
+                  height: 50px;
                 }
 
                 @media print {
                   body { padding: 0; margin: 0; }
-                  @page { size: A4 portrait; margin: 1.5cm; }
+                  @page { size: A4 portrait; margin: 1.2cm; }
                   .page-break { margin-top: 0; }
                 }
               </style>
             </head>
-            <body>
+            <body id="spd-printable">
               ${printContent}
             </body>
           </html>
@@ -928,11 +965,42 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
           style={{ fontFamily: '"Times New Roman", Times, serif' }}
         >
           <style dangerouslySetInnerHTML={{ __html: `
+            #spd-printable *, #spd-printable *:before, #spd-printable *:after {
+              box-sizing: border-box !important;
+            }
             #spd-printable {
               font-family: "Times New Roman", Times, serif !important;
               color: #000 !important;
               background-color: #fff !important;
             }
+            #spd-printable .flex { display: flex !important; }
+            #spd-printable .flex-col { flex-direction: column !important; }
+            #spd-printable .justify-end { justify-content: flex-end !important; }
+            #spd-printable .justify-between { justify-content: space-between !important; }
+            #spd-printable .items-center { align-items: center !important; }
+            #spd-printable .shrink-0 { flex-shrink: 0 !important; }
+            #spd-printable .italic { font-style: italic !important; }
+            #spd-printable .mb-1 { margin-bottom: 4px !important; }
+            #spd-printable .mb-2 { margin-bottom: 8px !important; }
+            #spd-printable .mt-1 { margin-top: 4px !important; }
+            #spd-printable .mt-2 { margin-top: 8px !important; }
+            #spd-printable .mt-3 { margin-top: 12px !important; }
+            #spd-printable .mt-4 { margin-top: 16px !important; }
+            #spd-printable .mt-5 { margin-top: 20px !important; }
+            #spd-printable .w-1\/2 { width: 50% !important; }
+            #spd-printable .w-full { width: 100% !important; }
+            #spd-printable .w-24 { width: 96px !important; }
+            #spd-printable .w-4 { width: 16px !important; }
+            #spd-printable .w-5 { width: 20px !important; }
+            #spd-printable .w-8 { width: 32px !important; }
+            #spd-printable .w-20 { width: 80px !important; }
+            #spd-printable .w-56 { width: 224px !important; }
+            #spd-printable .w-72 { width: 288px !important; }
+            #spd-printable .pl-16 { padding-left: 64px !important; }
+            #spd-printable .pr-4 { padding-right: 16px !important; }
+            #spd-printable .px-16 { padding-left: 64px !important; padding-right: 64px !important; }
+            #spd-printable .px-20 { padding-left: 80px !important; padding-right: 80px !important; }
+            #spd-printable .pl-28 { padding-left: 112px !important; }
             #spd-printable .kop-header {
               position: relative;
               border-bottom: 4px double #000;
@@ -951,18 +1019,19 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               align-items: center;
             }
             #spd-printable .kop-logo {
-              height: 64px;
-              width: 56px;
+              height: 80px;
+              width: 70px;
               object-fit: contain;
             }
             #spd-printable .kop-text-container {
-              padding-left: 64px;
-              padding-right: 20px;
+              padding-left: 80px;
+              padding-right: 80px;
               width: 100%;
+              box-sizing: border-box;
               text-align: center;
             }
             #spd-printable .kop-pemkab {
-              font-size: 15px;
+              font-size: 16px;
               font-weight: bold;
               letter-spacing: 0.5px;
               margin: 0;
@@ -977,13 +1046,13 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               line-height: 1.2;
             }
             #spd-printable .kop-alamat {
-              font-size: 10px;
+              font-size: 11px;
               margin: 0;
               margin-top: 3.5px;
               line-height: 1.3;
             }
             #spd-printable .kop-laman {
-              font-size: 10px;
+              font-size: 11px;
               margin: 0;
               margin-top: 1px;
               line-height: 1.3;
@@ -993,7 +1062,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               width: 250px;
               margin-top: 10px;
               margin-bottom: 12px;
-              font-size: 11.5px;
+              font-size: 14px;
             }
             #spd-printable .top-meta-container table {
               width: 100%;
@@ -1010,7 +1079,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               clear: both;
             }
             #spd-printable .doc-title {
-              font-size: 14.5px;
+              font-size: 16px;
               font-weight: bold;
               letter-spacing: 0.5px;
               text-decoration: none;
@@ -1020,13 +1089,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               width: 100%;
               border-collapse: collapse;
               border: 1px solid #000;
-              font-size: 11.5px;
+              font-size: 14.5px;
               margin-bottom: 20px;
             }
             #spd-printable .spd-main-table > tbody > tr > td {
               border: 1px solid #000 !important;
               padding: 6px 8px;
               vertical-align: top;
+              font-size: 14.5px !important;
             }
             #spd-printable .sub-nested-table {
               width: 100%;
@@ -1041,13 +1111,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               width: 100%;
               border-collapse: collapse;
               border: 1px solid #000;
-              font-size: 10.5px;
-              margin-bottom: 20px;
+              font-size: 13.5px;
+              margin-bottom: 12px;
             }
             #spd-printable .back-table > tbody > tr > td {
               border: 1px solid #000 !important;
-              padding: 7px 9px;
+              padding: 5px 8px !important;
               vertical-align: top;
+              font-size: 13.5px !important;
             }
             #spd-printable .back-table > tbody > tr > td:not([colspan]) {
               width: 50%;
@@ -1056,17 +1127,17 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               width: 50%;
             }
             #spd-printable .signature-box-mini {
-              height: 50px;
+              height: 75px;
             }
             #spd-printable .footer-sig-block {
-              margin-top: 20px;
+              margin-top: 12px;
               float: right;
               width: 270px;
-              font-size: 12px;
+              font-size: 14px;
               text-align: left;
             }
             #spd-printable .sig-box {
-              height: 60px;
+              height: 50px;
             }
           ` }} />
 
@@ -1079,11 +1150,11 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   <img
                     src={TABALONG_LOGO_BASE64}
                     alt="Logo Kabupaten Tabalong"
-                    className="kop-logo h-16 w-14 object-contain"
+                    className="kop-logo h-20 w-16 md:h-[80px] md:w-[70px] object-contain"
                   />
                 </div>
                 
-                <div className="kop-text-container text-center w-full pl-16 pr-4">
+                <div className="kop-text-container text-center w-full px-16 md:px-20">
                   <h1 className="kop-pemkab text-[15px] font-bold tracking-tight uppercase m-0 leading-tight">
                     {kopPemkab}
                   </h1>
@@ -1132,7 +1203,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               </div>
 
               {/* ROW ITEMS TABLE */}
-              <table className="spd-main-table" style={{ borderCollapse: 'collapse', border: '1px solid black', width: '100%', fontSize: '11.5px' }}>
+              <table className="spd-main-table" style={{ borderCollapse: 'collapse', border: '1px solid black', width: '100%', fontSize: '14.5px' }}>
                 <tbody>
                   {/* Row 1 */}
                   <tr>
@@ -1258,7 +1329,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
               {/* FOOTER SIGN-OFF PAGE 1 */}
               <div className="mt-5 flex justify-end">
-                <div className="footer-sig-block w-72 text-left" style={{ fontSize: '12px' }}>
+                <div className="footer-sig-block w-72 text-left" style={{ fontSize: '14px' }}>
                   <p className="m-0">Dikeluarkan di Tanjung</p>
                   <p className="m-0">Tanggal {formatIndoDate(travel.taskLetterDate)}</p>
                   
@@ -1278,8 +1349,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                         <div className="h-full"></div>
                       )}
                     </div>
-                    <p className="m-0 font-bold leading-tight uppercase text-[12px]">{paName}</p>
-                    <p className="m-0 leading-tight text-[11px]">NIP. {paNip}</p>
+                    <p className="m-0 font-bold leading-tight uppercase text-[13.5px]">{paName}</p>
+                    <p className="m-0 leading-tight text-[12.5px]">NIP. {paNip}</p>
                   </div>
                 </div>
               </div>
@@ -1305,36 +1376,36 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   {/* Row 1: Left is completely empty, Right is departure */}
                   <tr>
                     <td className="back-half-col w-1/2" style={{ border: '1px solid black' }}></td>
-                    <td className="back-half-col w-1/2 text-xs leading-5" style={{ border: '1px solid black', padding: '10px 12px' }}>
+                    <td className="back-half-col w-1/2 text-xs leading-5" style={{ border: '1px solid black', padding: '5px 8px' }}>
                       <div className="flex mb-1">
                         <div className="w-24 shrink-0">Berangkat dari</div>
                         <div className="w-4 text-center">:</div>
                         <div>{p2BerangkatDari}</div>
                       </div>
-                      <div className="italic text-[9.5px] pl-28 mb-1 leading-normal">(Tempat Kedudukan)</div>
+                      <div className="italic text-[10.5px] pl-28 mb-1 leading-normal">(Tempat Kedudukan)</div>
                       <div className="flex mb-1">
                         <div className="w-24 shrink-0">Ke</div>
                         <div className="w-4 text-center">:</div>
                         <div>{p2Ke}</div>
                       </div>
                       <div className="flex mb-1">
-                        <div className="w-24 shrink-0">Pada Tanggal</div>
+                        <div className="w-1/2 md:w-24 shrink-0">Pada Tanggal</div>
                         <div className="w-4 text-center">:</div>
                         <div>{p2TglBerangkat}</div>
                       </div>
                       
-                      <div className="mt-4">
-                        <p className="m-0 text-[10.5px]">{p2TopRightLabel}</p>
-                        <div className="signature-box-mini h-12"></div>
-                        <p className="m-0 font-bold text-left text-[10.5px]">{pptkName}</p>
-                        <p className="m-0 text-[10px]">NIP. {pptkNip}</p>
+                      <div className="mt-2">
+                        <p className="m-0 text-[11.5px]">{p2TopRightLabel}</p>
+                        <div className="signature-box-mini h-16"></div>
+                        <p className="m-0 font-bold text-left text-[11.5px]">{pptkName}</p>
+                        <p className="m-0 text-[11px]">NIP. {pptkNip}</p>
                       </div>
                     </td>
                   </tr>
 
                   {/* Row 2 (labeled "I."): Left is I. Tiba di, Right is Berangkat Dari */}
                   <tr>
-                    <td className="text-xs leading-5 w-1/2" style={{ border: '1px solid black', padding: '10px 12px', verticalAlign: 'top' }}>
+                    <td className="text-xs leading-5 w-1/2" style={{ border: '1px solid black', padding: '5px 8px', verticalAlign: 'top' }}>
                       <div className="flex mb-1">
                         <div className="w-5 font-bold shrink-0">I.</div>
                         <div className="w-24 shrink-0">Tiba di</div>
@@ -1347,8 +1418,11 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                         <div className="w-4 text-center">:</div>
                         <div>{p2Row1TibaTgl}</div>
                       </div>
+                      
+                      {/* Blank area for local officer signature and stamp as shown in photo */}
+                      <div className="signature-box-mini h-16"></div>
                     </td>
-                    <td className="text-xs leading-5 w-1/2" style={{ border: '1px solid black', padding: '10px 12px', verticalAlign: 'top' }}>
+                    <td className="text-xs leading-5 w-1/2" style={{ border: '1px solid black', padding: '5px 8px', verticalAlign: 'top' }}>
                       <div className="flex mb-1">
                         <div className="w-24 shrink-0">Berangkat dari</div>
                         <div className="w-4 text-center">:</div>
@@ -1364,12 +1438,15 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                         <div className="w-4 text-center">:</div>
                         <div>{p2Row1BerangkatTgl}</div>
                       </div>
+                      
+                      {/* Blank area for local officer signature and stamp as shown in photo */}
+                      <div className="signature-box-mini h-16"></div>
                     </td>
                   </tr>
 
                   {/* Row 3 (labeled "III."): Left is III. Tiba di + PPTK signature, Right is general text */}
                   <tr>
-                    <td className="text-xs leading-5 w-1/2" style={{ border: '1px solid black', padding: '10px 12px', verticalAlign: 'top' }}>
+                    <td className="text-xs leading-5 w-1/2" style={{ border: '1px solid black', padding: '5px 8px', verticalAlign: 'top' }}>
                       <div className="flex mb-1">
                         <div className="w-5 font-bold shrink-0">III.</div>
                         <div className="w-24 shrink-0">Tiba di</div>
@@ -1383,14 +1460,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                         <div>{p2Row3TibaTgl}</div>
                       </div>
                       
-                      <div className="mt-4">
-                        <p className="m-0 text-[10.5px]">{p2Row4LeftLabel}</p>
-                        <div className="signature-box-mini h-12"></div>
-                        <p className="m-0 font-bold text-left text-[10.5px]">{pptkName}</p>
-                        <p className="m-0 text-[10px]">NIP. {pptkNip}</p>
+                      <div className="mt-2">
+                        <p className="m-0 text-[11.5px]">{p2Row4LeftLabel}</p>
+                        <div className="signature-box-mini h-16"></div>
+                        <p className="m-0 font-bold text-left text-[11.5px]">{pptkName}</p>
+                        <p className="m-0 text-[11px]">NIP. {pptkNip}</p>
                       </div>
                     </td>
-                    <td className="text-xs w-1/2" style={{ border: '1px solid black', padding: '10px 12px', verticalAlign: 'top' }}>
+                    <td className="text-xs w-1/2" style={{ border: '1px solid black', padding: '5px 8px', verticalAlign: 'top' }}>
                       <p className="m-0 text-justify leading-relaxed">
                         Telah diperiksa, dengan keterangan bahwa perjalanan tersebut di atas benar dilakukan atas perintahnya dan semata-mata untuk kepentingan jabatan dalam waktu yang sesingkat-singkatnya.
                       </p>
@@ -1399,16 +1476,16 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
                   {/* Row 4: Catatan Lain-Lain */}
                   <tr>
-                    <td colSpan={2} className="text-xs" style={{ border: '1px solid black', padding: '10px 12px' }}>
+                    <td colSpan={2} className="text-xs" style={{ border: '1px solid black', padding: '5px 8px' }}>
                       <span className="font-bold">IV. Catatan lain-lain :</span> {p2Notes}
                     </td>
                   </tr>
 
                   {/* Row 5: Perhatian */}
                   <tr>
-                    <td colSpan={2} className="text-xs text-justify leading-normal" style={{ border: '1px solid black', padding: '10px 12px' }}>
+                    <td colSpan={2} className="text-xs text-justify leading-normal" style={{ border: '1px solid black', padding: '5px 8px' }}>
                       <span className="font-bold">V. PERHATIAN :</span>
-                      <p className="m-0 mt-1 leading-relaxed">
+                      <p className="m-0 mt-1 leading-normal">
                         PA yang menerbitkan SPD, pegawai yang melakukan perjalanan dinas, para pejabat yang mengesahkan tanggal berangkat/tiba, serta bendahara pengeluaran bertanggung jawab berdasarkan peraturan-peraturan Keuangan Negara apabila negara menderita rugi akibat kesalahan, kelalaian, dan kealpaannya.
                       </p>
                     </td>
@@ -1418,7 +1495,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
               {/* OUTSIDE TABLE footer block for Halaman 2 bottom right signature */}
               <div className="mt-5 flex justify-end">
-                <div className="footer-sig-block w-72 text-left" style={{ fontSize: '12px' }}>
+                <div className="footer-sig-block w-72 text-left" style={{ fontSize: '14px' }}>
                   <p className="m-0 font-bold leading-tight">{p2Row4RightLabel},</p>
                   <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
                   <div className="sig-box h-16 flex flex-col justify-center" style={{ minHeight: '64px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -1434,8 +1511,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                       <div className="h-full"></div>
                     )}
                   </div>
-                  <p className="m-0 font-bold leading-tight uppercase text-[12px]">{paName}</p>
-                  <p className="m-0 leading-tight text-[11px]">NIP. {paNip}</p>
+                  <p className="m-0 font-bold leading-tight uppercase text-[13.5px]">{paName}</p>
+                  <p className="m-0 leading-tight text-[12.5px]">NIP. {paNip}</p>
                 </div>
               </div>
 

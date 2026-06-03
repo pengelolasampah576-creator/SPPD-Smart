@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Employee, Travel } from "../types";
 import { Printer, FileBadge2, Settings } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
@@ -85,9 +85,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   margin-bottom: 25px;
                   text-align: center;
                   min-height: 85px;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
+                  display: block;
                 }
                 .kop-logo-container {
                   position: absolute;
@@ -98,9 +96,17 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   align-items: center;
                 }
                 .kop-logo {
-                  height: 64px;
-                  width: 56px;
+                  height: 80px;
+                  width: 70px;
                   object-fit: contain;
+                }
+                .kop-text-container {
+                  padding-left: 80px;
+                  padding-right: 80px;
+                  text-align: center;
+                  display: block;
+                  width: 100%;
+                  box-sizing: border-box;
                 }
                 .kop-pemkab {
                   font-size: 16px;
@@ -117,9 +123,13 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                 }
                 .kop-alamat {
                   font-size: 11px;
-                  font-style: italic;
                   margin: 0;
                   margin-top: 4px;
+                }
+                .kop-laman {
+                  font-size: 11px;
+                  margin: 0;
+                  margin-top: 2px;
                 }
                 
                 /* title */
@@ -386,18 +396,21 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               <img
                 src={TABALONG_LOGO_BASE64}
                 alt="Logo Kabupaten Tabalong"
-                className="kop-logo h-16 w-14 object-contain"
+                className="kop-logo h-20 w-16 md:h-[80px] md:w-[70px] object-contain"
               />
             </div>
-            <div className="text-center w-full px-16">
+            <div className="kop-text-container text-center w-full px-16 md:px-20">
               <h1 className="kop-pemkab text-base md:text-lg font-bold tracking-wide uppercase m-0 leading-tight">
                 PEMERINTAH KABUPATEN TABALONG
               </h1>
               <h2 className="kop-instansi text-lg md:text-2xl font-bold tracking-normal uppercase m-0 leading-tight mt-1">
                 INSPEKTORAT DAERAH
               </h2>
-              <p className="kop-alamat text-[11px] text-slate-700 font-medium italic m-0 mt-1">
-                Alamat: Jl. Pangeran Hidayatullah No. 4 Tabalong Pos 71513, Kalimantan Selatan
+              <p className="kop-alamat text-[11px] text-slate-850 m-0 mt-1 leading-normal animate-fadeIn">
+                Jalan Jaksa Agung Suprapto, Kel. Tanjung, Kec. Tanjung, Kode Pos 71513
+              </p>
+              <p className="kop-laman text-[11px] text-slate-850 m-0 mt-0.5 leading-normal animate-fadeIn">
+                Laman: www.inspektorat.tabalongkab.go.id Pos el: inspektorat@tabalongkab.go.id
               </p>
             </div>
           </div>
@@ -440,29 +453,54 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
           <table className="participants-list-table w-full text-xs md:text-sm select-text">
             <tbody>
               <tr>
-                <td className="w-16 md:w-20 font-bold py-2">Kepada</td>
-                <td className="w-3 py-2">:</td>
+                <td className="w-16 md:w-20 font-bold py-2 align-top text-black">Kepada</td>
+                <td className="w-3 py-2 align-top text-black">:</td>
                 <td className="py-2">
-                  <div className="space-y-4">
-                    {participants.map((emp, index) => (
-                      <div key={`st-p-${emp.id}`} className="flex flex-col md:flex-row gap-1 border-b border-dashed border-stone-100 pb-2">
-                        <div className="w-6 font-semibold flex-shrink-0">{index + 1}.</div>
-                        <div className="grid grid-cols-1 md:grid-cols-12 w-full gap-x-2">
-                          <div className="md:col-span-3 text-slate-500 font-semibold text-xs">Nama lengkap</div>
-                          <div className="md:col-span-9 font-bold text-slate-900">{emp.name}</div>
-                          
-                          <div className="md:col-span-3 text-slate-500 text-xs">NIP</div>
-                          <div className="md:col-span-9 font-mono text-xs">{emp.nip !== "-" ? emp.nip : "-"}</div>
-                          
-                          <div className="md:col-span-3 text-slate-500 text-xs">Pangkat/Golongan</div>
-                          <div className="md:col-span-9 text-xs">{emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "Non-Eselon / Non-ASN"}</div>
-                          
-                          <div className="md:col-span-3 text-slate-500 text-xs">Dalam Jabatan</div>
-                          <div className="md:col-span-9 text-xs font-semibold">{emp.jabatan}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <table className="w-full text-xs md:text-sm text-black border-none border-collapse text-left">
+                    <tbody>
+                      {participants.map((emp, index) => (
+                        <React.Fragment key={`st-p-${emp.id}-${index}`}>
+                          {/* Nama Row */}
+                          <tr className="break-inside-avoid">
+                            <td className="w-6 font-bold align-top py-0.5 text-black" rowSpan={4}>
+                              {index + 1}.
+                            </td>
+                            <td className="w-32 align-top py-0.5 text-black">Nama</td>
+                            <td className="w-4 align-top py-0.5 text-center text-black">:</td>
+                            <td className="align-top py-0.5 font-bold text-black">{emp.name}</td>
+                          </tr>
+                          {/* NIP Row */}
+                          <tr className="break-inside-avoid">
+                            <td className="align-top py-0.5 text-black">NIP</td>
+                            <td className="align-top py-0.5 text-center text-black">:</td>
+                            <td className="align-top py-0.5 font-mono text-black">
+                              {emp.nip !== "-" ? emp.nip : "-"}
+                            </td>
+                          </tr>
+                          {/* Pangkat/Gol Row */}
+                          <tr className="break-inside-avoid">
+                            <td className="align-top py-0.5 text-black">Pangkat/Golongan</td>
+                            <td className="align-top py-0.5 text-center text-black">:</td>
+                            <td className="align-top py-0.5 text-black">
+                              {emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "Non-Eselon / Non-ASN"}
+                            </td>
+                          </tr>
+                          {/* Jabatan Row */}
+                          <tr className="break-inside-avoid">
+                            <td className="align-top py-0.5 text-black">Jabatan</td>
+                            <td className="align-top py-0.5 text-center text-black">:</td>
+                            <td className="align-top py-0.5 text-black font-semibold">{emp.jabatan}</td>
+                          </tr>
+                          {/* Spacer row between participants */}
+                          {index < participants.length - 1 && (
+                            <tr>
+                              <td colSpan={4} className="h-4 border-b border-dashed border-stone-200"></td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </tbody>
+                  </table>
                 </td>
               </tr>
             </tbody>
@@ -498,8 +536,8 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
           </table>
 
           {/* SIGNATURE BLOCK */}
-          <div className="mt-12 flex flex-col items-end">
-            <div className="w-64 text-xs md:text-sm text-slate-900">
+          <div className="mt-12 flex flex-col items-end break-inside-avoid">
+            <div className="sig-container w-64 text-xs md:text-sm text-slate-900">
               <p className="m-0">Dikeluarkan di : Tabalong</p>
               <p className="m-0 border-b border-black pb-1">Pada Tanggal : {formatIndoDate(travel.taskLetterDate)}</p>
               

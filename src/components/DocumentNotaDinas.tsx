@@ -232,18 +232,19 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   align-items: center;
                 }
                 .kop-logo {
-                  height: 64px;
-                  width: 56px;
+                  height: 80px;
+                  width: 70px;
                   object-fit: contain;
                 }
                 .kop-text-container {
-                  padding-left: 64px;
-                  padding-right: 20px;
-                  width: 105%;
+                  padding-left: 80px;
+                  padding-right: 80px;
+                  width: 100%;
+                  box-sizing: border-box;
                   text-align: center;
                 }
-                .kop-pemkab {
-                  font-size: 15px;
+                 .kop-pemkab {
+                  font-size: 16px;
                   font-weight: bold;
                   letter-spacing: 0.5px;
                   margin: 0;
@@ -258,13 +259,13 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   line-height: 1.2;
                 }
                 .kop-alamat {
-                  font-size: 10px;
+                  font-size: 11px;
                   margin: 0;
                   margin-top: 3px;
                   line-height: 1.3;
                 }
                 .kop-laman {
-                  font-size: 10px;
+                  font-size: 11px;
                   margin: 0;
                   margin-top: 1px;
                   line-height: 1.3;
@@ -272,7 +273,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                 
                 /* Document Title */
                 .doc-title {
-                  font-size: 16px;
+                  font-size: 18px;
                   font-weight: bold;
                   text-align: center;
                   margin-top: 10px;
@@ -280,7 +281,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   letter-spacing: 0.5px;
                 }
                 .doc-subtitle {
-                  font-size: 12px;
+                  font-size: 14px;
                   text-align: center;
                   margin-bottom: 20px;
                 }
@@ -290,7 +291,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   width: 100%;
                   border-collapse: collapse;
                   margin-bottom: 12px;
-                  font-size: 13px;
+                  font-size: 14px;
                 }
                 .meta-table td {
                   padding: 3px 4px;
@@ -303,7 +304,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                 
                 /* Body Paragraphs */
                 .body-text {
-                  font-size: 13px;
+                  font-size: 14px;
                   text-align: justify;
                   margin-bottom: 12px;
                   line-height: 1.45;
@@ -317,7 +318,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   width: 100%;
                   border-collapse: collapse;
                   margin: 12px 0;
-                  font-size: 12.5px;
+                  font-size: 14px;
                 }
                 .table-participants th, .table-participants td {
                   border: 1px solid #000;
@@ -333,7 +334,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                 /* Capture's Enumerated Participant List Format */
                 .list-participants-container {
                   margin: 14px 0;
-                  font-size: 13px;
+                  font-size: 14px;
                   padding-left: 5px;
                 }
                 .list-participant-item {
@@ -355,7 +356,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   margin-top: 25px;
                   float: right;
                   width: 280px;
-                  font-size: 13px;
+                  font-size: 14px;
                   text-align: left;
                   page-break-inside: avoid;
                 }
@@ -830,11 +831,11 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
               <img
                 src={TABALONG_LOGO_BASE64}
                 alt="Logo Kabupaten Tabalong"
-                className="kop-logo h-16 w-14 object-contain"
+                className="kop-logo h-20 w-16 md:h-[80px] md:w-[70px] object-contain"
               />
             </div>
             
-            <div className="kop-text-container text-center w-full pl-16 pr-4">
+            <div className="kop-text-container text-center w-full px-16 md:px-20">
               <h1 className="kop-pemkab text-[16px] font-bold tracking-tight uppercase m-0 leading-tight">
                 {kopPemkab}
               </h1>
