@@ -835,16 +835,16 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
             </div>
             
             <div className="kop-text-container text-center w-full pl-16 pr-4">
-              <h1 className="kop-pemkab text-[15px] font-bold tracking-tight uppercase m-0 leading-tight">
+              <h1 className="kop-pemkab text-[16px] font-bold tracking-tight uppercase m-0 leading-tight">
                 {kopPemkab}
               </h1>
-              <h2 className="kop-instansi text-xl font-bold tracking-normal uppercase m-0 leading-tight mt-1">
+              <h2 className="kop-instansi text-2xl font-bold tracking-normal uppercase m-0 leading-tight mt-1">
                 {kopInstansi}
               </h2>
-              <p className="kop-alamat text-[10px] text-slate-800 m-0 mt-1 leading-normal">
+              <p className="kop-alamat text-[11px] text-slate-800 m-0 mt-1 leading-normal">
                 {kopAlamat}
               </p>
-              <p className="kop-laman text-[10px] text-slate-800 m-0 mt-0.5 leading-normal">
+              <p className="kop-laman text-[11px] text-slate-800 m-0 mt-0.5 leading-normal">
                 {kopLaman}
               </p>
             </div>
@@ -852,13 +852,13 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
 
           {/* TITLE */}
           <div className="text-center mb-6">
-            <h3 className="doc-title text-base font-bold uppercase tracking-wide m-0">
+            <h3 className="doc-title text-lg font-bold uppercase tracking-wide m-0">
               NOTA DINAS
             </h3>
           </div>
 
           {/* METADATA TABLES */}
-          <table className="meta-table w-full text-xs md:text-[13px] border-collapse mb-3 select-text line-height-normal">
+          <table className="meta-table w-full text-sm md:text-[14px] border-collapse mb-4 select-text leading-normal">
             <tbody>
               <tr>
                 <td className="w-20 font-medium py-1">Kepada</td>
@@ -909,7 +909,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
           <div className="line-divider border-t-1.5 border-black mb-4"></div>
 
           {/* BODY CONTENT */}
-          <div className="space-y-3.5 text-xs md:text-[13px] text-justify leading-relaxed">
+          <div className="space-y-4 text-sm md:text-[14.5px] text-justify leading-relaxed">
             
             {useRujukan && (
               <p className="body-text text-black">
@@ -927,43 +927,55 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
 
             {/* SEGMENT: RENDERING PESERTA (DYNAMIC FORMAT BASED ON CONTROLS) */}
             {formatPeserta === "list" ? (
-              // 1. Capture's Enumerated Participant List Format (EXACT SCREENSHOT DUPLICATE)
-              <div className="list-participants-container space-y-4">
-                {participants.map((emp, index) => (
-                  <div key={`nd-p-list-${emp.id}-${index}`} className="list-participant-item flex items-start break-inside-avoid">
-                    <div className="w-6 font-bold shrink-0">{index + 1}.</div>
-                    <div className="flex-1">
-                      <table className="w-full text-xs text-black border-none border-collapse">
-                        <tbody>
+              // 1. Capture's Enumerated Participant List Format (SINGLE TABLE ALIGNED)
+              <div className="list-participants-container pl-1.5">
+                <table className="w-full text-sm md:text-[14.5px] text-black border-none border-collapse text-left">
+                  <tbody>
+                    {participants.map((emp, index) => (
+                      <React.Fragment key={`nd-p-list-${emp.id}-${index}`}>
+                        {/* Nama Row */}
+                        <tr className="break-inside-avoid">
+                          <td className="w-6 font-bold align-top py-0.5 text-black" rowSpan={4}>
+                            {index + 1}.
+                          </td>
+                          <td className="w-24 align-top py-0.5 text-black">Nama</td>
+                          <td className="w-4 align-top py-0.5 text-center text-black">:</td>
+                          <td className="align-top py-0.5 font-bold text-black">{emp.name}</td>
+                        </tr>
+                        {/* Pangkat/Gol Row */}
+                        <tr className="break-inside-avoid">
+                          <td className="align-top py-0.5 text-black">Pangkat/Gol</td>
+                          <td className="align-top py-0.5 text-center text-black">:</td>
+                          <td className="align-top py-0.5 text-black">{getFormattedPangkatGolongan(emp.pangkat)}</td>
+                        </tr>
+                        {/* NIP Row */}
+                        <tr className="break-inside-avoid">
+                          <td className="align-top py-0.5 text-black">NIP</td>
+                          <td className="align-top py-0.5 text-center text-black">:</td>
+                          <td className="align-top py-0.5 text-black">
+                            {emp.nip !== "-" ? emp.nip : "Pramubakti / Non-ASN"}
+                          </td>
+                        </tr>
+                        {/* Jabatan Row */}
+                        <tr className="break-inside-avoid">
+                          <td className="align-top py-0.5 text-black">Jabatan</td>
+                          <td className="align-top py-0.5 text-center text-black">:</td>
+                          <td className="align-top py-0.5 text-black">{emp.jabatan}</td>
+                        </tr>
+                        {/* Spacer row between participants */}
+                        {index < participants.length - 1 && (
                           <tr>
-                            <td className="w-24 p-0 align-top">Nama</td>
-                            <td className="w-4 p-0 align-top text-center">:</td>
-                            <td className="p-0 align-top font-bold text-black">{emp.name}</td>
+                            <td colSpan={4} className="h-3"></td>
                           </tr>
-                          <tr>
-                            <td className="w-24 p-0 align-top">Pangkat/Gol</td>
-                            <td className="w-4 p-0 align-top text-center">:</td>
-                            <td className="p-0 align-top text-black">{getFormattedPangkatGolongan(emp.pangkat)}</td>
-                          </tr>
-                          <tr>
-                            <td className="w-24 p-0 align-top">NIP</td>
-                            <td className="w-4 p-0 align-top text-center">:</td>
-                            <td className="p-0 align-top text-black">{emp.nip !== "-" ? emp.nip : "Pramubakti / Non-ASN"}</td>
-                          </tr>
-                          <tr>
-                            <td className="w-24 p-0 align-top">Jabatan</td>
-                            <td className="w-4 p-0 align-top text-center">:</td>
-                            <td className="p-0 align-top text-black">{emp.jabatan}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                ))}
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             ) : (
               // 2. Traditional Matrix Table Format (Permendagri Style)
-              <table className="table-participants w-full border-collapse border border-black my-4 text-xs text-black">
+              <table className="table-participants w-full border-collapse border border-black my-4 text-sm md:text-[14px] text-black text-left">
                 <thead>
                   <tr className="bg-slate-50">
                     <th className="border border-black p-1.5 text-center w-8 font-bold">No</th>
@@ -978,7 +990,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                       <td className="border border-black p-2 text-center text-black">{index + 1}</td>
                       <td className="border border-black p-2">
                         <div className="font-bold text-black">{emp.name}</div>
-                        <div className="text-[10px] text-slate-800">
+                        <div className="text-[11px] text-slate-800">
                           {emp.nip !== "-" ? `NIP: ${emp.nip}` : "Pramubakti / Non-ASN"}
                         </div>
                       </td>
@@ -1005,7 +1017,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
 
           {/* SIGNATURE BLOCK */}
           <div className="mt-8 flex justify-end break-inside-avoid">
-            <div className="sig-container w-72 text-black text-xs md:text-[13px] text-left">
+            <div className="sig-container w-72 text-black text-sm md:text-[14.5px] text-left">
               <p className="m-0 leading-snug">{sigJabatan},</p>
               
               {/* Spaces for signature */}
