@@ -48,3 +48,21 @@ export interface Travel {
   
   createdAt: string;
 }
+
+export interface StaffStudy {
+  id: string;
+  docNumber: string;
+  docDate: string;
+  recipient: string; // e.g. "BUPATI TABALONG" or "SEKRETARIS DAERAH"
+  sender: string;    // e.g. "Inspektur Daerah Kabupaten Tabalong"
+  subject: string;   // e.g. "Mohon Arahan atas Rencana Sertifikasi Auditor Mandiri"
+  background: string; // Latar belakang / Persoalan
+  facts: string;      // Fakta-fakta yang mempengaruhi
+  analysis: string;   // Analisis / Pengkajian
+  conclusion: string; // Kesimpulan
+  suggestion: string; // Saran / Rekomendasi pimpinan
+  signatoryName: string;
+  signatoryNip: string;
+  signatoryTitle: string;
+  createdAt: string;
+}

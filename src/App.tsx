@@ -9,6 +9,7 @@ import DocumentNotaDinas from "./components/DocumentNotaDinas";
 import DocumentSuratTugas from "./components/DocumentSuratTugas";
 import DocumentSPD from "./components/DocumentSPD";
 import LoginPortal from "./components/LoginPortal";
+import DocumentTelaahStaf from "./components/DocumentTelaahStaf";
 
 import {
   Briefcase,
@@ -68,7 +69,7 @@ export default function App() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [travels, setTravels] = useState<Travel[]>([]);
   
-  const [activeTab, setActiveTab] = useState<"dashboard" | "travels" | "employees">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "travels" | "employees" | "telaah">("dashboard");
   const [selectedTravelId, setSelectedTravelId] = useState<string | null>(null);
   
   // Document Sub-tab state
@@ -345,6 +346,23 @@ export default function App() {
             >
               <Users className="w-5 h-5 opacity-80" />
               Database Pegawai
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveTab("telaah");
+                setSelectedTravelId(null);
+                setIsCreatingTravel(false);
+                setEditingTravel(null);
+              }}
+              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition duration-150 flex items-center gap-3 cursor-pointer ${
+                activeTab === "telaah"
+                  ? "bg-blue-50 text-blue-600 border-l-4 border-blue-600 font-semibold"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium"
+              }`}
+            >
+              <FileText className="w-5 h-5 opacity-80 text-blue-600" />
+              Telaahan Staf (AI)
             </button>
           </div>
 
@@ -737,6 +755,11 @@ export default function App() {
               onEditEmployee={handleEditEmployee}
               onDeleteEmployee={handleDeleteEmployee}
             />
+          )}
+
+          {/* G. TELAAHAN STAF (STAFF STUDY) TAB */}
+          {activeTab === "telaah" && (
+            <DocumentTelaahStaf employees={employees} />
           )}
 
         </div>
