@@ -390,6 +390,22 @@ export default function TravelForm({
                 onChange={(e) => setBudgetCode(e.target.value)}
                 className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
               />
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                <button
+                  type="button"
+                  onClick={() => setBudgetCode("5.1.02.04.001.00001")}
+                  className="text-[10px] px-2 py-1 rounded bg-slate-150 hover:bg-slate-200 text-slate-700 font-medium border border-slate-200 transition-colors"
+                >
+                  Luar Daerah (5.1.02.04.001.00001)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBudgetCode("5.1.02.04.001.00003")}
+                  className="text-[10px] px-2 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold border border-emerald-200 transition-colors"
+                >
+                  Dalam Kota (5.1.02.04.001.00003)
+                </button>
+              </div>
             </div>
           </div>
 

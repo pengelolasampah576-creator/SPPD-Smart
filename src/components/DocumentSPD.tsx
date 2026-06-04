@@ -821,6 +821,22 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   <div>
                     <label className="text-[9px] text-slate-400 font-bold block mb-0.5">BUTIR 9B. AKUN (PEMBEBANAN ANGGARAN)</label>
                     <textarea rows={2} value={akunKode} onChange={(e) => setAkunKode(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded" />
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      <button
+                        type="button"
+                        onClick={() => setAkunKode("5.1.02.04.001.00001 Pendidikan dan Pelatihan Pegawai Berdasarkan Tugas dan Fungsi")}
+                        className="text-[8px] px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium border border-slate-200"
+                      >
+                        Set Luar Daerah (5.1.02.04.001.00001)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAkunKode("5.1.02.04.001.00003 Belanja Perjalanan Dinas Dalam Kota")}
+                        className="text-[8px] px-1.5 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold border border-emerald-200"
+                      >
+                        Set Dalam Kota (5.1.02.04.001.00003)
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
