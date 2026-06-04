@@ -190,7 +190,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
     // Budget account matching Page 1 Row 9
     setAkunInstansi("Inspektorat Daerah Kabupaten Tabalong");
-    setAkunKode(`${travel.budgetCode} ${travel.budgetSource.replace("DPA-SKPD", "").replace("DPA", "").trim()}`);
+    setAkunKode(`${travel.budgetCode} Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD ${travel.budgetSource.replace("DPA-SKPD", "").replace("DPA", "").trim()}`);
 
     // Page 2 Default parameters
     setP2BerangkatDari(travel.departurePlace || "Tanjung");
@@ -250,7 +250,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     setTglKembali("02 November 2025");
 
     setAkunInstansi("Inspektorat Daerah Kabupaten Tabalong");
-    setAkunKode("5.1.02.04.001.00001 Pendidikan dan Pelatihan Pegawai Berdasarkan Tugas dan Fungsi");
+    setAkunKode("5.1.02.04.001.00001 Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD Pendidikan dan Pelatihan Pegawai Berdasarkan Tugas dan Fungsi");
 
     setP2BerangkatDari("Tanjung");
     setP2Ke("Banjarbaru");
@@ -824,14 +824,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                     <div className="flex flex-wrap gap-1 mt-1">
                       <button
                         type="button"
-                        onClick={() => setAkunKode("5.1.02.04.001.00001 Pendidikan dan Pelatihan Pegawai Berdasarkan Tugas dan Fungsi")}
+                        onClick={() => setAkunKode("5.1.02.04.001.00001 Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD Pendidikan dan Pelatihan Pegawai Berdasarkan Tugas dan Fungsi")}
                         className="text-[8px] px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium border border-slate-200"
                       >
                         Set Luar Daerah (5.1.02.04.001.00001)
                       </button>
                       <button
                         type="button"
-                        onClick={() => setAkunKode("5.1.02.04.001.00003 Belanja Perjalanan Dinas Dalam Kota")}
+                        onClick={() => setAkunKode("5.1.02.04.001.00003 Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD Belanja Perjalanan Dinas Dalam Kota")}
                         className="text-[8px] px-1.5 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold border border-emerald-200"
                       >
                         Set Dalam Kota (5.1.02.04.001.00003)
