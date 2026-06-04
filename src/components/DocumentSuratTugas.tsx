@@ -163,18 +163,18 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   font-weight: bold;
                   letter-spacing: 1px;
                   text-align: center;
-                  margin: 20px 0;
+                  margin: 12px 0 10px 0;
                 }
 
                 /* Participants */
                 .participants-list-table {
                   width: 100%;
                   border-collapse: collapse;
-                  margin-bottom: 20px;
+                  margin-bottom: 12px;
                   font-size: 14px;
                 }
                 .participants-list-table td {
-                  padding: 6px 4px;
+                  padding: 3px 4px;
                   vertical-align: top;
                 }
 
@@ -445,7 +445,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
           </table>
 
           {/* MEMERINTAHKAN SECTION */}
-          <div className="memperin text-center font-bold tracking-widest text-slate-900 border-y border-stone-300 py-1 my-6 text-sm">
+          <div className="memperin text-center font-bold tracking-widest text-slate-900 border-y border-stone-300 py-1 my-4 text-sm">
             M E M E R I N T A H K A N :
           </div>
 
@@ -453,9 +453,9 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
           <table className="participants-list-table w-full text-xs md:text-sm select-text">
             <tbody>
               <tr>
-                <td className="w-16 md:w-20 font-bold py-2 align-top text-black">Kepada</td>
-                <td className="w-3 py-2 align-top text-black">:</td>
-                <td className="py-2">
+                <td className="w-16 md:w-20 font-bold py-1 align-top text-black">Kepada</td>
+                <td className="w-3 py-1 align-top text-black">:</td>
+                <td className="py-1">
                   <table className="w-full text-xs md:text-sm text-black border-none border-collapse text-left">
                     <tbody>
                       {participants.map((emp, index) => (
@@ -465,36 +465,36 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                             <td className="w-6 font-bold align-top py-0.5 text-black" rowSpan={4}>
                               {index + 1}.
                             </td>
-                            <td className="w-32 align-top py-0.5 text-black">Nama</td>
-                            <td className="w-4 align-top py-0.5 text-center text-black">:</td>
-                            <td className="align-top py-0.5 font-bold text-black">{emp.name}</td>
+                            <td className="w-32 align-top py-0 text-black">Nama</td>
+                            <td className="w-4 align-top py-0 text-center text-black">:</td>
+                            <td className="align-top py-0 font-bold text-black">{emp.name}</td>
                           </tr>
                           {/* NIP Row */}
                           <tr className="break-inside-avoid">
-                            <td className="align-top py-0.5 text-black">NIP</td>
-                            <td className="align-top py-0.5 text-center text-black">:</td>
-                            <td className="align-top py-0.5 font-mono text-black">
+                            <td className="align-top py-0 text-black">NIP</td>
+                            <td className="align-top py-0 text-center text-black">:</td>
+                            <td className="align-top py-0 font-mono text-black">
                               {emp.nip !== "-" ? emp.nip : "-"}
                             </td>
                           </tr>
                           {/* Pangkat/Gol Row */}
                           <tr className="break-inside-avoid">
-                            <td className="align-top py-0.5 text-black">Pangkat/Golongan</td>
-                            <td className="align-top py-0.5 text-center text-black">:</td>
-                            <td className="align-top py-0.5 text-black">
+                            <td className="align-top py-0 text-black">Pangkat/Golongan</td>
+                            <td className="align-top py-0 text-center text-black">:</td>
+                            <td className="align-top py-0 text-black">
                               {emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "Non-Eselon / Non-ASN"}
                             </td>
                           </tr>
                           {/* Jabatan Row */}
                           <tr className="break-inside-avoid">
-                            <td className="align-top py-0.5 text-black">Jabatan</td>
-                            <td className="align-top py-0.5 text-center text-black">:</td>
-                            <td className="align-top py-0.5 text-black font-semibold">{emp.jabatan}</td>
+                            <td className="align-top py-0 text-black">Jabatan</td>
+                            <td className="align-top py-0 text-center text-black">:</td>
+                            <td className="align-top py-0 text-black font-semibold">{emp.jabatan}</td>
                           </tr>
                           {/* Spacer row between participants */}
                           {index < participants.length - 1 && (
                             <tr>
-                              <td colSpan={4} className="h-4 border-b border-dashed border-stone-200"></td>
+                              <td colSpan={4} className="h-1.5 border-b border-dashed border-stone-200"></td>
                             </tr>
                           )}
                         </React.Fragment>

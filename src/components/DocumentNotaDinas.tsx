@@ -213,6 +213,27 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                 .font-bold { font-weight: bold; }
                 .uppercase { text-transform: uppercase; }
                 
+                /* Tailwind utility mappings for print wrapper */
+                .w-full { width: 100%; }
+                .w-8 { width: 32px !important; min-width: 32px !important; max-width: 32px !important; }
+                .w-24 { width: 96px !important; min-width: 96px !important; max-width: 96px !important; }
+                .w-4 { width: 16px !important; min-width: 16px !important; max-width: 16px !important; }
+                .align-top { vertical-align: top !important; }
+                .text-left { text-align: left !important; }
+                .border-none { border: none !important; }
+                .border-collapse { border-collapse: collapse !important; }
+                .py-0 { padding-top: 0 !important; padding-bottom: 0 !important; }
+                .h-1\.5 { height: 6px !important; }
+                .leading-none { line-height: 1 !important; }
+                .leading-relaxed { line-height: 1.625 !important; }
+                .break-inside-avoid { break-inside: avoid; page-break-inside: avoid; }
+                .pl-8 { padding-left: 32px !important; }
+                .p-1 { padding: 4px !important; }
+                .p-1\.5 { padding: 6px !important; }
+                .px-1\.5 { padding-left: 6px !important; padding-right: 6px !important; }
+                .text-\[11px\] { font-size: 11px !important; }
+                .mt-0\.5 { margin-top: 2px !important; }
+                
                 /* Letterhead Kop */
                 .kop-header {
                   position: relative;
@@ -317,12 +338,12 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                 .table-participants {
                   width: 100%;
                   border-collapse: collapse;
-                  margin: 12px 0;
+                  margin: 6px 0;
                   font-size: 14px;
                 }
                 .table-participants th, .table-participants td {
                   border: 1px solid #000;
-                  padding: 5px 7px;
+                  padding: 3px 5px;
                   text-align: left;
                 }
                 .table-participants th {
@@ -333,12 +354,12 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                 
                 /* Capture's Enumerated Participant List Format */
                 .list-participants-container {
-                  margin: 14px 0;
+                  margin: 6px 0;
                   font-size: 14px;
-                  padding-left: 5px;
+                  padding-left: 32px;
                 }
                 .list-participant-item {
-                  margin-bottom: 12px;
+                  margin-bottom: 6px;
                   page-break-inside: avoid;
                 }
                 .list-participant-item table {
@@ -928,45 +949,44 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
 
             {/* SEGMENT: RENDERING PESERTA (DYNAMIC FORMAT BASED ON CONTROLS) */}
             {formatPeserta === "list" ? (
-              // 1. Capture's Enumerated Participant List Format (SINGLE TABLE ALIGNED)
-              <div className="list-participants-container pl-1.5">
+              <div className="list-participants-container pl-8">
                 <table className="w-full text-sm md:text-[14.5px] text-black border-none border-collapse text-left">
                   <tbody>
                     {participants.map((emp, index) => (
                       <React.Fragment key={`nd-p-list-${emp.id}-${index}`}>
                         {/* Nama Row */}
                         <tr className="break-inside-avoid">
-                          <td className="w-6 font-bold align-top py-0.5 text-black" rowSpan={4}>
+                          <td className="w-8 font-bold align-top py-0 text-black" rowSpan={4}>
                             {index + 1}.
                           </td>
-                          <td className="w-24 align-top py-0.5 text-black">Nama</td>
-                          <td className="w-4 align-top py-0.5 text-center text-black">:</td>
-                          <td className="align-top py-0.5 font-bold text-black">{emp.name}</td>
+                          <td className="w-24 align-top py-0 text-black">Nama</td>
+                          <td className="w-4 align-top py-0 text-center text-black">:</td>
+                          <td className="align-top py-0 font-bold text-black">{emp.name}</td>
                         </tr>
                         {/* Pangkat/Gol Row */}
                         <tr className="break-inside-avoid">
-                          <td className="align-top py-0.5 text-black">Pangkat/Gol</td>
-                          <td className="align-top py-0.5 text-center text-black">:</td>
-                          <td className="align-top py-0.5 text-black">{getFormattedPangkatGolongan(emp.pangkat)}</td>
+                          <td className="align-top py-0 text-black">Pangkat/Gol</td>
+                          <td className="align-top py-0 text-center text-black">:</td>
+                          <td className="align-top py-0 text-black">{getFormattedPangkatGolongan(emp.pangkat)}</td>
                         </tr>
                         {/* NIP Row */}
                         <tr className="break-inside-avoid">
-                          <td className="align-top py-0.5 text-black">NIP</td>
-                          <td className="align-top py-0.5 text-center text-black">:</td>
-                          <td className="align-top py-0.5 text-black">
+                          <td className="align-top py-0 text-black">NIP</td>
+                          <td className="align-top py-0 text-center text-black">:</td>
+                          <td className="align-top py-0 text-black">
                             {emp.nip !== "-" ? emp.nip : "Pramubakti / Non-ASN"}
                           </td>
                         </tr>
                         {/* Jabatan Row */}
                         <tr className="break-inside-avoid">
-                          <td className="align-top py-0.5 text-black">Jabatan</td>
-                          <td className="align-top py-0.5 text-center text-black">:</td>
-                          <td className="align-top py-0.5 text-black">{emp.jabatan}</td>
+                          <td className="align-top py-0 text-black">Jabatan</td>
+                          <td className="align-top py-0 text-center text-black">:</td>
+                          <td className="align-top py-0 text-black">{emp.jabatan}</td>
                         </tr>
                         {/* Spacer row between participants */}
                         {index < participants.length - 1 && (
                           <tr>
-                            <td colSpan={4} className="h-3"></td>
+                            <td colSpan={4} className="h-1.5"></td>
                           </tr>
                         )}
                       </React.Fragment>
@@ -979,7 +999,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
               <table className="table-participants w-full border-collapse border border-black my-4 text-sm md:text-[14px] text-black text-left">
                 <thead>
                   <tr className="bg-slate-50">
-                    <th className="border border-black p-1.5 text-center w-8 font-bold">No</th>
+                    <th className="border border-black p-1 text-center w-8 font-bold">No</th>
                     <th className="border border-black p-1.5 font-bold">Nama / NIP</th>
                     <th className="border border-black p-1.5 font-bold">Pangkat / Gol</th>
                     <th className="border border-black p-1.5 font-bold">Jabatan</th>
@@ -988,15 +1008,15 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                 <tbody>
                   {participants.map((emp, index) => (
                     <tr key={`nd-p-tab-${emp.id}-${index}`}>
-                      <td className="border border-black p-2 text-center text-black">{index + 1}</td>
-                      <td className="border border-black p-2">
+                      <td className="border border-black p-1 text-center text-black">{index + 1}</td>
+                      <td className="border border-black p-1 px-1.5">
                         <div className="font-bold text-black">{emp.name}</div>
-                        <div className="text-[11px] text-slate-800">
+                        <div className="text-[11px] text-slate-800 leading-none mt-0.5">
                           {emp.nip !== "-" ? `NIP: ${emp.nip}` : "Pramubakti / Non-ASN"}
                         </div>
                       </td>
-                      <td className="border border-black p-2 text-black">{getFormattedPangkatGolongan(emp.pangkat)}</td>
-                      <td className="border border-black p-2 text-black">{emp.jabatan}</td>
+                      <td className="border border-black p-1 px-1.5 text-black">{getFormattedPangkatGolongan(emp.pangkat)}</td>
+                      <td className="border border-black p-1 px-1.5 text-black">{emp.jabatan}</td>
                     </tr>
                   ))}
                 </tbody>

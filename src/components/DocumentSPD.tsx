@@ -396,28 +396,28 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 .top-meta-container {
                   float: right;
                   width: 250px;
-                  margin-top: 10px;
-                  margin-bottom: 12px;
-                  font-size: 14px;
+                  margin-top: 2px;
+                  margin-bottom: 4px;
+                  font-size: 12.5px;
                 }
                 .top-meta-container table {
                   width: 100%;
                   border-collapse: collapse;
                 }
                 .top-meta-container td {
-                  padding: 1.5px 2px;
+                  padding: 1px 2px;
                   vertical-align: top;
                 }
 
                 /* Document Title */
                 .doc-title-box {
                   text-align: center;
-                  margin-top: 25px;
-                  margin-bottom: 15px;
+                  margin-top: 10px;
+                  margin-bottom: 8px;
                   clear: both;
                 }
                 .doc-title {
-                  font-size: 16px;
+                  font-size: 15px;
                   font-weight: bold;
                   letter-spacing: 0.5px;
                   text-decoration: none;
@@ -429,14 +429,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   width: 100%;
                   border-collapse: collapse;
                   border: 1px solid #000;
-                  font-size: 14.5px;
-                  margin-bottom: 20px;
+                  font-size: 13px;
+                  margin-bottom: 12px;
                 }
                 .spd-main-table td {
                   border: 1px solid #000;
-                  padding: 6px 8px;
+                  padding: 4px 6px !important;
                   vertical-align: top;
-                  font-size: 14.5px !important;
+                  font-size: 13px !important;
                 }
                 .spd-main-table .center-align {
                   text-align: center;
@@ -616,14 +616,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
           </div>
 
           {/* CHOOSE SYSTEM TRAVELER SYNC DIRECTORY */}
-          <div className="bg-white p-3 rounded-lg border border-slate-150 space-y-2">
-            <label className="text-[10px] font-bold uppercase text-slate-500 block">Sinkronisasi Data Peserta Aktif:</label>
-            <div className="flex flex-wrap gap-2 text-xs">
+          <div className="bg-white p-2.5 rounded-lg border border-slate-150 space-y-1.5">
+            <label className="text-[9px] font-bold uppercase text-slate-500 block">Sinkronisasi Data Peserta Aktif:</label>
+            <div className="flex flex-wrap gap-1.5 text-[11px]">
               {participants.map((p) => (
                 <button
                   key={`conf-traveler-${p.id}`}
                   onClick={() => setActiveEmployeeId(p.id)}
-                  className={`px-3 py-1.5 rounded-lg border font-semibold cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-md border font-semibold cursor-pointer transition-all ${
                     activeEmployeeId === p.id 
                       ? "bg-emerald-50 text-emerald-700 border-emerald-300" 
                       : "bg-stone-50 text-stone-600 hover:bg-stone-100 border-stone-200"
@@ -1060,26 +1060,26 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
             #spd-printable .top-meta-container {
               float: right;
               width: 250px;
-              margin-top: 10px;
-              margin-bottom: 12px;
-              font-size: 14px;
+              margin-top: 2px;
+              margin-bottom: 4px;
+              font-size: 12.5px;
             }
             #spd-printable .top-meta-container table {
               width: 100%;
               border-collapse: collapse;
             }
             #spd-printable .top-meta-container td {
-              padding: 1.5px 2px;
+              padding: 1px 2px;
               vertical-align: top;
             }
             #spd-printable .doc-title-box {
               text-align: center;
-              margin-top: 25px;
-              margin-bottom: 15px;
+              margin-top: 10px;
+              margin-bottom: 8px;
               clear: both;
             }
             #spd-printable .doc-title {
-              font-size: 16px;
+              font-size: 15px;
               font-weight: bold;
               letter-spacing: 0.5px;
               text-decoration: none;
@@ -1089,14 +1089,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               width: 100%;
               border-collapse: collapse;
               border: 1px solid #000;
-              font-size: 14.5px;
-              margin-bottom: 20px;
+              font-size: 13px;
+              margin-bottom: 12px;
             }
             #spd-printable .spd-main-table > tbody > tr > td {
               border: 1px solid #000 !important;
-              padding: 6px 8px;
+              padding: 4px 6px !important;
               vertical-align: top;
-              font-size: 14.5px !important;
+              font-size: 13px !important;
             }
             #spd-printable .sub-nested-table {
               width: 100%;
@@ -1203,140 +1203,144 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               </div>
 
               {/* ROW ITEMS TABLE */}
-              <table className="spd-main-table" style={{ borderCollapse: 'collapse', border: '1px solid black', width: '100%', fontSize: '14.5px' }}>
+              <table className="spd-main-table" style={{ borderCollapse: 'collapse', border: '1px solid black', width: '100%', fontSize: '13px' }}>
                 <tbody>
                   {/* Row 1 */}
                   <tr>
-                    <td className="center-align w-8 font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>1</td>
-                    <td className="w-56 font-bold" style={{ border: '1px solid black', padding: '6px 8px' }}>Pengguna Anggaran</td>
-                    <td className="font-bold" style={{ border: '1px solid black', padding: '6px 8px' }}>{paName}</td>
+                    <td className="center-align w-8 font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>1</td>
+                    <td className="w-56 font-bold" style={{ border: '1px solid black', padding: '4px 6px' }}>Pengguna Anggaran</td>
+                    <td className="font-bold" style={{ border: '1px solid black', padding: '4px 6px' }}>{paName}</td>
                   </tr>
 
                   {/* Row 2 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>2</td>
-                    <td className="font-bold" style={{ border: '1px solid black', padding: '6px 8px' }}>Nama/NIP Pegawai yang melaksanakan perjalanan dinas</td>
-                    <td style={{ border: '1px solid black', padding: '6px 8px' }}>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>2</td>
+                    <td className="font-bold" style={{ border: '1px solid black', padding: '4px 6px' }}>Nama/NIP Pegawai yang melaksanakan perjalanan dinas</td>
+                    <td style={{ border: '1px solid black', padding: '4px 6px' }}>
                       <div className="font-bold">{activeEmployee.name}</div>
-                      <div className="mt-1 font-mono">{activeEmployee.nip !== "-" ? activeEmployee.nip : "Non-ASN"}</div>
+                      <div className="mt-0.5 font-mono">{activeEmployee.nip !== "-" ? activeEmployee.nip : "Non-ASN"}</div>
                     </td>
                   </tr>
 
                   {/* Row 3 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>3</td>
-                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
-                      <div className="font-bold py-0.5">a. Pangkat dan Golongan</div>
-                      <div className="font-bold py-0.5">b. Jabatan / Instansi</div>
-                      <div className="font-bold py-0.5">c. Tingkat Perjalanan Dinas</div>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>3</td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
+                      <div className="font-bold py-0 leading-tight">a. Pangkat dan Golongan</div>
+                      <div className="font-bold py-0 leading-tight mt-0.5">b. Jabatan / Instansi</div>
+                      <div className="font-bold py-0 leading-tight mt-0.5">c. Tingkat Perjalanan Dinas</div>
                     </td>
-                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
-                      <div className="py-0.5">a. {pangkatTraveler}</div>
-                      <div className="py-0.5">b. {jabatanTraveler}</div>
-                      <div className="py-0.5">c. {tingkatBiaya}</div>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
+                      <div className="py-0 leading-tight">a. {pangkatTraveler}</div>
+                      <div className="py-0 leading-tight mt-0.5">b. {jabatanTraveler}</div>
+                      <div className="py-0 leading-tight mt-0.5">c. {tingkatBiaya}</div>
                     </td>
                   </tr>
 
                   {/* Row 4 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>4</td>
-                    <td className="font-bold" style={{ border: '1px solid black', padding: '6px 8px' }}>Maksud Perjalanan Dinas</td>
-                    <td className="text-justify leading-relaxed" style={{ border: '1px solid black', padding: '6px 8px' }}>{maksudDinas}</td>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>4</td>
+                    <td className="font-bold" style={{ border: '1px solid black', padding: '4px 6px' }}>Maksud Perjalanan Dinas</td>
+                    <td className="text-justify leading-normal text-[12.5px]" style={{ border: '1px solid black', padding: '4px 6px' }}>{maksudDinas}</td>
                   </tr>
 
                   {/* Row 5 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>5</td>
-                    <td className="font-bold" style={{ border: '1px solid black', padding: '6px 8px' }}>Alat angkut yang dipergunakan</td>
-                    <td style={{ border: '1px solid black', padding: '6px 8px' }}>{alatTransport}</td>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>5</td>
+                    <td className="font-bold" style={{ border: '1px solid black', padding: '4px 6px' }}>Alat angkut yang dipergunakan</td>
+                    <td style={{ border: '1px solid black', padding: '4px 6px' }}>{alatTransport}</td>
                   </tr>
 
                   {/* Row 6 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>6</td>
-                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
-                      <div className="font-bold py-0.5">a. Tempat berangkat</div>
-                      <div className="font-bold py-0.5">b. Tempat tujuan</div>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>6</td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
+                      <div className="font-bold py-0 leading-tight">a. Tempat berangkat</div>
+                      <div className="font-bold py-0 leading-tight mt-0.5">b. Tempat tujuan</div>
                     </td>
-                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
-                      <div className="py-0.5">a. {tempatBerangkat}</div>
-                      <div className="py-0.5">b. {tempatTujuan}</div>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
+                      <div className="py-0 leading-tight">a. {tempatBerangkat}</div>
+                      <div className="py-0 leading-tight mt-0.5">b. {tempatTujuan}</div>
                     </td>
                   </tr>
 
                   {/* Row 7 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>7</td>
-                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
-                      <div className="font-bold py-0.5">a. Lamanya Perjalanan Dinas</div>
-                      <div className="font-bold py-0.5">b. Tanggal berangkat</div>
-                      <div className="font-bold py-0.5">c. Tanggal harus kembali/tiba di tempat</div>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>7</td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
+                      <div className="font-bold py-0 leading-tight">a. Lamanya Perjalanan Dinas</div>
+                      <div className="font-bold py-0 leading-tight mt-0.5">b. Tanggal berangkat</div>
+                      <div className="font-bold py-0 leading-tight mt-0.5">c. Tanggal harus kembali/tiba di tempat</div>
                     </td>
-                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
-                      <div className="py-0.5">a. {lamanyaDinas}</div>
-                      <div className="py-0.5">b. {tglBerangkat}</div>
-                      <div className="py-0.5">c. {tglKembali}</div>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
+                      <div className="py-0 leading-tight">a. {lamanyaDinas}</div>
+                      <div className="py-0 leading-tight mt-0.5">b. {tglBerangkat}</div>
+                      <div className="py-0 leading-tight mt-0.5">c. {tglKembali}</div>
                     </td>
                   </tr>
 
                   {/* Row 8 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>8</td>
-                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
-                      <div className="font-bold py-0.5">Pengikut : Nama</div>
-                      <div className="py-0.5">1.</div>
-                      <div className="py-0.5">2.</div>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>8</td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
+                      <div className="font-bold py-0 leading-tight">Pengikut : Nama</div>
+                      <div className="mt-0.5 space-y-0.5 text-[12px] md:text-[13px]">
+                        <div className="py-0 leading-none">1.</div>
+                        <div className="py-0 leading-none">2.</div>
+                      </div>
                     </td>
-                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
-                      <div className="flex w-full">
-                        <div className="w-1/2 font-bold text-center">Tanggal Lahir</div>
-                        <div className="w-1/2 font-bold text-center">Keterangan</div>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
+                      <div className="flex w-full border-b border-black/40 pb-0.5 mb-0.5 text-center font-bold text-[12px]">
+                        <div className="w-1/2">Tanggal Lahir</div>
+                        <div className="w-1/2">Keterangan</div>
                       </div>
-                      <div className="flex w-full">
-                        <div className="w-1/2 text-center py-0.5">-</div>
-                        <div className="w-1/2 text-center py-0.5">-</div>
-                      </div>
-                      <div className="flex w-full">
-                        <div className="w-1/2 text-center py-0.5">-</div>
-                        <div className="w-1/2 text-center py-0.5">-</div>
+                      <div className="space-y-0.5 text-[12px] md:text-[13px]">
+                        <div className="flex w-full text-center leading-none">
+                          <div className="w-1/2">-</div>
+                          <div className="w-1/2">-</div>
+                        </div>
+                        <div className="flex w-full text-center leading-none">
+                          <div className="w-1/2">-</div>
+                          <div className="w-1/2">-</div>
+                        </div>
                       </div>
                     </td>
                   </tr>
 
                   {/* Row 9 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>9</td>
-                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
-                      <div className="font-bold py-0.5">Pembebanan anggaran</div>
-                      <div className="font-bold py-0.5">a. Instansi</div>
-                      <div className="font-bold py-0.5">b. Akun</div>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>9</td>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
+                      <div className="font-bold py-0 leading-tight">Pembebanan anggaran</div>
+                      <div className="font-bold py-0 leading-tight mt-0.5">a. Instansi</div>
+                      <div className="font-bold py-0 leading-tight mt-0.5">b. Akun</div>
                     </td>
-                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '6px 8px' }}>
-                      <div className="py-0.5">&nbsp;</div>
-                      <div className="py-0.5">a. {akunInstansi}</div>
-                      <div className="py-0.5">b. {akunKode}</div>
+                    <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
+                      <div className="py-0 leading-tight">&nbsp;</div>
+                      <div className="py-0 leading-tight mt-0.5">a. {akunInstansi}</div>
+                      <div className="py-0 leading-tight mt-0.5">b. {akunKode}</div>
                     </td>
                   </tr>
 
                   {/* Row 10 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '6px 8px' }}>10</td>
-                    <td className="font-bold" style={{ border: '1px solid black', padding: '6px 8px' }}>Keterangan lain-lain</td>
-                    <td style={{ border: '1px solid black', padding: '6px 8px' }}>-</td>
+                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>10</td>
+                    <td className="font-bold" style={{ border: '1px solid black', padding: '4px 6px' }}>Keterangan lain-lain</td>
+                    <td style={{ border: '1px solid black', padding: '4px 6px' }}>-</td>
                   </tr>
                 </tbody>
               </table>
 
               {/* FOOTER SIGN-OFF PAGE 1 */}
-              <div className="mt-5 flex justify-end">
-                <div className="footer-sig-block w-72 text-left" style={{ fontSize: '14px' }}>
+              <div className="mt-2 flex justify-end">
+                <div className="footer-sig-block w-72 text-left" style={{ fontSize: '13px' }}>
                   <p className="m-0">Dikeluarkan di Tanjung</p>
                   <p className="m-0">Tanggal {formatIndoDate(travel.taskLetterDate)}</p>
                   
-                  <div className="mt-3 text-left">
+                  <div className="mt-2 text-left">
                     <p className="m-0 font-bold leading-tight">Pengguna Anggaran,</p>
                     <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
-                    <div className="sig-box h-16 flex flex-col justify-center" style={{ minHeight: '64px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div className="sig-box h-11 flex flex-col justify-center" style={{ minHeight: '44px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       {signSpecialCode ? (
                         <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                           {signCodeCase === "uppercase" 
@@ -1349,8 +1353,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                         <div className="h-full"></div>
                       )}
                     </div>
-                    <p className="m-0 font-bold leading-tight uppercase text-[13.5px]">{paName}</p>
-                    <p className="m-0 leading-tight text-[12.5px]">NIP. {paNip}</p>
+                    <p className="m-0 font-bold leading-tight uppercase text-[13px]">{paName}</p>
+                    <p className="m-0 leading-tight text-[12px]">NIP. {paNip}</p>
                   </div>
                 </div>
               </div>
