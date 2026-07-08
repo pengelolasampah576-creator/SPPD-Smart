@@ -45,7 +45,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     return diffDays;
   };
 
-  const durationDays = calculateDays(travel.departureDate, travel.returnDate);
+  const durationDays = travel.customDates && travel.customDates.length > 0
+    ? travel.customDates.length
+    : calculateDays(travel.departureDate, travel.returnDate);
 
   const durationDaysToWords = (num: number) => {
     const words = [

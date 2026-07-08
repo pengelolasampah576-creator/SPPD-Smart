@@ -43,7 +43,9 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
     return diffDays;
   };
 
-  const durationDays = calculateDays(travel.departureDate, travel.returnDate);
+  const durationDays = travel.customDates && travel.customDates.length > 0
+    ? travel.customDates.length
+    : calculateDays(travel.departureDate, travel.returnDate);
 
   // Synchronize or initialize default Dasar lists based on active travel and signatory configuration
   useEffect(() => {
@@ -521,7 +523,24 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                       Tujuan perjalanan dinas bertempat di <span className="font-bold">{travel.destination}</span>, berlokasi kedudukan awal di <span className="font-bold">{travel.departurePlace}</span>.
                     </li>
                     <li>
-                      Tugas ini dilaksanakan selama <span className="font-bold">{durationDays} hari kerja</span> terhitung mulai tanggal <span className="font-bold">{formatIndoDate(travel.departureDate)}</span> s.d <span className="font-bold">{formatIndoDate(travel.returnDate)}</span> dengan mengendarai angkutan <span className="font-bold">{travel.transportMode}</span>.
+                      Tugas ini dilaksanakan selama <span className="font-bold">{durationDays} hari kerja</span> {travel.customDates && travel.customDates.length > 0 ? (
+                        <>
+                          yaitu pada tanggal{" "}
+                          <span className="font-bold">
+                            {(() => {
+                              const sorted = [...travel.customDates].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+                              const formatted = sorted.map(d => formatIndoDate(d));
+                              if (formatted.length === 1) return formatted[0];
+                              const last = formatted.pop();
+                              return `${formatted.join(", ")} dan ${last}`;
+                            })()}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          terhitung mulai tanggal <span className="font-bold">{formatIndoDate(travel.departureDate)}</span> s.d <span className="font-bold">{formatIndoDate(travel.returnDate)}</span>
+                        </>
+                      )} dengan mengendarai angkutan <span className="font-bold">{travel.transportMode}</span>.
                     </li>
                     <li>
                       Melaporkan secara tertulis pertanggungjawaban hasil pelaksanaan dinas dan mengumpulkan rincian biaya kepada Inspektur Daerah Kabupaten Tabalong melalui PPK setibanya kembali.

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Employee, Travel, TravelExpense } from "../types";
-import { X, Plus, Search, Calendar, MapPin, BadgeDollarSign, User, Award, ArrowLeft, Fuel } from "lucide-react";
+import { X, Plus, Search, Calendar, MapPin, BadgeDollarSign, User, Award, ArrowLeft, Fuel, ArrowRightLeft } from "lucide-react";
 
 interface TravelFormProps {
   employees: Employee[];
@@ -43,6 +43,27 @@ export default function TravelForm({
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // Date modes state
+  const [isNonConsecutive, setIsNonConsecutive] = useState(false);
+  const [customDatesList, setCustomDatesList] = useState<string[]>([]);
+
+  // Add a discrete date input
+  const handleAddCustomDate = () => {
+    setCustomDatesList([...customDatesList, ""]);
+  };
+
+  // Remove a discrete date input
+  const handleRemoveCustomDate = (index: number) => {
+    setCustomDatesList(customDatesList.filter((_, idx) => idx !== index));
+  };
+
+  // Update a discrete date input
+  const handleUpdateCustomDate = (index: number, val: string) => {
+    const updated = [...customDatesList];
+    updated[index] = val;
+    setCustomDatesList(updated);
+  };
+
   // Initialize with values
   useEffect(() => {
     // Select default signatory: DIYANTO (Inspektur)
@@ -61,6 +82,13 @@ export default function TravelForm({
       setDestination(initialTravel.destination);
       setDepartureDate(initialTravel.departureDate);
       setReturnDate(initialTravel.returnDate);
+      if (initialTravel.customDates && initialTravel.customDates.length > 0) {
+        setIsNonConsecutive(true);
+        setCustomDatesList(initialTravel.customDates);
+      } else {
+        setIsNonConsecutive(false);
+        setCustomDatesList([]);
+      }
       let mappedMode = "Transportasi Darat";
       if (initialTravel.transportMode) {
         const lowerMode = initialTravel.transportMode.toLowerCase();
@@ -94,6 +122,8 @@ export default function TravelForm({
       setDestination("");
       setDepartureDate("");
       setReturnDate("");
+      setIsNonConsecutive(false);
+      setCustomDatesList([]);
       setTransportMode("Pesawat Udara (Komersil)");
       setBudgetSource("DPA-SKPD Inspektorat Daerah Kabupaten Tabalong Tahun Anggaran 2026");
       setBudgetCode("5.1.02.04.001.00001");
@@ -173,6 +203,23 @@ export default function TravelForm({
       };
     });
 
+    let finalDepartureDate = departureDate;
+    let finalReturnDate = returnDate;
+    let finalCustomDates: string[] | undefined = undefined;
+
+    if (isNonConsecutive) {
+      const validDates = customDatesList.filter(Boolean);
+      if (validDates.length === 0) {
+        alert("Awas: Harap masukkan minimal satu tanggal untuk penugasan cabutan/tidak berurutan.");
+        return;
+      }
+      // Sort chronologically
+      const sorted = [...validDates].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+      finalDepartureDate = sorted[0];
+      finalReturnDate = sorted[sorted.length - 1];
+      finalCustomDates = sorted;
+    }
+
     const newTravel: Travel = {
       id: initialTravel ? initialTravel.id : `travel-${Date.now()}`,
       notaNumber,
@@ -183,8 +230,9 @@ export default function TravelForm({
       purpose,
       departurePlace,
       destination,
-      departureDate,
-      returnDate,
+      departureDate: finalDepartureDate,
+      returnDate: finalReturnDate,
+      customDates: finalCustomDates,
       transportMode,
       budgetSource,
       budgetCode,
@@ -327,40 +375,130 @@ export default function TravelForm({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1.5">TANGGAL BERANGKAT</label>
-              <input
-                type="date"
-                required
-                value={departureDate}
-                onChange={(e) => setDepartureDate(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1.5">TANGGAL KEMBALI</label>
-              <input
-                type="date"
-                required
-                value={returnDate}
-                onChange={(e) => setReturnDate(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 mb-1.5">ALAT ANGKUTAN / TRANSPORTASI</label>
-              <select
-                value={transportMode}
-                onChange={(e) => setTransportMode(e.target.value)}
-                className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 cursor-pointer"
+          {/* TANGGAL SELECTION PATTERN */}
+          <div className="space-y-3 bg-white p-4 rounded-xl border border-slate-150">
+            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide">Pola Hari Perjalanan Dinas</label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setIsNonConsecutive(false)}
+                className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-2 cursor-pointer ${
+                  !isNonConsecutive
+                    ? "bg-blue-50 text-blue-600 border-blue-200 shadow-xs"
+                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                }`}
               >
-                <option value="Transportasi Darat">Transportasi Darat</option>
-                <option value="Transportasi Udara">Transportasi Udara</option>
-                <option value="Transportasi Laut">Transportasi Laut</option>
-              </select>
+                <Calendar className="w-4 h-4 text-blue-500" />
+                Rentang Berurutan (Standard)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsNonConsecutive(true);
+                  if (customDatesList.length === 0) {
+                    setCustomDatesList([departureDate || new Date().toISOString().split('T')[0]]);
+                  }
+                }}
+                className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold border transition flex items-center justify-center gap-2 cursor-pointer ${
+                  isNonConsecutive
+                    ? "bg-blue-50 text-blue-600 border-blue-200 shadow-xs"
+                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <ArrowRightLeft className="w-4 h-4 text-blue-500" />
+                Tanggal Cabutan (Loncat-loncat)
+              </button>
             </div>
           </div>
+
+          {!isNonConsecutive ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fadeIn">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5">TANGGAL BERANGKAT</label>
+                <input
+                  type="date"
+                  required={!isNonConsecutive}
+                  value={departureDate}
+                  onChange={(e) => setDepartureDate(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5">TANGGAL KEMBALI</label>
+                <input
+                  type="date"
+                  required={!isNonConsecutive}
+                  value={returnDate}
+                  onChange={(e) => setReturnDate(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 mb-1.5">ALAT ANGKUTAN / TRANSPORTASI</label>
+                <select
+                  value={transportMode}
+                  onChange={(e) => setTransportMode(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 cursor-pointer"
+                >
+                  <option value="Transportasi Darat">Transportasi Darat</option>
+                  <option value="Transportasi Udara">Transportasi Udara</option>
+                  <option value="Transportasi Laut">Transportasi Laut</option>
+                </select>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3 bg-white p-4 rounded-xl border border-slate-150 animate-fadeIn">
+              <div className="flex justify-between items-center border-b pb-2">
+                <span className="text-xs font-bold text-slate-600">Daftar Hari Penugasan Cabutan ({customDatesList.length} hari):</span>
+                <button
+                  type="button"
+                  onClick={handleAddCustomDate}
+                  className="text-xs font-bold bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition cursor-pointer flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Tambah Tanggal Tugas
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-40 overflow-y-auto p-1">
+                {customDatesList.map((dt, idx) => (
+                  <div key={`custom-dt-${idx}`} className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                    <span className="text-xs font-bold text-slate-400 w-5 text-center">{idx + 1}.</span>
+                    <input
+                      type="date"
+                      required={isNonConsecutive}
+                      value={dt}
+                      onChange={(e) => handleUpdateCustomDate(idx, e.target.value)}
+                      className="flex-1 bg-white border border-slate-200 rounded-md p-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      disabled={customDatesList.length <= 1}
+                      onClick={() => handleRemoveCustomDate(idx)}
+                      className="text-slate-400 hover:text-red-600 disabled:opacity-30 p-1 hover:bg-red-50 rounded transition"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t">
+                <div className="md:col-start-3">
+                  <label className="block text-xs font-semibold text-slate-500 mb-1.5">ALAT ANGKUTAN / TRANSPORTASI</label>
+                  <select
+                    value={transportMode}
+                    onChange={(e) => setTransportMode(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 cursor-pointer"
+                  >
+                    <option value="Transportasi Darat">Transportasi Darat</option>
+                    <option value="Transportasi Udara">Transportasi Udara</option>
+                    <option value="Transportasi Laut">Transportasi Laut</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* ROW 3: Anggaran & Struktur Kepemimpinan */}

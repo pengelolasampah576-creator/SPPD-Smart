@@ -236,9 +236,26 @@ export default function DocumentTelaahStaf({ employees }: DocumentTelaahStafProp
         })
       });
 
+      const contentType = res.headers.get("content-type");
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || "Gagal berkomunikasi dengan server AI");
+        if (contentType && contentType.includes("application/json")) {
+          const errData = await res.json();
+          throw new Error(errData.error || "Gagal berkomunikasi dengan server AI.");
+        } else {
+          const rawText = await res.text();
+          console.warn("Server error HTML response:", rawText);
+          throw new Error(
+            "GEMINI_API_KEY belum terpasang atau terputus di Server. Silakan tambahkan kunci 'GEMINI_API_KEY' di tombol Settings (Ikon Gerigi) > Secrets pada bagian kanan atas layar AI Studio Anda untuk mengaktifkan fitur kecerdasan buatan."
+          );
+        }
+      }
+
+      if (!contentType || !contentType.includes("application/json")) {
+        const rawText = await res.text();
+        console.warn("Server output was not JSON:", rawText);
+        throw new Error(
+          "Respon dari server tidak valid (Non-JSON). Hal ini biasanya disebabkan karena GEMINI_API_KEY Anda belum diatur atau salah di menu Settings > Secrets."
+        );
       }
 
       const data = await res.json();
@@ -255,8 +272,9 @@ export default function DocumentTelaahStaf({ employees }: DocumentTelaahStafProp
       }
 
     } catch (err: any) {
-      console.error(err);
-      setAiError(err.message || "Terjadi kesalahan internal koneksi Gemini. Harap coba lagi.");
+      console.error("AI Error:", err);
+      // Simplify the message to are user-actionable Indonesian instructions
+      setAiError(err.message || "Terjadi kesalahan koneksi internal atau Kunci API belum diisi.");
     } finally {
       clearInterval(stepInterval);
       setIsGenerating(false);

@@ -30,6 +30,7 @@ export interface Travel {
   destination: string; // Tempat tujuan
   departureDate: string; // Tanggal berangkat
   returnDate: string; // Tanggal kembali
+  customDates?: string[]; // Daftar tanggal cabutan/non-consecutive (jika ada)
   transportMode: string; // Alat angkutan yang digunakan (Pesawat Udara, Mobil Dinas, dsb)
   
   // Pembiayaan & Anggaran

@@ -40,7 +40,9 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
     return diffDays;
   };
 
-  const durationDays = calculateDays(travel.departureDate, travel.returnDate);
+  const durationDays = travel.customDates && travel.customDates.length > 0
+    ? travel.customDates.length
+    : calculateDays(travel.departureDate, travel.returnDate);
 
   const durationDaysToWords = (num: number) => {
     const words = [
@@ -920,7 +922,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
               <tr>
                 <td className="font-medium py-1">Hal</td>
                 <td className="py-1 text-center">:</td>
-                <td className="py-1 text-justify line-clamp-3">
+                <td className="py-1 text-justify">
                   {hal}
                 </td>
               </tr>
@@ -940,7 +942,24 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
             )}
 
             <p className="body-text indent-8 text-black">
-              Berkenaan dengan hal tersebut di atas, mohon persetujuan untuk melaksanakan perjalanan dinas dalam rangka mengikuti kegiatan <span className="font-bold">"{travel.purpose}"</span> selama <span className="font-bold">{durationDays} ({durationDaysToWords(durationDays)}) hari</span> dari tanggal <span className="font-bold">{formatIndoDate(travel.departureDate)} s.d {formatIndoDate(travel.returnDate)}</span> bertempat di <span className="font-bold">{travel.destination}</span>.
+              Berkenaan dengan hal tersebut di atas, mohon persetujuan untuk melaksanakan perjalanan dinas dalam rangka mengikuti kegiatan <span className="font-bold">"{travel.purpose}"</span> selama <span className="font-bold">{durationDays} ({durationDaysToWords(durationDays)}) hari</span> {travel.customDates && travel.customDates.length > 0 ? (
+                <>
+                  yaitu pada tanggal{" "}
+                  <span className="font-bold">
+                    {(() => {
+                      const sorted = [...travel.customDates].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+                      const formatted = sorted.map(d => formatIndoDate(d));
+                      if (formatted.length === 1) return formatted[0];
+                      const last = formatted.pop();
+                      return `${formatted.join(", ")} dan ${last}`;
+                    })()}
+                  </span>
+                </>
+              ) : (
+                <>
+                  dari tanggal <span className="font-bold">{formatIndoDate(travel.departureDate)} s.d {formatIndoDate(travel.returnDate)}</span>
+                </>
+              )} bertempat di <span className="font-bold">{travel.destination}</span>.
             </p>
 
             <p className="body-text text-black">
