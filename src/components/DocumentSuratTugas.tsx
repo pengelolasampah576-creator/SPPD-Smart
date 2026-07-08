@@ -199,7 +199,9 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   font-size: 14px;
                 }
                 .sig-box {
-                  height: 75px;
+                  min-height: 110px;
+                  height: auto;
+                  margin-bottom: 12px;
                 }
                 
                 @media print {
@@ -562,7 +564,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               
               <div className="mt-3">
                 <p className="m-0 text-center font-bold uppercase">{signatory?.jabatan || "Inspektur Daerah"},</p>
-                <div className="sig-box h-20 flex flex-col justify-center" style={{ minHeight: '80px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <div className="sig-box min-h-[110px] flex flex-col justify-center my-2" style={{ minHeight: '110px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   {signSpecialCode ? (
                     <p className="m-0 font-mono text-slate-800 font-semibold text-center" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                       {signCodeCase === "uppercase" 

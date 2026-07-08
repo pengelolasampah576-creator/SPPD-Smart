@@ -397,7 +397,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 /* Top Right Meta Table */
                 .top-meta-container {
                   float: right;
-                  width: 250px;
+                  width: 310px;
                   margin-top: 2px;
                   margin-bottom: 4px;
                   font-size: 12.5px;
@@ -515,7 +515,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   text-align: left;
                 }
                 .sig-box {
-                  height: 50px;
+                  min-height: 90px;
+                  height: auto;
+                  margin-bottom: 10px;
                 }
 
                 @media print {
@@ -1077,7 +1079,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
             }
             #spd-printable .top-meta-container {
               float: right;
-              width: 250px;
+              width: 310px;
               margin-top: 2px;
               margin-bottom: 4px;
               font-size: 12.5px;
@@ -1155,7 +1157,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               text-align: left;
             }
             #spd-printable .sig-box {
-              height: 50px;
+              min-height: 90px;
+              height: auto;
+              margin-bottom: 10px;
             }
           ` }} />
 
@@ -1358,7 +1362,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   <div className="mt-2 text-left">
                     <p className="m-0 font-bold leading-tight">Pengguna Anggaran,</p>
                     <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
-                    <div className="sig-box h-11 flex flex-col justify-center" style={{ minHeight: '44px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div className="sig-box min-h-[90px] flex flex-col justify-center my-2" style={{ minHeight: '90px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       {signSpecialCode ? (
                         <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                           {signCodeCase === "uppercase" 
@@ -1520,7 +1524,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 <div className="footer-sig-block w-72 text-left" style={{ fontSize: '14px' }}>
                   <p className="m-0 font-bold leading-tight">{p2Row4RightLabel},</p>
                   <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
-                  <div className="sig-box h-16 flex flex-col justify-center" style={{ minHeight: '64px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div className="sig-box min-h-[110px] flex flex-col justify-center my-2" style={{ minHeight: '110px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     {signSpecialCode ? (
                       <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                         {signCodeCase === "uppercase" 

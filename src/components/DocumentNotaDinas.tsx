@@ -384,7 +384,9 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   page-break-inside: avoid;
                 }
                 .sig-box {
-                  height: 65px;
+                  min-height: 110px;
+                  height: auto;
+                  margin-bottom: 12px;
                 }
                 
                 @media print {
@@ -1061,7 +1063,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
               <p className="m-0 leading-snug">{sigJabatan},</p>
               
               {/* Spaces for signature */}
-              <div className="sig-box h-16 flex flex-col justify-center" style={{ minHeight: '64px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div className="sig-box min-h-[110px] flex flex-col justify-center my-2" style={{ minHeight: '110px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 {signSpecialCode ? (
                   <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                     {signCodeCase === "uppercase" 
