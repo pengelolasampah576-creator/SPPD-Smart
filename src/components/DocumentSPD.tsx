@@ -304,8 +304,12 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 .text-center { text-align: center; }
                 .text-right { text-align: right; }
                 .text-justify { text-align: justify; }
+                .text-left { text-align: left !important; }
                 .font-bold { font-weight: bold; }
+                .font-semibold { font-weight: 600 !important; }
                 .uppercase { text-transform: uppercase; }
+                .italic { font-style: italic !important; }
+                .font-mono { font-family: Courier, monospace !important; }
                 
                 /* Layout Utility classes to replace Tailwind since it is not loaded in print window */
                 .flex { display: flex !important; }
@@ -314,14 +318,33 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 .justify-between { justify-content: space-between !important; }
                 .items-center { align-items: center !important; }
                 .shrink-0 { flex-shrink: 0 !important; }
-                .italic { font-style: italic !important; }
+                .m-0 { margin: 0 !important; }
                 .mb-1 { margin-bottom: 4px !important; }
                 .mb-2 { margin-bottom: 8px !important; }
+                .mt-0\.5 { margin-top: 2px !important; }
                 .mt-1 { margin-top: 4px !important; }
                 .mt-2 { margin-top: 8px !important; }
                 .mt-3 { margin-top: 12px !important; }
                 .mt-4 { margin-top: 16px !important; }
                 .mt-5 { margin-top: 20px !important; }
+                .py-0 { padding-top: 0 !important; padding-bottom: 0 !important; }
+                .leading-tight { line-height: 1.25 !important; }
+                .leading-normal { line-height: 1.5 !important; }
+                .leading-none { line-height: 1 !important; }
+                .space-y-0\.5 > * + * { margin-top: 2px !important; }
+                .space-y-2 > * + * { margin-top: 8px !important; }
+                .text-xs { font-size: 12px !important; }
+                .leading-5 { line-height: 20px !important; }
+                .leading-relaxed { line-height: 1.625 !important; }
+                .text-\[10\.5px\] { font-size: 10.5px !important; }
+                .text-\[12px\] { font-size: 12px !important; }
+                .text-\[12\.5px\] { font-size: 12.5px !important; }
+                .text-\[13px\] { font-size: 13px !important; }
+                .text-\[13\.5px\] { font-size: 13.5px !important; }
+                .text-\[11px\] { font-size: 11px !important; }
+                .text-\[11\.5px\] { font-size: 11.5px !important; }
+                .text-\[14px\] { font-size: 14px !important; }
+                
                 .w-1\/2 { width: 50% !important; }
                 .w-full { width: 100% !important; }
                 .w-24 { width: 96px !important; }
@@ -350,8 +373,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 .kop-logo-container {
                   position: absolute;
                   left: 0;
-                  top: 0;
-                  bottom: 0;
+                  top: 50%;
+                  transform: translateY(-50%);
                   display: flex;
                   align-items: center;
                 }
@@ -518,9 +541,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   text-align: left;
                 }
                 .sig-box {
-                  min-height: 130px;
+                  min-height: 100px;
                   height: auto;
-                  margin-bottom: 12px;
+                  margin-bottom: 8px;
                 }
 
                 @media print {
@@ -1006,6 +1029,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               color: #000 !important;
               background-color: #fff !important;
             }
+            #spd-printable .text-left { text-align: left !important; }
+            #spd-printable .font-semibold { font-weight: 600 !important; }
+            #spd-printable .font-mono { font-family: Courier, monospace !important; }
             #spd-printable .flex { display: flex !important; }
             #spd-printable .flex-col { flex-direction: column !important; }
             #spd-printable .justify-end { justify-content: flex-end !important; }
@@ -1013,13 +1039,33 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
             #spd-printable .items-center { align-items: center !important; }
             #spd-printable .shrink-0 { flex-shrink: 0 !important; }
             #spd-printable .italic { font-style: italic !important; }
+            #spd-printable .m-0 { margin: 0 !important; }
             #spd-printable .mb-1 { margin-bottom: 4px !important; }
             #spd-printable .mb-2 { margin-bottom: 8px !important; }
+            #spd-printable .mt-0\.5 { margin-top: 2px !important; }
             #spd-printable .mt-1 { margin-top: 4px !important; }
             #spd-printable .mt-2 { margin-top: 8px !important; }
             #spd-printable .mt-3 { margin-top: 12px !important; }
             #spd-printable .mt-4 { margin-top: 16px !important; }
             #spd-printable .mt-5 { margin-top: 20px !important; }
+            #spd-printable .py-0 { padding-top: 0 !important; padding-bottom: 0 !important; }
+            #spd-printable .leading-tight { line-height: 1.25 !important; }
+            #spd-printable .leading-normal { line-height: 1.5 !important; }
+            #spd-printable .leading-none { line-height: 1 !important; }
+            #spd-printable .space-y-0\.5 > * + * { margin-top: 2px !important; }
+            #spd-printable .space-y-2 > * + * { margin-top: 8px !important; }
+            #spd-printable .text-xs { font-size: 12px !important; }
+            #spd-printable .leading-5 { line-height: 20px !important; }
+            #spd-printable .leading-relaxed { line-height: 1.625 !important; }
+            #spd-printable .text-\[10\.5px\] { font-size: 10.5px !important; }
+            #spd-printable .text-\[12px\] { font-size: 12px !important; }
+            #spd-printable .text-\[12\.5px\] { font-size: 12.5px !important; }
+            #spd-printable .text-\[13px\] { font-size: 13px !important; }
+            #spd-printable .text-\[13\.5px\] { font-size: 13.5px !important; }
+            #spd-printable .text-\[11px\] { font-size: 11px !important; }
+            #spd-printable .text-\[11\.5px\] { font-size: 11.5px !important; }
+            #spd-printable .text-\[14px\] { font-size: 14px !important; }
+            
             #spd-printable .w-1\/2 { width: 50% !important; }
             #spd-printable .w-full { width: 100% !important; }
             #spd-printable .w-24 { width: 96px !important; }
@@ -1172,9 +1218,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               text-align: left;
             }
             #spd-printable .sig-box {
-              min-height: 130px;
+              min-height: 100px;
               height: auto;
-              margin-bottom: 12px;
+              margin-bottom: 8px;
             }
           ` }} />
 
@@ -1182,26 +1228,26 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
           {(activeTab === "all" || activeTab === "depan") && (
             <div className="page-container select-text text-black">
               {/* HEAD KOP */}
-              <div className="kop-header relative border-b-4 border-double border-black pb-3 mb-4 min-h-[85px] flex items-center justify-center">
-                <div className="kop-logo-container absolute left-0 top-1/2 -translate-y-1/2 flex items-center">
+              <div className="kop-header">
+                <div className="kop-logo-container">
                   <img
                     src={TABALONG_LOGO_BASE64}
                     alt="Logo Kabupaten Tabalong"
-                    className="kop-logo h-20 w-16 md:h-[80px] md:w-[70px] object-contain"
+                    className="kop-logo"
                   />
                 </div>
                 
-                <div className="kop-text-container text-center w-full px-16 md:px-20">
-                  <h1 className="kop-pemkab text-[15px] font-bold tracking-tight uppercase m-0 leading-tight">
+                <div className="kop-text-container">
+                  <h1 className="kop-pemkab">
                     {kopPemkab}
                   </h1>
-                  <h2 className="kop-instansi text-xl font-bold tracking-normal uppercase m-0 leading-tight mt-1">
+                  <h2 className="kop-instansi">
                     {kopInstansi}
                   </h2>
-                  <p className="kop-alamat text-[10px] text-slate-800 m-0 mt-1 leading-normal">
+                  <p className="kop-alamat">
                     {kopAlamat}
                   </p>
-                  <p className="kop-laman text-[10px] text-slate-800 m-0 mt-0.5 leading-normal">
+                  <p className="kop-laman">
                     {kopLaman}
                   </p>
                 </div>
@@ -1233,8 +1279,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               <div className="clear-both"></div>
 
               {/* DOCUMENT MAIN HEADING */}
-              <div className="doc-title-box mt-3 text-center">
-                <h3 className="doc-title text-base font-bold tracking-wide m-0">
+              <div className="doc-title-box">
+                <h3 className="doc-title">
                   SURAT PERJALANAN DINAS (SPD)
                 </h3>
               </div>
@@ -1370,14 +1416,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
               {/* FOOTER SIGN-OFF PAGE 1 */}
               <div className="mt-2 flex justify-end">
-                <div className="footer-sig-block w-72 text-left" style={{ fontSize: '13px' }}>
+                <div className="footer-sig-block">
                   <p className="m-0">Dikeluarkan di Tanjung</p>
                   <p className="m-0">Tanggal {formatIndoDate(travel.taskLetterDate)}</p>
                   
                   <div className="mt-2 text-left">
                     <p className="m-0 font-bold leading-tight">Pengguna Anggaran,</p>
                     <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
-                    <div className="sig-box min-h-[130px] flex flex-col justify-center my-2" style={{ minHeight: '130px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div className="sig-box" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       {signSpecialCode ? (
                         <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                           {signCodeCase === "uppercase" 
@@ -1390,7 +1436,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                         <div className="h-full"></div>
                       )}
                     </div>
-                    <p className="m-0 font-bold leading-tight uppercase text-[13px] mt-1.5">{paName}</p>
+                    <p className="m-0 font-bold leading-tight uppercase text-[13px] mt-1">{paName}</p>
                     <p className="m-0 leading-tight text-[12px]">NIP. {paNip}</p>
                   </div>
                 </div>
@@ -1555,11 +1601,11 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               </table>
 
               {/* OUTSIDE TABLE footer block for Halaman 2 bottom right signature */}
-              <div className="mt-5 flex justify-end">
+              <div className="mt-2 flex justify-end">
                 <div className="footer-sig-block w-72 text-left" style={{ fontSize: '14px' }}>
                   <p className="m-0 font-bold leading-tight">{p2Row4RightLabel},</p>
                   <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
-                  <div className="sig-box min-h-[130px] flex flex-col justify-center my-2" style={{ minHeight: '130px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div className="sig-box min-h-[100px] flex flex-col justify-center my-1.5" style={{ minHeight: '100px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     {signSpecialCode ? (
                       <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                         {signCodeCase === "uppercase" 
@@ -1572,7 +1618,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                       <div className="h-full"></div>
                     )}
                   </div>
-                  <p className="m-0 font-bold leading-tight uppercase text-[13.5px] mt-2">{paName}</p>
+                  <p className="m-0 font-bold leading-tight uppercase text-[13.5px] mt-1">{paName}</p>
                   <p className="m-0 leading-tight text-[12.5px]">NIP. {paNip}</p>
                 </div>
               </div>
