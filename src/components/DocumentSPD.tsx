@@ -128,6 +128,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
   const [p2Row4LeftLabel, setP2Row4LeftLabel] = useState("selaku pelaksana teknis kegiatan");
   const [p2Row4RightLabel, setP2Row4RightLabel] = useState("Pengguna Anggaran");
   const [signSpecialCode, setSignSpecialCode] = useState("");
+  const [pptkSpecialCode, setPptkSpecialCode] = useState("");
   const [showPaSuggestions, setShowPaSuggestions] = useState(false);
   const [showPptkSuggestions, setShowPptkSuggestions] = useState(false);
   const [signCodeCase, setSignCodeCase] = useState<"as-is" | "uppercase" | "lowercase">("as-is");
@@ -503,7 +504,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   width: 50%;
                 }
                 .signature-box-mini {
-                  height: 75px;
+                  min-height: 90px;
+                  height: auto;
+                  margin-bottom: 8px;
                 }
 
                 /* Traditional bottom signatories */
@@ -944,6 +947,16 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   <label className="text-[8px] text-slate-400 font-bold block">JABATAN TTD PA (IV KANAN)</label>
                   <input type="text" value={p2Row4RightLabel} onChange={(e) => setP2Row4RightLabel(e.target.value)} className="w-full text-[11px] p-1 border rounded bg-white" />
                 </div>
+                <div>
+                  <label className="text-[8px] text-emerald-600 font-bold block">KODE KHUSUS TANDA TANGAN PPTK (DI ANTARA JABATAN & NAMA)</label>
+                  <textarea
+                    rows={2}
+                    value={pptkSpecialCode}
+                    onChange={(e) => setPptkSpecialCode(e.target.value)}
+                    placeholder="Contoh: Kode Khusus TTD..."
+                    className="w-full text-[10px] p-1.5 border border-emerald-200 rounded bg-emerald-50/20 font-mono text-emerald-950 placeholder:text-emerald-700/50"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2 bg-stone-50/50 p-2.5 rounded border">
@@ -1147,7 +1160,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               width: 50%;
             }
             #spd-printable .signature-box-mini {
-              height: 75px;
+              min-height: 90px;
+              height: auto;
+              margin-bottom: 8px;
             }
             #spd-printable .footer-sig-block {
               margin-top: 12px;
@@ -1422,7 +1437,17 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                       
                       <div className="mt-2">
                         <p className="m-0 text-[11.5px]">{p2TopRightLabel}</p>
-                        <div className="signature-box-mini h-16"></div>
+                        <div className="signature-box-mini min-h-[90px] h-auto flex flex-col justify-center my-2" style={{ minHeight: '90px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                          {pptkSpecialCode ? (
+                            <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                              {signCodeCase === "uppercase" 
+                                ? pptkSpecialCode.toUpperCase() 
+                                : signCodeCase === "lowercase" 
+                                  ? pptkSpecialCode.toLowerCase() 
+                                  : pptkSpecialCode}
+                            </p>
+                          ) : null}
+                        </div>
                         <p className="m-0 font-bold text-left text-[11.5px]">{pptkName}</p>
                         <p className="m-0 text-[11px]">NIP. {pptkNip}</p>
                       </div>
@@ -1488,7 +1513,17 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                       
                       <div className="mt-2">
                         <p className="m-0 text-[11.5px]">{p2Row4LeftLabel}</p>
-                        <div className="signature-box-mini h-16"></div>
+                        <div className="signature-box-mini min-h-[90px] h-auto flex flex-col justify-center my-2" style={{ minHeight: '90px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                          {pptkSpecialCode ? (
+                            <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                              {signCodeCase === "uppercase" 
+                                ? pptkSpecialCode.toUpperCase() 
+                                : signCodeCase === "lowercase" 
+                                  ? pptkSpecialCode.toLowerCase() 
+                                  : pptkSpecialCode}
+                            </p>
+                          ) : null}
+                        </div>
                         <p className="m-0 font-bold text-left text-[11.5px]">{pptkName}</p>
                         <p className="m-0 text-[11px]">NIP. {pptkNip}</p>
                       </div>
