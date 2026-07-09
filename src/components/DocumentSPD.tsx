@@ -518,9 +518,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   text-align: left;
                 }
                 .sig-box {
-                  min-height: 90px;
+                  min-height: 130px;
                   height: auto;
-                  margin-bottom: 10px;
+                  margin-bottom: 12px;
                 }
 
                 @media print {
@@ -1172,9 +1172,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               text-align: left;
             }
             #spd-printable .sig-box {
-              min-height: 90px;
+              min-height: 130px;
               height: auto;
-              margin-bottom: 10px;
+              margin-bottom: 12px;
             }
           ` }} />
 
@@ -1327,18 +1327,18 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                       </div>
                     </td>
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
-                      <div className="flex w-full border-b border-black/40 pb-0.5 mb-0.5 text-center font-bold text-[12px]">
-                        <div className="w-1/2">Tanggal Lahir</div>
-                        <div className="w-1/2">Keterangan</div>
+                      <div style={{ display: 'table', width: '100%', tableLayout: 'fixed', borderBottom: '1px solid black', paddingBottom: '2px', marginBottom: '4px' }}>
+                        <div style={{ display: 'table-cell', width: '50%', textAlign: 'center', fontWeight: 'bold', fontSize: '12px' }}>Tanggal Lahir</div>
+                        <div style={{ display: 'table-cell', width: '50%', textAlign: 'center', fontWeight: 'bold', fontSize: '12px' }}>Keterangan</div>
                       </div>
                       <div className="space-y-0.5 text-[12px] md:text-[13px]">
-                        <div className="flex w-full text-center leading-none">
-                          <div className="w-1/2">-</div>
-                          <div className="w-1/2">-</div>
+                        <div style={{ display: 'table', width: '100%', tableLayout: 'fixed' }}>
+                          <div style={{ display: 'table-cell', width: '50%', textAlign: 'center' }}>-</div>
+                          <div style={{ display: 'table-cell', width: '50%', textAlign: 'center' }}>-</div>
                         </div>
-                        <div className="flex w-full text-center leading-none">
-                          <div className="w-1/2">-</div>
-                          <div className="w-1/2">-</div>
+                        <div style={{ display: 'table', width: '100%', tableLayout: 'fixed' }}>
+                          <div style={{ display: 'table-cell', width: '50%', textAlign: 'center' }}>-</div>
+                          <div style={{ display: 'table-cell', width: '50%', textAlign: 'center' }}>-</div>
                         </div>
                       </div>
                     </td>
@@ -1377,7 +1377,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   <div className="mt-2 text-left">
                     <p className="m-0 font-bold leading-tight">Pengguna Anggaran,</p>
                     <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
-                    <div className="sig-box min-h-[90px] flex flex-col justify-center my-2" style={{ minHeight: '90px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div className="sig-box min-h-[130px] flex flex-col justify-center my-2" style={{ minHeight: '130px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       {signSpecialCode ? (
                         <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                           {signCodeCase === "uppercase" 
@@ -1390,7 +1390,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                         <div className="h-full"></div>
                       )}
                     </div>
-                    <p className="m-0 font-bold leading-tight uppercase text-[13px]">{paName}</p>
+                    <p className="m-0 font-bold leading-tight uppercase text-[13px] mt-1.5">{paName}</p>
                     <p className="m-0 leading-tight text-[12px]">NIP. {paNip}</p>
                   </div>
                 </div>
@@ -1559,7 +1559,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 <div className="footer-sig-block w-72 text-left" style={{ fontSize: '14px' }}>
                   <p className="m-0 font-bold leading-tight">{p2Row4RightLabel},</p>
                   <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
-                  <div className="sig-box min-h-[110px] flex flex-col justify-center my-2" style={{ minHeight: '110px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div className="sig-box min-h-[130px] flex flex-col justify-center my-2" style={{ minHeight: '130px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     {signSpecialCode ? (
                       <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                         {signCodeCase === "uppercase" 
@@ -1572,7 +1572,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                       <div className="h-full"></div>
                     )}
                   </div>
-                  <p className="m-0 font-bold leading-tight uppercase text-[13.5px]">{paName}</p>
+                  <p className="m-0 font-bold leading-tight uppercase text-[13.5px] mt-2">{paName}</p>
                   <p className="m-0 leading-tight text-[12.5px]">NIP. {paNip}</p>
                 </div>
               </div>
