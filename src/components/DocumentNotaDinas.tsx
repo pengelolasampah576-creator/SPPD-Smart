@@ -116,6 +116,85 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
   const [useAnggaran, setUseAnggaran] = useState(true);
   const [textAnggaran, setTextAnggaran] = useState("");
   const [textPenutup, setTextPenutup] = useState("Demikian nota dinas ini disampaikan, mohon petunjuk, arahan dan persetujuan.");
+  const [isFocused, setIsFocused] = useState(false);
+
+  const renderRujukanText = (text: string) => {
+    if (!text) return null;
+    const cleanText = text.trim();
+    
+    // Find all matches of numbers followed by a dot or parenthesis, e.g., "1.", "2)", preceded by space or start-of-line
+    const regex = /(?:^|\s|;)\b(\d+)[\.\)]\s+/g;
+    const matches: { index: number; num: number; matchStr: string }[] = [];
+    
+    let match;
+    while ((match = regex.exec(cleanText)) !== null) {
+      matches.push({
+        index: match.index,
+        num: parseInt(match[1], 10),
+        matchStr: match[0]
+      });
+    }
+    
+    // If we have less than 2 items, render it as normal paragraph
+    if (matches.length < 2) {
+      return <span className="text-justify block text-black leading-relaxed">{text}</span>;
+    }
+    
+    // Sort matches by index to be safe
+    matches.sort((a, b) => a.index - b.index);
+    
+    const segments: string[] = [];
+    
+    // Add first segment before first match if it exists and contains non-whitespace
+    if (matches[0].index > 0) {
+      let firstText = cleanText.substring(0, matches[0].index).trim();
+      const leadingNumRegex = /^\d+[\.\)]\s*/;
+      if (leadingNumRegex.test(firstText)) {
+        firstText = firstText.replace(leadingNumRegex, "");
+      }
+      if (firstText) {
+        segments.push(firstText);
+      }
+    }
+    
+    // Now split into segments
+    for (let i = 0; i < matches.length; i++) {
+      const currentMatch = matches[i];
+      const startIndex = currentMatch.index + currentMatch.matchStr.length;
+      const endIndex = (i + 1 < matches.length) ? matches[i + 1].index : cleanText.length;
+      
+      let segmentText = cleanText.substring(startIndex, endIndex).trim();
+      
+      // Clean up trailing semicolons
+      if (segmentText.endsWith(";")) {
+        segmentText = segmentText.slice(0, -1).trim();
+      }
+      
+      // Clean leading number if it got included
+      const leadingNumRegex = /^\d+[\.\)]\s*/;
+      if (leadingNumRegex.test(segmentText)) {
+        segmentText = segmentText.replace(leadingNumRegex, "");
+      }
+      
+      if (segmentText) {
+        segments.push(segmentText);
+      }
+    }
+    
+    if (segments.length > 0) {
+      return (
+        <ol className="list-decimal list-outside ml-4 p-0 m-0 space-y-1.5 text-justify text-black font-serif leading-relaxed">
+          {segments.map((seg, sIdx) => (
+            <li key={sIdx} className="text-justify text-black font-serif leading-relaxed pl-1">
+              {seg}
+            </li>
+          ))}
+        </ol>
+      );
+    }
+    
+    return <span className="text-justify block text-black leading-relaxed">{text}</span>;
+  };
 
   // Keep states synchronized when active travel or participants list changes
   useEffect(() => {
@@ -942,20 +1021,24 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                 <div className="absolute -left-6 top-1 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150 select-none pointer-events-none text-xs" title="Kalimat rujukan ini dapat diedit langsung">
                   ✍️
                 </div>
-                <p
+                <div
                   contentEditable
                   suppressContentEditableWarning
+                  onFocus={() => setIsFocused(true)}
                   onBlur={(e) => {
                     const text = e.currentTarget.innerText;
                     setIsCustomRujukan(true);
                     setCustomRujukanText(text);
+                    setIsFocused(false);
                   }}
                   className="body-text text-black hover:bg-amber-50/40 focus:bg-amber-50/80 p-1.5 -m-1.5 rounded focus:outline-none focus:ring-1 focus:ring-amber-300 transition duration-150 cursor-text text-justify"
                   style={{ minHeight: "1.5em", outline: "none" }}
                   title="Klik langsung pada teks ini untuk mengubah kalimat rujukan"
                 >
-                  {isCustomRujukan ? customRujukanText : `Sehubungan dengan surat dari ${rujalanDari} Nomor ${rujakanNomor} Tanggal ${rujakanTanggal} Hal: ${rujakanHal}.`}
-                </p>
+                  {isFocused ? (isCustomRujukan ? customRujukanText : `Sehubungan dengan surat dari ${rujalanDari} Nomor ${rujakanNomor} Tanggal ${rujakanTanggal} Hal: ${rujakanHal}.`) : (
+                    renderRujukanText(isCustomRujukan ? customRujukanText : `Sehubungan dengan surat dari ${rujalanDari} Nomor ${rujakanNomor} Tanggal ${rujakanTanggal} Hal: ${rujakanHal}.`)
+                  )}
+                </div>
               </div>
             )}
 
