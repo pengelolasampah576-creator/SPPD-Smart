@@ -938,9 +938,25 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
           <div className="space-y-4 text-sm md:text-[14.5px] text-justify leading-relaxed">
             
             {useRujukan && (
-              <p className="body-text text-black">
-                {isCustomRujukan ? customRujukanText : `Sehubungan dengan surat dari ${rujalanDari} Nomor ${rujakanNomor} Tanggal ${rujakanTanggal} Hal: ${rujakanHal}.`}
-              </p>
+              <div className="relative group">
+                <div className="absolute -left-6 top-1 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150 select-none pointer-events-none text-xs" title="Kalimat rujukan ini dapat diedit langsung">
+                  ✍️
+                </div>
+                <p
+                  contentEditable
+                  suppressContentEditableWarning
+                  onBlur={(e) => {
+                    const text = e.currentTarget.innerText;
+                    setIsCustomRujukan(true);
+                    setCustomRujukanText(text);
+                  }}
+                  className="body-text text-black hover:bg-amber-50/40 focus:bg-amber-50/80 p-1.5 -m-1.5 rounded focus:outline-none focus:ring-1 focus:ring-amber-300 transition duration-150 cursor-text text-justify"
+                  style={{ minHeight: "1.5em", outline: "none" }}
+                  title="Klik langsung pada teks ini untuk mengubah kalimat rujukan"
+                >
+                  {isCustomRujukan ? customRujukanText : `Sehubungan dengan surat dari ${rujalanDari} Nomor ${rujakanNomor} Tanggal ${rujakanTanggal} Hal: ${rujakanHal}.`}
+                </p>
+              </div>
             )}
 
             <p className="body-text indent-8 text-black">
