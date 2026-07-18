@@ -10,6 +10,7 @@ import DocumentSuratTugas from "./components/DocumentSuratTugas";
 import DocumentSPD from "./components/DocumentSPD";
 import LoginPortal from "./components/LoginPortal";
 import DocumentTelaahStaf from "./components/DocumentTelaahStaf";
+import DocumentHonorarium from "./components/DocumentHonorarium";
 
 import {
   Briefcase,
@@ -73,7 +74,7 @@ export default function App() {
   const [selectedTravelId, setSelectedTravelId] = useState<string | null>(null);
   
   // Document Sub-tab state
-  const [activeDocTab, setActiveDocTab] = useState<"nota" | "tugas" | "spd">("nota");
+  const [activeDocTab, setActiveDocTab] = useState<"nota" | "tugas" | "spd" | "honor">("nota");
 
   // Form toggles
   const [isCreatingTravel, setIsCreatingTravel] = useState(false);
@@ -730,6 +731,17 @@ export default function App() {
                   <ArrowRightLeft className="w-4 h-4" />
                   3. Format SPD Lembaran
                 </button>
+                <button
+                  onClick={() => setActiveDocTab("honor")}
+                  className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer min-w-[120px] ${
+                    activeDocTab === "honor"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "text-slate-600 hover:bg-white/40"
+                  }`}
+                >
+                  <FileText className="w-4 h-4" />
+                  4. Tanda Terima (Terlampir)
+                </button>
               </div>
 
               {/* RENDERING DOCUMENTS */}
@@ -742,6 +754,9 @@ export default function App() {
                 )}
                 {activeDocTab === "spd" && (
                   <DocumentSPD travel={selectedTravelObj} employees={employees} />
+                )}
+                {activeDocTab === "honor" && (
+                  <DocumentHonorarium travel={selectedTravelObj} employees={employees} />
                 )}
               </div>
             </div>
