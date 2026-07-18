@@ -55,6 +55,87 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
     ]);
   }, [travel.id, travel.notaNumber, travel.notaDate, travel.destination, signatory?.id, signatory?.name, signatory?.jabatan]);
 
+  // Helper to split a combined text entry into a list of individual cleaned legal references
+  const getFlattenedDasarList = () => {
+    const flattened: string[] = [];
+    
+    dasarList.forEach(item => {
+      if (!item) return;
+      
+      let cleanItem = item.trim();
+      
+      // Check if item has embedded numbers like "2. ", "3. " or "; 2. "
+      const embeddedRegex = /(?:;\s*|\s+|^)\b(\d+)[\.\)]\s+/g;
+      const matches = [...cleanItem.matchAll(embeddedRegex)];
+      const hasEmbeddedNumbers = matches.some(match => {
+        const num = parseInt(match[1], 10);
+        return num >= 2;
+      });
+      
+      if (hasEmbeddedNumbers) {
+        const splitIndices: { index: number; num: number; length: number }[] = [];
+        embeddedRegex.lastIndex = 0;
+        let match;
+        while ((match = embeddedRegex.exec(cleanItem)) !== null) {
+          const num = parseInt(match[1], 10);
+          if (num > 1) { // Only split on 2, 3, etc.
+            splitIndices.push({
+              index: match.index,
+              num: num,
+              length: match[0].length
+            });
+          }
+        }
+        
+        splitIndices.sort((a, b) => a.index - b.index);
+        
+        if (splitIndices.length > 0) {
+          // Add first segment
+          let firstText = cleanItem.substring(0, splitIndices[0].index).trim();
+          const leadingNumRegex = /^\d+[\.\)]\s*/;
+          if (leadingNumRegex.test(firstText)) {
+            firstText = firstText.replace(leadingNumRegex, "");
+          }
+          if (firstText) {
+            flattened.push(firstText);
+          }
+          
+          // Add middle segments
+          for (let i = 0; i < splitIndices.length; i++) {
+            const start = splitIndices[i].index + splitIndices[i].length;
+            const end = i < splitIndices.length - 1 ? splitIndices[i + 1].index : cleanItem.length;
+            let text = cleanItem.substring(start, end).trim();
+            if (leadingNumRegex.test(text)) {
+              text = text.replace(leadingNumRegex, "");
+            }
+            if (text) {
+              flattened.push(text);
+            }
+          }
+        } else {
+          flattened.push(cleanItem);
+        }
+      } else {
+        flattened.push(cleanItem);
+      }
+    });
+    
+    return flattened;
+  };
+
+  // Helper to format/beautify long or manual list items to look neat
+  const renderFormattedDasarItem = (item: string) => {
+    if (!item) return null;
+
+    let cleanItem = item.trim();
+    const leadingNumRegex = /^\d+[\.\)]\s*/;
+    if (leadingNumRegex.test(cleanItem)) {
+      cleanItem = cleanItem.replace(leadingNumRegex, "");
+    }
+
+    return <span className="text-justify block text-slate-900 leading-relaxed font-serif">{cleanItem}</span>;
+  };
+
   const handlePrint = () => {
     const printContent = document.getElementById("surat-tugas-printable")?.innerHTML;
     if (printContent) {
@@ -436,10 +517,10 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                 <td className="w-16 md:w-20 font-bold py-1">Dasar</td>
                 <td className="w-3 py-1">:</td>
                 <td className="py-1 text-justify">
-                  <ol className="list-decimal list-outside ml-4 p-0 space-y-2 text-slate-900">
-                    {dasarList.map((item, index) => (
+                  <ol className="list-decimal list-outside ml-4 p-0 space-y-2 text-justify text-slate-900">
+                    {getFlattenedDasarList().map((item, index) => (
                       <li key={`st-dasar-${index}`}>
-                        {item}
+                        {renderFormattedDasarItem(item)}
                       </li>
                     ))}
                   </ol>
