@@ -202,6 +202,50 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
   useEffect(() => {
     if (travel.id !== prevTravelId) {
       setPrevTravelId(travel.id);
+
+      // Try to load cached values from localStorage
+      const cacheKey = `sppd_doc_notadinas_cache_${travel.id}`;
+      const cached = localStorage.getItem(cacheKey);
+      
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          if (data.kopPemkab !== undefined) setKopPemkab(data.kopPemkab);
+          if (data.kopInstansi !== undefined) setKopInstansi(data.kopInstansi);
+          if (data.kopAlamat !== undefined) setKopAlamat(data.kopAlamat);
+          if (data.kopLaman !== undefined) setKopLaman(data.kopLaman);
+          if (data.numNota !== undefined) setNumNota(data.numNota);
+          if (data.dateNota !== undefined) setDateNota(data.dateNota);
+          if (data.kepada !== undefined) setKepada(data.kepada);
+          if (data.dari !== undefined) setDari(data.dari);
+          if (data.tembusan !== undefined) setTembusan(data.tembusan);
+          if (data.sifat !== undefined) setSifat(data.sifat);
+          if (data.lampiran !== undefined) setLampiran(data.lampiran);
+          if (data.hal !== undefined) setHal(data.hal);
+          if (data.useRujukan !== undefined) setUseRujukan(data.useRujukan);
+          if (data.rujalanDari !== undefined) setRujukanDari(data.rujalanDari);
+          if (data.rujakanNomor !== undefined) setRujukanNomor(data.rujakanNomor);
+          if (data.rujakanTanggal !== undefined) setRujukanTanggal(data.rujakanTanggal);
+          if (data.rujakanHal !== undefined) setRujukanHal(data.rujakanHal);
+          if (data.isCustomRujukan !== undefined) setIsCustomRujukan(data.isCustomRujukan);
+          if (data.customRujukanText !== undefined) setCustomRujukanText(data.customRujukanText);
+          if (data.sigJabatan !== undefined) setSigJabatan(data.sigJabatan);
+          if (data.sigNama !== undefined) setSigNama(data.sigNama);
+          if (data.sigPangkat !== undefined) setSigPangkat(data.sigPangkat);
+          if (data.sigNip !== undefined) setSigNip(data.sigNip);
+          if (data.signSpecialCode !== undefined) setSignSpecialCode(data.signSpecialCode);
+          if (data.signCodeCase !== undefined) setSignCodeCase(data.signCodeCase);
+          if (data.signCodeSize !== undefined) setSignCodeSize(data.signCodeSize);
+          if (data.useAnggaran !== undefined) setUseAnggaran(data.useAnggaran);
+          if (data.textAnggaran !== undefined) setTextAnggaran(data.textAnggaran);
+          if (data.textPenutup !== undefined) setTextPenutup(data.textPenutup);
+          if (data.formatPeserta !== undefined) setFormatPeserta(data.formatPeserta);
+          return;
+        } catch (e) {
+          console.error("Error parsing cached Nota Dinas", e);
+        }
+      }
+      
       setNumNota(travel.notaNumber);
       setDateNota(formatIndoDate(travel.notaDate));
       
@@ -237,6 +281,77 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
       setTextAnggaran(formatBudgetSentence(travel.budgetSource));
     }
   }, [travel.id, employees, prevTravelId, rujalanDari, rujakanNomor, rujakanTanggal, rujakanHal]);
+
+  // Save changes to localStorage on any state change
+  useEffect(() => {
+    if (!travel.id) return;
+    const cacheKey = `sppd_doc_notadinas_cache_${travel.id}`;
+    const data = {
+      kopPemkab,
+      kopInstansi,
+      kopAlamat,
+      kopLaman,
+      numNota,
+      dateNota,
+      kepada,
+      dari,
+      tembusan,
+      sifat,
+      lampiran,
+      hal,
+      useRujukan,
+      rujalanDari,
+      rujakanNomor,
+      rujakanTanggal,
+      rujakanHal,
+      isCustomRujukan,
+      customRujukanText,
+      sigJabatan,
+      sigNama,
+      sigPangkat,
+      sigNip,
+      signSpecialCode,
+      signCodeCase,
+      signCodeSize,
+      useAnggaran,
+      textAnggaran,
+      textPenutup,
+      formatPeserta
+    };
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+  }, [
+    travel.id,
+    kopPemkab,
+    kopInstansi,
+    kopAlamat,
+    kopLaman,
+    numNota,
+    dateNota,
+    kepada,
+    dari,
+    tembusan,
+    sifat,
+    lampiran,
+    hal,
+    useRujukan,
+    rujalanDari,
+    rujakanNomor,
+    rujakanTanggal,
+    rujakanHal,
+    isCustomRujukan,
+    customRujukanText,
+    sigJabatan,
+    sigNama,
+    sigPangkat,
+    sigNip,
+    signSpecialCode,
+    signCodeCase,
+    signCodeSize,
+    useAnggaran,
+    textAnggaran,
+    textPenutup,
+    formatPeserta
+  ]);
 
   // Handle restoring exact capture defaults immediately on request
   const handleLoadCaptureDefaults = () => {

@@ -343,6 +343,30 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
   useEffect(() => {
     if (travel.id !== prevTravelId) {
       setPrevTravelId(travel.id);
+
+      // Try to load cached values from localStorage
+      const cacheKey = `sppd_doc_honorarium_cache_${travel.id}`;
+      const cached = localStorage.getItem(cacheKey);
+
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          if (data.subActivityText !== undefined) setSubActivityText(data.subActivityText);
+          if (data.locationDate !== undefined) setLocationDate(data.locationDate);
+          if (data.paName !== undefined) setPaName(data.paName);
+          if (data.paNip !== undefined) setPaNip(data.paNip);
+          if (data.paTitle !== undefined) setPaTitle(data.paTitle);
+          if (data.pptkName !== undefined) setPptkName(data.pptkName);
+          if (data.pptkNip !== undefined) setPptkNip(data.pptkNip);
+          if (data.pptkTitle !== undefined) setPptkTitle(data.pptkTitle);
+          if (data.participants !== undefined) setParticipants(data.participants);
+          if (data.calendarYear !== undefined) setCalendarYear(data.calendarYear);
+          if (data.calendarMonth !== undefined) setCalendarMonth(data.calendarMonth);
+          return;
+        } catch (e) {
+          console.error("Error parsing cached Honorarium document", e);
+        }
+      }
       
       // 1. Title / Sub-activity default
       const durationText = travel.customDates && travel.customDates.length > 0
@@ -423,6 +447,39 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
       }
     }
   }, [travel, employees, prevTravelId]);
+
+  // Save changes to localStorage on any state change
+  useEffect(() => {
+    if (!travel.id) return;
+    const cacheKey = `sppd_doc_honorarium_cache_${travel.id}`;
+    const data = {
+      subActivityText,
+      locationDate,
+      paName,
+      paNip,
+      paTitle,
+      pptkName,
+      pptkNip,
+      pptkTitle,
+      participants,
+      calendarYear,
+      calendarMonth
+    };
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+  }, [
+    travel.id,
+    subActivityText,
+    locationDate,
+    paName,
+    paNip,
+    paTitle,
+    pptkName,
+    pptkNip,
+    pptkTitle,
+    participants,
+    calendarYear,
+    calendarMonth
+  ]);
 
   // Handle participant change
   const handleParticipantChange = (index: number, field: keyof ParticipantHonorState, value: any) => {

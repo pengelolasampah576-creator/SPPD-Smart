@@ -156,6 +156,61 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     if (currentKey !== prevSyncKey) {
       setPrevSyncKey(currentKey);
 
+      // Try to load cached values from localStorage
+      const cacheKey = `sppd_doc_spd_cache_${travel.id}_${activeEmployeeId}`;
+      const cached = localStorage.getItem(cacheKey);
+
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          if (data.kopPemkab !== undefined) setKopPemkab(data.kopPemkab);
+          if (data.kopInstansi !== undefined) setKopInstansi(data.kopInstansi);
+          if (data.kopAlamat !== undefined) setKopAlamat(data.kopAlamat);
+          if (data.kopLaman !== undefined) setKopLaman(data.kopLaman);
+          if (data.lembarKe !== undefined) setLembarKe(data.lembarKe);
+          if (data.kodeNo !== undefined) setKodeNo(data.kodeNo);
+          if (data.numSpd !== undefined) setNumSpd(data.numSpd);
+          if (data.paName !== undefined) setPaName(data.paName);
+          if (data.paNip !== undefined) setPaNip(data.paNip);
+          if (data.paPangkat !== undefined) setPaPangkat(data.paPangkat);
+          if (data.pangkatTraveler !== undefined) setPangkatTraveler(data.pangkatTraveler);
+          if (data.jabatanTraveler !== undefined) setJabatanTraveler(data.jabatanTraveler);
+          if (data.tingkatBiaya !== undefined) setTingkatBiaya(data.tingkatBiaya);
+          if (data.maksudDinas !== undefined) setMaksudDinas(data.maksudDinas);
+          if (data.alatTransport !== undefined) setAlatTransport(data.alatTransport);
+          if (data.tempatBerangkat !== undefined) setTempatBerangkat(data.tempatBerangkat);
+          if (data.tempatTujuan !== undefined) setTempatTujuan(data.tempatTujuan);
+          if (data.lamanyaDinas !== undefined) setLamanyaDinas(data.lamanyaDinas);
+          if (data.tglBerangkat !== undefined) setTglBerangkat(data.tglBerangkat);
+          if (data.tglKembali !== undefined) setTglKembali(data.tglKembali);
+          if (data.akunInstansi !== undefined) setAkunInstansi(data.akunInstansi);
+          if (data.akunKode !== undefined) setAkunKode(data.akunKode);
+          if (data.p2BerangkatDari !== undefined) setP2BerangkatDari(data.p2BerangkatDari);
+          if (data.p2Ke !== undefined) setP2Ke(data.p2Ke);
+          if (data.p2TglBerangkat !== undefined) setP2TglBerangkat(data.p2TglBerangkat);
+          if (data.pptkName !== undefined) setPptkName(data.pptkName);
+          if (data.pptkNip !== undefined) setPptkNip(data.pptkNip);
+          if (data.p2Row1TibaDi !== undefined) setP2Row1TibaDi(data.p2Row1TibaDi);
+          if (data.p2Row1TibaTgl !== undefined) setP2Row1TibaTgl(data.p2Row1TibaTgl);
+          if (data.p2Row1BerangkatDari !== undefined) setP2Row1BerangkatDari(data.p2Row1BerangkatDari);
+          if (data.p2Row1BerangkatKe !== undefined) setP2Row1BerangkatKe(data.p2Row1BerangkatKe);
+          if (data.p2Row1BerangkatTgl !== undefined) setP2Row1BerangkatTgl(data.p2Row1BerangkatTgl);
+          if (data.p2Row3TibaDi !== undefined) setP2Row3TibaDi(data.p2Row3TibaDi);
+          if (data.p2Row3TibaTgl !== undefined) setP2Row3TibaTgl(data.p2Row3TibaTgl);
+          if (data.p2Notes !== undefined) setP2Notes(data.p2Notes);
+          if (data.p2TopRightLabel !== undefined) setP2TopRightLabel(data.p2TopRightLabel);
+          if (data.p2Row4LeftLabel !== undefined) setP2Row4LeftLabel(data.p2Row4LeftLabel);
+          if (data.p2Row4RightLabel !== undefined) setP2Row4RightLabel(data.p2Row4RightLabel);
+          if (data.signSpecialCode !== undefined) setSignSpecialCode(data.signSpecialCode);
+          if (data.pptkSpecialCode !== undefined) setPptkSpecialCode(data.pptkSpecialCode);
+          if (data.signCodeCase !== undefined) setSignCodeCase(data.signCodeCase);
+          if (data.signCodeSize !== undefined) setSignCodeSize(data.signCodeSize);
+          return;
+        } catch (e) {
+          console.error("Error parsing cached SPD document", e);
+        }
+      }
+
       // Default metadata fields
       const cleanPrefix = travel.spdNumberPrefix.replace(/\/\d+$/, '');
       setNumSpd(`${cleanPrefix}/${serialNo}`);
@@ -231,6 +286,102 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     }
 
   }, [activeEmployeeId, travel.id, employees, activeEmployee, durationDays, serialNo, travel.spdNumberPrefix, travel.ppkId, travel.destination, travel.purpose, travel.transportMode, travel.departurePlace, travel.departureDate, travel.returnDate, travel.budgetCode, travel.budgetSource, travel.signatoryId, prevSyncKey]);
+
+  // Save changes to localStorage on any state change
+  useEffect(() => {
+    if (!travel.id || !activeEmployeeId) return;
+    const cacheKey = `sppd_doc_spd_cache_${travel.id}_${activeEmployeeId}`;
+    const data = {
+      kopPemkab,
+      kopInstansi,
+      kopAlamat,
+      kopLaman,
+      lembarKe,
+      kodeNo,
+      numSpd,
+      paName,
+      paNip,
+      paPangkat,
+      pangkatTraveler,
+      jabatanTraveler,
+      tingkatBiaya,
+      maksudDinas,
+      alatTransport,
+      tempatBerangkat,
+      tempatTujuan,
+      lamanyaDinas,
+      tglBerangkat,
+      tglKembali,
+      akunInstansi,
+      akunKode,
+      p2BerangkatDari,
+      p2Ke,
+      p2TglBerangkat,
+      pptkName,
+      pptkNip,
+      p2Row1TibaDi,
+      p2Row1TibaTgl,
+      p2Row1BerangkatDari,
+      p2Row1BerangkatKe,
+      p2Row1BerangkatTgl,
+      p2Row3TibaDi,
+      p2Row3TibaTgl,
+      p2Notes,
+      p2TopRightLabel,
+      p2Row4LeftLabel,
+      p2Row4RightLabel,
+      signSpecialCode,
+      pptkSpecialCode,
+      signCodeCase,
+      signCodeSize
+    };
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+  }, [
+    travel.id,
+    activeEmployeeId,
+    kopPemkab,
+    kopInstansi,
+    kopAlamat,
+    kopLaman,
+    lembarKe,
+    kodeNo,
+    numSpd,
+    paName,
+    paNip,
+    paPangkat,
+    pangkatTraveler,
+    jabatanTraveler,
+    tingkatBiaya,
+    maksudDinas,
+    alatTransport,
+    tempatBerangkat,
+    tempatTujuan,
+    lamanyaDinas,
+    tglBerangkat,
+    tglKembali,
+    akunInstansi,
+    akunKode,
+    p2BerangkatDari,
+    p2Ke,
+    p2TglBerangkat,
+    pptkName,
+    pptkNip,
+    p2Row1TibaDi,
+    p2Row1TibaTgl,
+    p2Row1BerangkatDari,
+    p2Row1BerangkatKe,
+    p2Row1BerangkatTgl,
+    p2Row3TibaDi,
+    p2Row3TibaTgl,
+    p2Notes,
+    p2TopRightLabel,
+    p2Row4LeftLabel,
+    p2Row4RightLabel,
+    signSpecialCode,
+    pptkSpecialCode,
+    signCodeCase,
+    signCodeSize
+  ]);
 
   // Handle Preset trigger from screenshots
   const handleLoadCaptureDefaults = () => {

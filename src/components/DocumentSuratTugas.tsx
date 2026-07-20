@@ -53,12 +53,43 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
   useEffect(() => {
     if (travel.id !== prevTravelId) {
       setPrevTravelId(travel.id);
+
+      // Try to load cached values from localStorage
+      const cacheKey = `sppd_doc_surattugas_cache_${travel.id}`;
+      const cached = localStorage.getItem(cacheKey);
+
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          if (data.dasarList !== undefined) setDasarList(data.dasarList);
+          if (data.signSpecialCode !== undefined) setSignSpecialCode(data.signSpecialCode);
+          if (data.signCodeCase !== undefined) setSignCodeCase(data.signCodeCase);
+          if (data.signCodeSize !== undefined) setSignCodeSize(data.signCodeSize);
+          return;
+        } catch (e) {
+          console.error("Error parsing cached Surat Tugas", e);
+        }
+      }
+
       setDasarList([
         "Peraturan Daerah Kabupaten Tabalong Nomor 3 Tahun 2021 tentang Organisasi dan Tata Kerja Inspektorat Daerah Kabupaten Tabalong.",
         `Nota Dinas ${signatory?.name || "DIYANTO, SE, MT, FRMP"} (${signatory?.jabatan || "Inspektur"}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`
       ]);
     }
   }, [travel.id, travel.notaNumber, travel.notaDate, travel.destination, signatory?.id, signatory?.name, signatory?.jabatan, prevTravelId]);
+
+  // Save changes to localStorage on any state change
+  useEffect(() => {
+    if (!travel.id) return;
+    const cacheKey = `sppd_doc_surattugas_cache_${travel.id}`;
+    const data = {
+      dasarList,
+      signSpecialCode,
+      signCodeCase,
+      signCodeSize
+    };
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+  }, [travel.id, dasarList, signSpecialCode, signCodeCase, signCodeSize]);
 
   // Helper to split a combined text entry into a list of individual cleaned legal references
   const getFlattenedDasarList = () => {
