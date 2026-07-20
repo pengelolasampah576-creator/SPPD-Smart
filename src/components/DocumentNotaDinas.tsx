@@ -1018,7 +1018,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
             
             {useRujukan && (
               <div className="relative group">
-                <div className="absolute -left-6 top-1 text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150 select-none pointer-events-none text-xs" title="Kalimat rujukan ini dapat diedit langsung">
+                <div className="absolute -left-6 top-1 text-blue-500 opacity-0 group-hover:opacity-100 print:hidden transition-opacity duration-150 select-none pointer-events-none text-xs" title="Kalimat rujukan ini dapat diedit langsung">
                   ✍️
                 </div>
                 <div
