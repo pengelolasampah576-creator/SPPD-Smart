@@ -678,6 +678,7 @@ export default function App() {
           {activeTab === "travels" && isCreatingTravel && (
             <TravelForm
               employees={employees}
+              travels={travels}
               onSubmit={handleAddTravel}
               onCancel={() => setIsCreatingTravel(false)}
             />
@@ -687,6 +688,7 @@ export default function App() {
           {activeTab === "travels" && editingTravel && (
             <TravelForm
               employees={employees}
+              travels={travels}
               onSubmit={handleEditTravel}
               onCancel={() => setEditingTravel(null)}
               initialTravel={editingTravel}

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Employee, Travel, TravelExpense } from "../types";
-import { X, Plus, Search, Calendar, MapPin, BadgeDollarSign, User, Award, ArrowLeft, Fuel, ArrowRightLeft } from "lucide-react";
+import { X, Plus, Search, Calendar, MapPin, BadgeDollarSign, User, Award, ArrowLeft, Fuel, ArrowRightLeft, AlertTriangle } from "lucide-react";
 
 interface TravelFormProps {
   employees: Employee[];
+  travels?: Travel[];
   onSubmit: (travel: Travel) => void;
   onCancel: () => void;
   initialTravel?: Travel | null;
@@ -11,6 +12,7 @@ interface TravelFormProps {
 
 export default function TravelForm({
   employees,
+  travels = [],
   onSubmit,
   onCancel,
   initialTravel,
@@ -62,6 +64,95 @@ export default function TravelForm({
     const updated = [...customDatesList];
     updated[index] = val;
     setCustomDatesList(updated);
+  };
+
+  // Detect date conflicts with other activities for selected participants
+  const conflicts = React.useMemo(() => {
+    if (!travels || travels.length === 0) return [];
+    
+    // Get current travel's dates
+    let currentDates: string[] = [];
+    if (isNonConsecutive) {
+      currentDates = customDatesList.filter(Boolean);
+    } else {
+      if (departureDate && returnDate) {
+        const start = new Date(departureDate);
+        const end = new Date(returnDate);
+        if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && start <= end) {
+          const temp = new Date(start);
+          while (temp <= end) {
+            currentDates.push(temp.toISOString().split('T')[0]);
+            temp.setDate(temp.getDate() + 1);
+          }
+        }
+      }
+    }
+
+    if (currentDates.length === 0 || selectedEmployeeIds.length === 0) return [];
+
+    const foundConflicts: {
+      employeeId: string;
+      employeeName: string;
+      travelId: string;
+      travelPurpose: string;
+      overlappingDates: string[];
+    }[] = [];
+
+    const currentDatesSet = new Set(currentDates);
+
+    // Loop through existing travels
+    travels.forEach(t => {
+      // If editing, skip self
+      if (initialTravel && t.id === initialTravel.id) return;
+
+      // Find overlapping dates
+      let otherDates: string[] = [];
+      if (t.customDates && t.customDates.length > 0) {
+        otherDates = t.customDates;
+      } else if (t.departureDate && t.returnDate) {
+        const start = new Date(t.departureDate);
+        const end = new Date(t.returnDate);
+        if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && start <= end) {
+          const temp = new Date(start);
+          while (temp <= end) {
+            otherDates.push(temp.toISOString().split('T')[0]);
+            temp.setDate(temp.getDate() + 1);
+          }
+        }
+      }
+
+      const overlaps = otherDates.filter(d => currentDatesSet.has(d));
+      if (overlaps.length > 0) {
+        // There is date overlap! Now check if any selected employee is in this travel
+        const overlappingEmployees = selectedEmployeeIds.filter(empId => t.employeeIds.includes(empId));
+        overlappingEmployees.forEach(empId => {
+          const empObj = employees.find(e => e.id === empId);
+          foundConflicts.push({
+            employeeId: empId,
+            employeeName: empObj ? empObj.name : "Pegawai",
+            travelId: t.id,
+            travelPurpose: t.purpose,
+            overlappingDates: overlaps.sort()
+          });
+        });
+      }
+    });
+
+    return foundConflicts;
+  }, [travels, isNonConsecutive, customDatesList, departureDate, returnDate, selectedEmployeeIds, initialTravel, employees]);
+
+  const formatIndoDateCompact = (dateStr: string) => {
+    if (!dateStr) return "-";
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+      "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
+    ];
+    const parts = dateStr.split("-");
+    if (parts.length !== 3) return dateStr;
+    const day = parseInt(parts[2], 10);
+    const month = months[parseInt(parts[1], 10) - 1];
+    const year = parts[0].slice(-2);
+    return `${day} ${month} '${year}`;
   };
 
   // Initialize with values
@@ -155,11 +246,55 @@ export default function TravelForm({
     return matchesSearch && notAlreadySelected;
   });
 
+  // A clear, beautiful warning panel listing conflicts
+  const renderConflictWarning = () => {
+    if (conflicts.length === 0) return null;
+
+    return (
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 space-y-3 animate-fadeIn my-4">
+        <div className="flex items-start gap-2.5 text-amber-800">
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <h4 className="text-sm font-bold text-amber-900">
+              Peringatan: Jadwal Bentrok Terdeteksi!
+            </h4>
+            <p className="text-xs text-amber-700 font-medium">
+              Ada pegawai terpilih yang sudah ditugaskan pada tanggal yang sama di kegiatan dinas lain. Mohon periksa kembali jadwal keberangkatan atau susunan peserta Anda:
+            </p>
+          </div>
+        </div>
+
+        <div className="divide-y divide-amber-150 border-t border-amber-200/50 pt-2 max-h-48 overflow-y-auto pr-1">
+          {conflicts.map((conflict, i) => (
+            <div key={`conflict-${i}`} className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-800">
+              <div className="space-y-1">
+                <span className="font-bold text-amber-950 block">{conflict.employeeName}</span>
+                <span className="text-[10px] text-amber-600 font-bold inline-flex bg-amber-100/70 border border-amber-200/60 px-2 py-0.5 rounded-md">
+                  Tanggal bentrok: {conflict.overlappingDates.map(d => formatIndoDateCompact(d)).join(", ")}
+                </span>
+              </div>
+              <div className="text-[11px] text-slate-500 max-w-xs text-left sm:text-right">
+                Bentrok kegiatan: <span className="font-semibold text-slate-700 line-clamp-1" title={conflict.travelPurpose}>{conflict.travelPurpose}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedEmployeeIds.length === 0) {
       alert("Awas: Harap pilih minimal satu orang pegawai sebagai peserta perjalanan dinas.");
       return;
+    }
+
+    if (conflicts.length > 0) {
+      const confirmSave = window.confirm(
+        `Perhatian!\n\nAda ${conflicts.length} konflik jadwal perjalanan dinas terdeteksi untuk peserta terpilih.\nApakah Anda yakin ingin tetap menyimpan data perjalanan dinas ini?`
+      );
+      if (!confirmSave) return;
     }
 
     // Prepare default expenses for newly selected employees
@@ -501,6 +636,9 @@ export default function TravelForm({
           )}
         </div>
 
+        {/* RENDER CONFLICT WARNING IF ANY */}
+        {renderConflictWarning()}
+
         {/* ROW 3: Anggaran & Struktur Kepemimpinan */}
         <div className="bg-slate-50/75 p-5 rounded-2xl border border-slate-100 space-y-4">
           <h3 className="text-xs font-bold uppercase tracking-wider text-blue-600 flex items-center gap-2">
@@ -660,24 +798,44 @@ export default function TravelForm({
                 {selectedEmployeeIds.map((empId, index) => {
                   const emp = employees.find(e => e.id === empId);
                   if (!emp) return null;
+                  const employeeConflicts = conflicts.filter(c => c.employeeId === empId);
+                  const hasConflict = employeeConflicts.length > 0;
                   return (
                     <div
                       key={emp.id}
-                      className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-150 shadow-xs"
+                      className={`flex items-center justify-between px-4 py-3 rounded-xl border shadow-xs transition-all duration-200 ${
+                        hasConflict
+                          ? "bg-amber-50/30 border-amber-300 ring-1 ring-amber-200/30"
+                          : "bg-white border-slate-150"
+                      }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center text-xs text-blue-600 font-bold border border-blue-100/60">
+                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border transition ${
+                          hasConflict
+                            ? "bg-amber-100 text-amber-700 border-amber-200"
+                            : "bg-blue-50 text-blue-600 border-blue-100/60"
+                        }`}>
                           {index + 1}
                         </span>
                         <div>
                           <p className="text-xs font-bold text-slate-800 line-clamp-1">{emp.name}</p>
                           <p className="text-[10px] text-slate-500 line-clamp-1">{emp.jabatan}</p>
+                          {hasConflict && (
+                            <div className="text-[9px] text-amber-700 font-bold flex items-center gap-1 mt-0.5 animate-pulse">
+                              <AlertTriangle className="w-3 h-3 text-amber-500 shrink-0" />
+                              <span>Bentrok ({employeeConflicts.length} kegiatan)</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleRemoveEmployee(emp.id)}
-                        className="p-1 text-slate-450 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                        className={`p-1 rounded-lg transition ${
+                          hasConflict
+                            ? "text-amber-500 hover:text-red-600 hover:bg-amber-100/50"
+                            : "text-slate-450 hover:text-red-600 hover:bg-red-50"
+                        }`}
                         title="Hapus dari daftar tugas"
                       >
                         <X className="w-4 h-4" />
