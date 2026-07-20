@@ -344,6 +344,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 .text-\[11px\] { font-size: 11px !important; }
                 .text-\[11\.5px\] { font-size: 11.5px !important; }
                 .text-\[14px\] { font-size: 14px !important; }
+                .print\\:hidden { display: none !important; }
+                .print-hidden { display: none !important; }
                 
                 .w-1\/2 { width: 50% !important; }
                 .w-full { width: 100% !important; }

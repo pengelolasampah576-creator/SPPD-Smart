@@ -474,6 +474,8 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                 .uppercase { text-transform: uppercase; }
                 .italic { font-style: italic; }
                 .font-mono { font-family: 'Courier New', monospace; }
+                .print\\:hidden { display: none !important; }
+                .print-hidden { display: none !important; }
                 
                 .m-0 { margin: 0 !important; }
                 .mb-1 { margin-bottom: 4px; }
