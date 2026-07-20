@@ -446,7 +446,7 @@ export default function App() {
               </div>
 
               {/* KPI metrics row */}
-              <KPISection travels={travels} />
+              <KPISection travels={travels} employees={employees} />
 
               {/* Recent Travels and Quick launch */}
               <div className="bg-white rounded-2xl border border-slate-150 p-6 space-y-4 shadow-xs">
