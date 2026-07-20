@@ -47,13 +47,18 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
     ? travel.customDates.length
     : calculateDays(travel.departureDate, travel.returnDate);
 
+  const [prevTravelId, setPrevTravelId] = useState<string | null>(null);
+
   // Synchronize or initialize default Dasar lists based on active travel and signatory configuration
   useEffect(() => {
-    setDasarList([
-      "Peraturan Daerah Kabupaten Tabalong Nomor 3 Tahun 2021 tentang Organisasi dan Tata Kerja Inspektorat Daerah Kabupaten Tabalong.",
-      `Nota Dinas ${signatory?.name || "DIYANTO, SE, MT, FRMP"} (${signatory?.jabatan || "Inspektur"}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`
-    ]);
-  }, [travel.id, travel.notaNumber, travel.notaDate, travel.destination, signatory?.id, signatory?.name, signatory?.jabatan]);
+    if (travel.id !== prevTravelId) {
+      setPrevTravelId(travel.id);
+      setDasarList([
+        "Peraturan Daerah Kabupaten Tabalong Nomor 3 Tahun 2021 tentang Organisasi dan Tata Kerja Inspektorat Daerah Kabupaten Tabalong.",
+        `Nota Dinas ${signatory?.name || "DIYANTO, SE, MT, FRMP"} (${signatory?.jabatan || "Inspektur"}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`
+      ]);
+    }
+  }, [travel.id, travel.notaNumber, travel.notaDate, travel.destination, signatory?.id, signatory?.name, signatory?.jabatan, prevTravelId]);
 
   // Helper to split a combined text entry into a list of individual cleaned legal references
   const getFlattenedDasarList = () => {
@@ -137,8 +142,16 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
   };
 
   const handlePrint = () => {
-    const printContent = document.getElementById("surat-tugas-printable")?.innerHTML;
-    if (printContent) {
+    const docContainer = document.getElementById("surat-tugas-printable");
+    if (docContainer) {
+      // Clone the element to avoid mutating live screen DOM
+      const clone = docContainer.cloneNode(true) as HTMLElement;
+      
+      // Remove any print-hidden or print:hidden elements
+      const hiddenElements = clone.querySelectorAll(".print-hidden, .print\\:hidden, [class*='print-hidden'], [class*='print:hidden']");
+      hiddenElements.forEach(el => el.remove());
+
+      const printContent = clone.innerHTML;
       const printWindow = window.open("", "", "height=800,width=700");
       if (printWindow) {
         printWindow.document.write(`

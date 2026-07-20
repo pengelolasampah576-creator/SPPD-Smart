@@ -11,6 +11,7 @@ import DocumentSPD from "./components/DocumentSPD";
 import LoginPortal from "./components/LoginPortal";
 import DocumentTelaahStaf from "./components/DocumentTelaahStaf";
 import DocumentHonorarium from "./components/DocumentHonorarium";
+import VortexBridging from "./components/VortexBridging";
 
 import {
   Briefcase,
@@ -70,7 +71,7 @@ export default function App() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [travels, setTravels] = useState<Travel[]>([]);
   
-  const [activeTab, setActiveTab] = useState<"dashboard" | "travels" | "employees" | "telaah">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "travels" | "employees" | "telaah" | "bridging">("dashboard");
   const [selectedTravelId, setSelectedTravelId] = useState<string | null>(null);
   
   // Document Sub-tab state
@@ -364,6 +365,24 @@ export default function App() {
             >
               <FileText className="w-5 h-5 opacity-80 text-blue-600" />
               Telaahan Staf (AI)
+            </button>
+
+            <button
+              id="sidebar-vortex-btn"
+              onClick={() => {
+                setActiveTab("bridging");
+                setSelectedTravelId(null);
+                setIsCreatingTravel(false);
+                setEditingTravel(null);
+              }}
+              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition duration-150 flex items-center gap-3 cursor-pointer ${
+                activeTab === "bridging"
+                  ? "bg-indigo-50 text-indigo-600 border-l-4 border-indigo-600 font-semibold"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium"
+              }`}
+            >
+              <ArrowRightLeft className="w-5 h-5 opacity-80 text-indigo-600" />
+              Integrasi Vortex
             </button>
           </div>
 
@@ -775,6 +794,11 @@ export default function App() {
           {/* G. TELAAHAN STAF (STAFF STUDY) TAB */}
           {activeTab === "telaah" && (
             <DocumentTelaahStaf employees={employees} />
+          )}
+
+          {/* H. VORTEX PERDIN INTEGRATION HUB */}
+          {activeTab === "bridging" && (
+            <VortexBridging travels={travels} employees={employees} onUpdateTravels={handleUpdateTravels} />
           )}
 
         </div>

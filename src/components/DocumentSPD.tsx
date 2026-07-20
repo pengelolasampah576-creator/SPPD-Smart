@@ -146,84 +146,91 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     emp.jabatan.toLowerCase().includes(pptkName.toLowerCase())
   );
 
+  const [prevSyncKey, setPrevSyncKey] = useState<string | null>(null);
+
   // Keep state synchronized with travel select choices
   useEffect(() => {
     if (!activeEmployee) return;
 
-    // Default metadata fields
-    const cleanPrefix = travel.spdNumberPrefix.replace(/\/\d+$/, '');
-    setNumSpd(`${cleanPrefix}/${serialNo}`);
+    const currentKey = `${travel.id}-${activeEmployeeId}`;
+    if (currentKey !== prevSyncKey) {
+      setPrevSyncKey(currentKey);
 
-    // Try to find the actual PA/PPK or default to Diyanto
-    const matchedPpk = employees.find(e => e.id === travel.ppkId);
-    if (matchedPpk) {
-      setPaName(matchedPpk.name);
-      setPaNip(matchedPpk.nip);
-      setPaPangkat(getFormattedPangkatGolongan(matchedPpk.pangkat));
-    } else {
-      setPaName("Diyanto, SE, MT, FRMP");
-      setPaNip("197110132005011005");
-      setPaPangkat("Pembina Utama Muda (IV/c)");
-    }
+      // Default metadata fields
+      const cleanPrefix = travel.spdNumberPrefix.replace(/\/\d+$/, '');
+      setNumSpd(`${cleanPrefix}/${serialNo}`);
 
-    // Traveler details
-    setPangkatTraveler(getFormattedPangkatGolongan(activeEmployee.pangkat));
-    setJabatanTraveler(activeEmployee.jabatan);
-    setTingkatBiaya(getTingkatBiaya(travel.destination));
-
-    // Travel particulars
-    setMaksudDinas(travel.purpose);
-    let mappedAlat = "Transportasi Darat";
-    if (travel.transportMode) {
-      const lowerMode = travel.transportMode.toLowerCase();
-      if (lowerMode.includes("udara") || lowerMode.includes("pesawat")) {
-        mappedAlat = "Transportasi Udara";
-      } else if (lowerMode.includes("laut") || lowerMode.includes("feri") || lowerMode.includes("kapal")) {
-        mappedAlat = "Transportasi Laut";
+      // Try to find the actual PA/PPK or default to Diyanto
+      const matchedPpk = employees.find(e => e.id === travel.ppkId);
+      if (matchedPpk) {
+        setPaName(matchedPpk.name);
+        setPaNip(matchedPpk.nip);
+        setPaPangkat(getFormattedPangkatGolongan(matchedPpk.pangkat));
       } else {
-        mappedAlat = "Transportasi Darat";
+        setPaName("Diyanto, SE, MT, FRMP");
+        setPaNip("197110132005011005");
+        setPaPangkat("Pembina Utama Muda (IV/c)");
+      }
+
+      // Traveler details
+      setPangkatTraveler(getFormattedPangkatGolongan(activeEmployee.pangkat));
+      setJabatanTraveler(activeEmployee.jabatan);
+      setTingkatBiaya(getTingkatBiaya(travel.destination));
+
+      // Travel particulars
+      setMaksudDinas(travel.purpose);
+      let mappedAlat = "Transportasi Darat";
+      if (travel.transportMode) {
+        const lowerMode = travel.transportMode.toLowerCase();
+        if (lowerMode.includes("udara") || lowerMode.includes("pesawat")) {
+          mappedAlat = "Transportasi Udara";
+        } else if (lowerMode.includes("laut") || lowerMode.includes("feri") || lowerMode.includes("kapal")) {
+          mappedAlat = "Transportasi Laut";
+        } else {
+          mappedAlat = "Transportasi Darat";
+        }
+      }
+      setAlatTransport(mappedAlat);
+      setTempatBerangkat(travel.departurePlace || "Tanjung");
+      setTempatTujuan(travel.destination);
+      setLamanyaDinas(`${durationDays} (${durationDaysToWords(durationDays)}) hari`);
+      setTglBerangkat(formatIndoDate(travel.departureDate));
+      setTglKembali(formatIndoDate(travel.returnDate));
+
+      // Budget account matching Page 1 Row 9
+      setAkunInstansi("Inspektorat Daerah Kabupaten Tabalong");
+      setAkunKode(`${travel.budgetCode} Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD ${travel.budgetSource.replace("DPA-SKPD", "").replace("DPA", "").trim()}`);
+
+      // Page 2 Default parameters
+      setP2BerangkatDari(travel.departurePlace || "Tanjung");
+      setP2Ke(travel.destination);
+      setP2TglBerangkat(formatIndoDate(travel.departureDate));
+
+      setP2Row1TibaDi(travel.destination);
+      setP2Row1TibaTgl(formatIndoDate(travel.departureDate));
+      setP2Row1BerangkatDari(travel.destination);
+      setP2Row1BerangkatKe(travel.departurePlace || "Tanjung");
+      setP2Row1BerangkatTgl(formatIndoDate(travel.returnDate));
+
+      setP2Row3TibaDi(travel.departurePlace || "Tanjung");
+      setP2Row3TibaTgl(formatIndoDate(travel.returnDate));
+
+      // PPTK dynamic default search: try to find a sub-coordinator or active user or fallback
+      const matchedPptk = employees.find(e => 
+        e.jabatan.toLowerCase().includes("pelaksana") || 
+        e.jabatan.toLowerCase().includes("perencanaan") || 
+        e.id === travel.signatoryId
+      );
+      if (matchedPptk && matchedPptk.id !== activeEmployee.id) {
+        setPptkName(matchedPptk.name);
+        setPptkNip(matchedPptk.nip);
+      } else {
+        setPptkName("Syahriadi, S.Sos., M.Si");
+        setPptkNip("197812022005011008");
       }
     }
-    setAlatTransport(mappedAlat);
-    setTempatBerangkat(travel.departurePlace || "Tanjung");
-    setTempatTujuan(travel.destination);
-    setLamanyaDinas(`${durationDays} (${durationDaysToWords(durationDays)}) hari`);
-    setTglBerangkat(formatIndoDate(travel.departureDate));
-    setTglKembali(formatIndoDate(travel.returnDate));
 
-    // Budget account matching Page 1 Row 9
-    setAkunInstansi("Inspektorat Daerah Kabupaten Tabalong");
-    setAkunKode(`${travel.budgetCode} Penyelenggaraan Rapat Koordinasi dan Konsultasi SKPD ${travel.budgetSource.replace("DPA-SKPD", "").replace("DPA", "").trim()}`);
-
-    // Page 2 Default parameters
-    setP2BerangkatDari(travel.departurePlace || "Tanjung");
-    setP2Ke(travel.destination);
-    setP2TglBerangkat(formatIndoDate(travel.departureDate));
-
-    setP2Row1TibaDi(travel.destination);
-    setP2Row1TibaTgl(formatIndoDate(travel.departureDate));
-    setP2Row1BerangkatDari(travel.destination);
-    setP2Row1BerangkatKe(travel.departurePlace || "Tanjung");
-    setP2Row1BerangkatTgl(formatIndoDate(travel.returnDate));
-
-    setP2Row3TibaDi(travel.departurePlace || "Tanjung");
-    setP2Row3TibaTgl(formatIndoDate(travel.returnDate));
-
-    // PPTK dynamic default search: try to find a sub-coordinator or active user or fallback
-    const matchedPptk = employees.find(e => 
-      e.jabatan.toLowerCase().includes("pelaksana") || 
-      e.jabatan.toLowerCase().includes("perencanaan") || 
-      e.id === travel.signatoryId
-    );
-    if (matchedPptk && matchedPptk.id !== activeEmployee.id) {
-      setPptkName(matchedPptk.name);
-      setPptkNip(matchedPptk.nip);
-    } else {
-      setPptkName("Syahriadi, S.Sos., M.Si");
-      setPptkNip("197812022005011008");
-    }
-
-  }, [activeEmployeeId, travel.id, employees]);
+  }, [activeEmployeeId, travel.id, employees, activeEmployee, durationDays, serialNo, travel.spdNumberPrefix, travel.ppkId, travel.destination, travel.purpose, travel.transportMode, travel.departurePlace, travel.departureDate, travel.returnDate, travel.budgetCode, travel.budgetSource, travel.signatoryId, prevSyncKey]);
 
   // Handle Preset trigger from screenshots
   const handleLoadCaptureDefaults = () => {
