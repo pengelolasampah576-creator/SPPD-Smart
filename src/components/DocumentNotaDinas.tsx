@@ -196,42 +196,47 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
     return <span className="text-justify block text-black leading-relaxed">{text}</span>;
   };
 
-  // Keep states synchronized when active travel or participants list changes
+  const [prevTravelId, setPrevTravelId] = useState<string | null>(null);
+
+  // Keep states synchronized when active travel changes
   useEffect(() => {
-    setNumNota(travel.notaNumber);
-    setDateNota(formatIndoDate(travel.notaDate));
-    
-    // Default Hal based on current travel purpose
-    setHal(`Mohon persetujuan mengikuti Kegiatan ${travel.purpose}`);
+    if (travel.id !== prevTravelId) {
+      setPrevTravelId(travel.id);
+      setNumNota(travel.notaNumber);
+      setDateNota(formatIndoDate(travel.notaDate));
+      
+      // Default Hal based on current travel purpose
+      setHal(`Mohon persetujuan mengikuti Kegiatan ${travel.purpose}`);
 
-    // Set initial rujukan text
-    setCustomRujukanText(`Sehubungan dengan surat dari ${rujalanDari} Nomor ${rujakanNomor} Tanggal ${rujakanTanggal} Hal: ${rujakanHal}.`);
+      // Set initial rujukan text
+      setCustomRujukanText(`Sehubungan dengan surat dari ${rujalanDari} Nomor ${rujakanNomor} Tanggal ${rujakanTanggal} Hal: ${rujakanHal}.`);
 
-    // Try to search for a Kasubbag / Kepegawaian role in our employees list
-    const kasubbag = employees.find(e => 
-      e.jabatan.toLowerCase().includes("kasubbag") || 
-      e.jabatan.toLowerCase().includes("kepegawaian") ||
-      e.jabatan.toLowerCase().includes("umum")
-    );
+      // Try to search for a Kasubbag / Kepegawaian role in our employees list
+      const kasubbag = employees.find(e => 
+        e.jabatan.toLowerCase().includes("kasubbag") || 
+        e.jabatan.toLowerCase().includes("kepegawaian") ||
+        e.jabatan.toLowerCase().includes("umum")
+      );
 
-    if (kasubbag) {
-      setDari(kasubbag.jabatan);
-      setSigJabatan(kasubbag.jabatan);
-      setSigNama(kasubbag.name);
-      setSigPangkat(kasubbag.pangkat);
-      setSigNip(kasubbag.nip);
-    } else {
-      // Fallback to screenshot defaults
-      setDari("Kasubbag Umum dan Kepegawaian");
-      setSigJabatan("Kasubbag Umum dan Kepegawaian");
-      setSigNama("Ida Lusia Wahyuti, S.Sos, MM");
-      setSigPangkat("Pembina / IV/a");
-      setSigNip("197904092000032002");
+      if (kasubbag) {
+        setDari(kasubbag.jabatan);
+        setSigJabatan(kasubbag.jabatan);
+        setSigNama(kasubbag.name);
+        setSigPangkat(kasubbag.pangkat);
+        setSigNip(kasubbag.nip);
+      } else {
+        // Fallback to screenshot defaults
+        setDari("Kasubbag Umum dan Kepegawaian");
+        setSigJabatan("Kasubbag Umum dan Kepegawaian");
+        setSigNama("Ida Lusia Wahyuti, S.Sos, MM");
+        setSigPangkat("Pembina / IV/a");
+        setSigNip("197904092000032002");
+      }
+
+      // Populate dynamic Budget and Reckoning Sentence
+      setTextAnggaran(formatBudgetSentence(travel.budgetSource));
     }
-
-    // Populate dynamic Budget and Reckoning Sentence
-    setTextAnggaran(formatBudgetSentence(travel.budgetSource));
-  }, [travel.id, employees, rujalanDari, rujakanNomor, rujakanTanggal, rujakanHal]);
+  }, [travel.id, employees, prevTravelId, rujalanDari, rujakanNomor, rujakanTanggal, rujakanHal]);
 
   // Handle restoring exact capture defaults immediately on request
   const handleLoadCaptureDefaults = () => {
@@ -271,8 +276,21 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
   };
 
   const handlePrint = () => {
-    const printContent = document.getElementById("nota-dinas-printable")?.innerHTML;
-    if (printContent) {
+    const docContainer = document.getElementById("nota-dinas-printable");
+    if (docContainer) {
+      // Clone the element to avoid mutating the live screen DOM
+      const clone = docContainer.cloneNode(true) as HTMLElement;
+      
+      // Query and remove all elements with print-hidden or print:hidden classes
+      const hiddenElements = clone.querySelectorAll(".print-hidden, .print\\:hidden, [class*='print-hidden'], [class*='print:hidden']");
+      hiddenElements.forEach(el => el.remove());
+
+      // Get the filtered innerHTML
+      let printContent = clone.innerHTML;
+      
+      // Replace any stray ✍️ emojis in text nodes just in case
+      printContent = printContent.replace(/✍️/g, "");
+
       const printWindow = window.open("", "", "height=900,width=800");
       if (printWindow) {
         printWindow.document.write(`

@@ -337,86 +337,92 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
     setSelectedNewEmpId("");
   };
 
+  const [prevTravelId, setPrevTravelId] = useState<string | null>(null);
+
   // Load defaults based on selected travel
   useEffect(() => {
-    // 1. Title / Sub-activity default
-    const durationText = travel.customDates && travel.customDates.length > 0
-      ? `${travel.customDates.length} HARI`
-      : `${calculateDays(travel.departureDate, travel.returnDate)} HARI`;
+    if (travel.id !== prevTravelId) {
+      setPrevTravelId(travel.id);
       
-    const formattedDepDate = formatIndoDate(travel.departureDate);
-    const formattedRetDate = formatIndoDate(travel.returnDate);
-    const dateRange = travel.departureDate === travel.returnDate
-      ? formattedDepDate
-      : `${formattedDepDate} s.d ${formattedRetDate}`;
+      // 1. Title / Sub-activity default
+      const durationText = travel.customDates && travel.customDates.length > 0
+        ? `${travel.customDates.length} HARI`
+        : `${calculateDays(travel.departureDate, travel.returnDate)} HARI`;
+        
+      const formattedDepDate = formatIndoDate(travel.departureDate);
+      const formattedRetDate = formatIndoDate(travel.returnDate);
+      const dateRange = travel.departureDate === travel.returnDate
+        ? formattedDepDate
+        : `${formattedDepDate} s.d ${formattedRetDate}`;
 
-    const defaultSubActivity = `HONORARIUM BELANJA PERJALANAN DINAS DALAM KOTA PADA SUB KEGIATAN ${travel.purpose.toUpperCase()} TANGGAL ${dateRange.toUpperCase()}`;
-    setSubActivityText(defaultSubActivity);
+      const defaultSubActivity = `HONORARIUM BELANJA PERJALANAN DINAS DALAM KOTA PADA SUB KEGIATAN ${travel.purpose.toUpperCase()} TANGGAL ${dateRange.toUpperCase()}`;
+      setSubActivityText(defaultSubActivity);
 
-    // 2. Location Date default
-    const defaultDate = getMonthAndYear(travel.departureDate);
-    setLocationDate(`Tanjung, ${defaultDate}`);
+      // 2. Location Date default
+      const defaultDate = getMonthAndYear(travel.departureDate);
+      setLocationDate(`Tanjung, ${defaultDate}`);
 
-    // 3. PA details (default is DIYANTO / Inspektur)
-    const inspektur = employees.find(e => e.jabatan.toLowerCase() === "inspektur");
-    if (inspektur) {
-      setPaName(inspektur.name);
-      setPaNip(inspektur.nip);
-    } else {
-      setPaName("Diyanto, SE, MT, FMRP");
-      setPaNip("197110132005011005");
-    }
-    setPaTitle("Pengguna Anggaran,");
-
-    // 4. PPTK details (default to Rini Hayati or any Kasubbag / PPTK)
-    const pptkEmp = employees.find(e => e.name.toLowerCase().includes("rini") || e.jabatan.toLowerCase().includes("pptk") || e.jabatan.toLowerCase().includes("perencanaan"));
-    if (pptkEmp) {
-      setPptkName(pptkEmp.name);
-      setPptkNip(pptkEmp.nip);
-    } else {
-      setPptkName("Rini Hayati, S.Sos, MM");
-      setPptkNip("197805032010012009");
-    }
-    setPptkTitle("PPTK,");
-
-    // 5. Participants map
-    const mappedParticipants = travel.employeeIds.map((empId, idx) => {
-      const emp = employees.find(e => e.id === empId);
-      const defaultDuration = travel.customDates && travel.customDates.length > 0
-        ? travel.customDates.length
-        : calculateDays(travel.departureDate, travel.returnDate);
-      
-      // Default some example dates so the user sees them in action immediately
-      let defaultDates = "";
-      if (idx === 0) {
-        defaultDates = "1, 2, 4, 8";
-      } else if (idx === 1) {
-        defaultDates = "2, 3, 5";
+      // 3. PA details (default is DIYANTO / Inspektur)
+      const inspektur = employees.find(e => e.jabatan.toLowerCase() === "inspektur");
+      if (inspektur) {
+        setPaName(inspektur.name);
+        setPaNip(inspektur.nip);
       } else {
-        defaultDates = "1, 2, 4, 8";
+        setPaName("Diyanto, SE, MT, FMRP");
+        setPaNip("197110132005011005");
       }
+      setPaTitle("Pengguna Anggaran,");
 
-      return {
-        employeeId: empId,
-        name: emp?.name || "Pegawai",
-        nip: emp?.nip || "-",
-        jabatan: emp?.jabatan || "Staff",
-        frequency: defaultDuration,
-        rate: 50000,
-        isActive: true,
-        monitoringDates: defaultDates,
-      };
-    });
-    setParticipants(mappedParticipants);
+      // 4. PPTK details (default to Rini Hayati or any Kasubbag / PPTK)
+      const pptkEmp = employees.find(e => e.name.toLowerCase().includes("rini") || e.jabatan.toLowerCase().includes("pptk") || e.jabatan.toLowerCase().includes("perencanaan"));
+      if (pptkEmp) {
+        setPptkName(pptkEmp.name);
+        setPptkNip(pptkEmp.nip);
+      } else {
+        setPptkName("Rini Hayati, S.Sos, MM");
+        setPptkNip("197805032010012009");
+      }
+      setPptkTitle("PPTK,");
 
-    if (travel.departureDate) {
-      const parts = travel.departureDate.split("-");
-      if (parts.length === 3) {
-        setCalendarYear(parseInt(parts[0], 10));
-        setCalendarMonth(parseInt(parts[1], 10) - 1);
+      // 5. Participants map
+      const mappedParticipants = travel.employeeIds.map((empId, idx) => {
+        const emp = employees.find(e => e.id === empId);
+        const defaultDuration = travel.customDates && travel.customDates.length > 0
+          ? travel.customDates.length
+          : calculateDays(travel.departureDate, travel.returnDate);
+        
+        // Default some example dates so the user sees them in action immediately
+        let defaultDates = "";
+        if (idx === 0) {
+          defaultDates = "1, 2, 4, 8";
+        } else if (idx === 1) {
+          defaultDates = "2, 3, 5";
+        } else {
+          defaultDates = "1, 2, 4, 8";
+        }
+
+        return {
+          employeeId: empId,
+          name: emp?.name || "Pegawai",
+          nip: emp?.nip || "-",
+          jabatan: emp?.jabatan || "Staff",
+          frequency: defaultDuration,
+          rate: 50000,
+          isActive: true,
+          monitoringDates: defaultDates,
+        };
+      });
+      setParticipants(mappedParticipants);
+
+      if (travel.departureDate) {
+        const parts = travel.departureDate.split("-");
+        if (parts.length === 3) {
+          setCalendarYear(parseInt(parts[0], 10));
+          setCalendarMonth(parseInt(parts[1], 10) - 1);
+        }
       }
     }
-  }, [travel, employees]);
+  }, [travel, employees, prevTravelId]);
 
   // Handle participant change
   const handleParticipantChange = (index: number, field: keyof ParticipantHonorState, value: any) => {
@@ -439,8 +445,16 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
   };
 
   const handlePrint = () => {
-    const printContent = document.getElementById("honorarium-printable")?.innerHTML;
-    if (printContent) {
+    const docContainer = document.getElementById("honorarium-printable");
+    if (docContainer) {
+      // Clone the element to avoid mutating live screen DOM
+      const clone = docContainer.cloneNode(true) as HTMLElement;
+      
+      // Remove any print-hidden or print:hidden elements
+      const hiddenElements = clone.querySelectorAll(".print-hidden, .print\\:hidden, [class*='print-hidden'], [class*='print:hidden']");
+      hiddenElements.forEach(el => el.remove());
+
+      const printContent = clone.innerHTML;
       const printWindow = window.open("", "", "height=900,width=1100");
       if (printWindow) {
         printWindow.document.write(`

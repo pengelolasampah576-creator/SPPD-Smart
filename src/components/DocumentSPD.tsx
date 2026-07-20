@@ -281,8 +281,16 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
   };
 
   const handlePrint = () => {
-    const printContent = document.getElementById("spd-printable")?.innerHTML;
-    if (printContent) {
+    const docContainer = document.getElementById("spd-printable");
+    if (docContainer) {
+      // Clone the element to avoid mutating live screen DOM
+      const clone = docContainer.cloneNode(true) as HTMLElement;
+      
+      // Remove any print-hidden or print:hidden elements
+      const hiddenElements = clone.querySelectorAll(".print-hidden, .print\\:hidden, [class*='print-hidden'], [class*='print:hidden']");
+      hiddenElements.forEach(el => el.remove());
+
+      const printContent = clone.innerHTML;
       const printWindow = window.open("", "", "height=950,width=850");
       if (printWindow) {
         printWindow.document.write(`
