@@ -788,6 +788,7 @@ export default function App() {
               onAddEmployee={handleAddEmployee}
               onEditEmployee={handleEditEmployee}
               onDeleteEmployee={handleDeleteEmployee}
+              onUpdateEmployees={handleUpdateEmployees}
             />
           )}
 

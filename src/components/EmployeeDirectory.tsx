@@ -1,12 +1,109 @@
 import React, { useState } from "react";
 import { Employee } from "../types";
-import { Search, UserPlus, FileSpreadsheet, Trash2, Edit3, Clipboard, Check, Filter } from "lucide-react";
+import { Search, UserPlus, FileSpreadsheet, Trash2, Edit3, Clipboard, Check, Filter, Sparkles, RefreshCw } from "lucide-react";
+
+// Helper to convert names with academic degrees and titles to proper/title case
+export function convertToTitleCaseWithTitles(name: string): string {
+  if (!name) return name;
+  
+  const titleMap: { [key: string]: string } = {
+    "se": "SE",
+    "s.e": "S.E.",
+    "s.e.": "S.E.",
+    "mt": "MT",
+    "m.t": "M.T.",
+    "m.t.": "M.T.",
+    "s.sos": "S.Sos",
+    "s.sos.": "S.Sos.",
+    "m.si": "M.Si",
+    "m.si.": "M.Si.",
+    "dr": "Dr.",
+    "dr.": "Dr.",
+    "sh": "SH",
+    "s.h": "S.H.",
+    "s.h.": "S.H.",
+    "mh": "MH",
+    "m.h": "M.H.",
+    "m.h.": "M.H.",
+    "h": "H.",
+    "h.": "H.",
+    "hj": "Hj.",
+    "hj.": "Hj.",
+    "mm": "MM",
+    "m.m": "M.M.",
+    "m.m.": "M.M.",
+    "s.kep": "S.Kep",
+    "s.kep.": "S.Kep.",
+    "ns": "Ns",
+    "ns.": "Ns.",
+    "a.md.ak": "A.Md.Ak.",
+    "a.md.ak.": "A.Md.Ak.",
+    "a.md": "A.Md",
+    "a.md.": "A.Md.",
+    "s.ap": "S.AP",
+    "s.ap.": "S.AP.",
+    "s.ip": "S.IP",
+    "s.ip.": "S.IP.",
+    "s.ak": "S.Ak",
+    "s.ak.": "S.Ak.",
+    "s.hut": "S.Hut",
+    "s.hut.": "S.Hut.",
+    "s.stp": "S.STP",
+    "s.stp.": "S.STP.",
+    "s.s.t": "S.S.T",
+    "s.s.t.": "S.S.T.",
+    "s.tr.m": "S.Tr.M",
+    "s.tr.m.": "S.Tr.M.",
+    "s.tr.i.p": "S.Tr.I.P.",
+    "s.tr.i.p.": "S.Tr.I.P.",
+    "s.ab": "S.AB",
+    "s.ab.": "S.AB.",
+    "s.a.b": "S.A.B",
+    "s.a.b.": "S.A.B."
+  };
+
+  const parts = name.split(",");
+  let namePart = parts[0].trim();
+  const nameWords = namePart.split(/\s+/).map(word => {
+    const cleanWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").toLowerCase();
+    const lowerWordWithDot = word.toLowerCase();
+    if (titleMap[lowerWordWithDot]) return titleMap[lowerWordWithDot];
+    if (titleMap[cleanWord]) return titleMap[cleanWord];
+    
+    if (word.includes("'")) {
+      return word.split("'").map(sub => sub.charAt(0).toUpperCase() + sub.slice(1).toLowerCase()).join("'");
+    }
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  });
+  
+  parts[0] = nameWords.join(" ");
+
+  for (let i = 1; i < parts.length; i++) {
+    const titlePart = parts[i].trim();
+    const words = titlePart.split(/\s+/).map(word => {
+      const lowerWord = word.toLowerCase();
+      if (titleMap[lowerWord]) return titleMap[lowerWord];
+      
+      const cleanWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").toLowerCase();
+      if (titleMap[cleanWord]) return titleMap[cleanWord];
+
+      if (word.includes(".") || word.length <= 3) {
+        return word.toUpperCase();
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+    parts[i] = words.join(" ");
+  }
+
+  return parts.join(", ");
+}
 
 interface EmployeeDirectoryProps {
   employees: Employee[];
   onAddEmployee: (employee: Employee) => void;
   onEditEmployee: (employee: Employee) => void;
   onDeleteEmployee: (id: string) => void;
+  onUpdateEmployees?: (employees: Employee[]) => void;
 }
 
 export default function EmployeeDirectory({
@@ -14,6 +111,7 @@ export default function EmployeeDirectory({
   onAddEmployee,
   onEditEmployee,
   onDeleteEmployee,
+  onUpdateEmployees,
 }: EmployeeDirectoryProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterPangkat, setFilterPangkat] = useState("");
@@ -73,13 +171,28 @@ export default function EmployeeDirectory({
     setShowForm(true);
   };
 
+  const [showBulkSuccess, setShowBulkSuccess] = useState(false);
+
+  const handleBulkFormatTitleCase = () => {
+    if (!onUpdateEmployees) return;
+    const formatted = employees.map(emp => ({
+      ...emp,
+      name: convertToTitleCaseWithTitles(emp.name)
+    }));
+    onUpdateEmployees(formatted);
+    setShowBulkSuccess(true);
+    setTimeout(() => {
+      setShowBulkSuccess(false);
+    }, 4000);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName) return;
 
     const employeeData: Employee = {
       id: isEditing ? formId : `emp-${Date.now()}`,
-      name: formName.toUpperCase(),
+      name: formName.trim(), // Preserve exact case typed by the user
       nip: formNip || "-",
       pangkat: formPangkat || "-",
       jabatan: formJabatan,
@@ -101,6 +214,13 @@ export default function EmployeeDirectory({
 
   return (
     <div id="employee-directory-section" className="space-y-6">
+      {showBulkSuccess && (
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl flex items-center gap-3 text-xs font-semibold animate-in fade-in duration-200">
+          <Sparkles className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span>Berhasil memformat semua nama pegawai menjadi huruf kecil teratur (Title Case) dengan penulisan gelar tetap terjaga!</span>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
         <div>
           <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -111,14 +231,27 @@ export default function EmployeeDirectory({
             Daftar master pegawai aktif yang terintegrasi dengan pembuatan Nota Dinas, Surat Tugas, dan SPD.
           </p>
         </div>
-        <button
-          id="btn-add-employee"
-          onClick={handleOpenAddForm}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition duration-150 shadow-sm cursor-pointer"
-        >
-          <UserPlus className="w-4 h-4" />
-          Tambah Pegawai Baru
-        </button>
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          {onUpdateEmployees && (
+            <button
+              id="btn-format-names-case"
+              onClick={handleBulkFormatTitleCase}
+              className="flex items-center gap-2 bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-bold px-4 py-2.5 rounded-xl border border-amber-200 transition duration-150 cursor-pointer shadow-xs"
+              title="Ubah semua nama pegawai yang huruf kapital menjadi huruf teratur secara otomatis"
+            >
+              <Sparkles className="w-4 h-4 text-amber-600" />
+              Format Title Case (Huruf Teratur)
+            </button>
+          )}
+          <button
+            id="btn-add-employee"
+            onClick={handleOpenAddForm}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition duration-150 shadow-sm cursor-pointer ml-auto sm:ml-0"
+          >
+            <UserPlus className="w-4 h-4" />
+            Tambah Pegawai Baru
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
