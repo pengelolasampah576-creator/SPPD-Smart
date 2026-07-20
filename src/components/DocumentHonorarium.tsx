@@ -646,7 +646,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
 
                 @media print {
                   @page {
-                    size: landscape;
+                    size: portrait;
                     margin: 1.2cm 1.5cm;
                   }
                   
@@ -719,7 +719,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
             className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-2 cursor-pointer"
           >
             <Printer className="w-4 h-4" />
-            Cetak Lampiran (Landscape)
+            Cetak Lampiran (Portrait)
           </button>
         </div>
       </div>
