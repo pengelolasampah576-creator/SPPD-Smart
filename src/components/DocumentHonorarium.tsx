@@ -573,18 +573,23 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   margin-bottom: 15px;
                 }
 
+                #honorarium-printable, #honorarium-printable * {
+                  color: #000000 !important;
+                }
+
                 .table-main th, .table-main td {
                   border: 1px solid #000;
                   padding: 6px 8px;
                   font-size: 11.5px;
                   vertical-align: middle;
+                  color: #000000 !important;
                 }
 
                 .table-main th {
                   font-weight: bold;
                   text-align: center;
-                  background-color: #334155 !important;
-                  color: #ffffff !important;
+                  background-color: #ffffff !important;
+                  color: #000000 !important;
                   -webkit-print-color-adjust: exact;
                   print-color-adjust: exact;
                   height: 32px;
@@ -601,6 +606,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   border: none !important;
                   padding: 0 !important;
                   text-align: center;
+                  color: #000000 !important;
                 }
 
                 .signature-cell {
@@ -613,11 +619,13 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                 .signature-cell .num {
                   position: absolute;
                   top: 4px;
+                  color: #000000 !important;
                 }
 
                 .signature-cell .line {
                   position: absolute;
                   bottom: 6px;
+                  color: #000000 !important;
                 }
 
                 .terbilang-box {
@@ -626,6 +634,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   margin-top: 10px;
                   margin-bottom: 15px;
                   font-size: 11.5px;
+                  color: #000000 !important;
                 }
 
                 .sign-block {
@@ -633,11 +642,13 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   display: flex;
                   justify-content: space-between;
                   margin-top: 25px;
+                  color: #000000 !important;
                 }
 
                 .sign-column {
                   width: 40%;
                   text-align: center;
+                  color: #000000 !important;
                 }
 
                 .sign-space {
@@ -652,13 +663,18 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   
                   body {
                     margin: 0;
+                    color: #000000 !important;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
                   }
 
+                  #honorarium-printable, #honorarium-printable * {
+                    color: #000000 !important;
+                  }
+
                   .table-main th {
-                    background-color: #334155 !important;
-                    color: #ffffff !important;
+                    background-color: #ffffff !important;
+                    color: #000000 !important;
                   }
                   
                   /* Avoid page breaks inside table or sign block */
@@ -1102,12 +1118,12 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
             <table className="table-main" style={{ width: "100%", borderCollapse: "collapse", marginTop: "15px", marginBottom: "15px" }}>
               <thead>
                 <tr>
-                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#334155", color: "#fff", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "4%" }}>NO</th>
-                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#334155", color: "#fff", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "32%" }}>NAMA</th>
-                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#334155", color: "#fff", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "25%" }}>JABATAN</th>
-                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#334155", color: "#fff", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "18%" }}>JUMLAH</th>
-                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#334155", color: "#fff", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "11%" }}>JUMLAH YANG DITERIMA</th>
-                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#334155", color: "#fff", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "10%" }}>TANDA TANGAN</th>
+                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "4%" }}>NO</th>
+                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "32%" }}>NAMA</th>
+                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "25%" }}>JABATAN</th>
+                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "18%" }}>JUMLAH</th>
+                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "11%" }}>JUMLAH YANG DITERIMA</th>
+                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "10%" }}>TANDA TANGAN</th>
                 </tr>
               </thead>
               <tbody>
@@ -1117,31 +1133,31 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   
                   return (
                     <tr key={p.employeeId}>
-                      <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", textAlign: "center", fontWeight: "bold" }}>
+                      <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", textAlign: "center", fontWeight: "bold", color: "#000000" }}>
                         {idx + 1}
                       </td>
-                      <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px" }}>
-                        <div style={{ fontWeight: "bold" }}>{p.name}</div>
-                        <div style={{ fontSize: "10.5px", marginTop: "2px" }}>NIP. {p.nip}</div>
+                      <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", color: "#000000" }}>
+                        <div style={{ fontWeight: "bold", color: "#000000" }}>{p.name}</div>
+                        <div style={{ fontSize: "10.5px", marginTop: "2px", color: "#000000" }}>NIP. {p.nip}</div>
                         {p.monitoringDates && (
-                          <div style={{ fontSize: "9.5px", marginTop: "4px", color: "#374151", borderTop: "1px dashed #ccc", paddingTop: "2px" }}>
-                            <span style={{ fontWeight: "normal", color: "#6b7280" }}>Hari Pengawasan: </span>
-                            <span style={{ fontWeight: "600" }}>{formatMonitoringDatesWithMonth(p.monitoringDates)}</span>
+                          <div style={{ fontSize: "9.5px", marginTop: "4px", color: "#000000", borderTop: "1px dashed #000000", paddingTop: "2px" }}>
+                            <span style={{ fontWeight: "normal", color: "#000000" }}>Hari Pengawasan: </span>
+                            <span style={{ fontWeight: "600", color: "#000000" }}>{formatMonitoringDatesWithMonth(p.monitoringDates)}</span>
                           </div>
                         )}
                       </td>
-                      <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px" }}>
+                      <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", color: "#000000" }}>
                         {p.jabatan}
                       </td>
-                      <td style={{ border: "1px solid #000", padding: "4px", fontSize: "11.5px" }}>
+                      <td style={{ border: "1px solid #000", padding: "4px", fontSize: "11.5px", color: "#000000" }}>
                         {p.isActive ? (
                           <table className="sub-col-table" style={{ width: "100%", borderCollapse: "collapse" }}>
                             <tbody>
                               <tr>
-                                <td style={{ width: "25%", textAlign: "center", border: "none" }}>{p.frequency}</td>
-                                <td style={{ width: "15%", textAlign: "center", border: "none" }}>x</td>
-                                <td style={{ width: "45%", textAlign: "right", paddingRight: "6px", border: "none" }}>{formatRupiah(p.rate)}</td>
-                                <td style={{ width: "15%", textAlign: "center", border: "none" }}>=</td>
+                                <td style={{ width: "25%", textAlign: "center", border: "none", color: "#000000" }}>{p.frequency}</td>
+                                <td style={{ width: "15%", textAlign: "center", border: "none", color: "#000000" }}>x</td>
+                                <td style={{ width: "45%", textAlign: "right", paddingRight: "6px", border: "none", color: "#000000" }}>{formatRupiah(p.rate)}</td>
+                                <td style={{ width: "15%", textAlign: "center", border: "none", color: "#000000" }}>=</td>
                               </tr>
                             </tbody>
                           </table>
@@ -1149,29 +1165,29 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                           <table className="sub-col-table" style={{ width: "100%", borderCollapse: "collapse" }}>
                             <tbody>
                               <tr>
-                                <td style={{ width: "25%", textAlign: "center", border: "none" }}>{p.frequency}</td>
-                                <td style={{ width: "15%", textAlign: "center", border: "none" }}>x</td>
-                                <td style={{ width: "45%", textAlign: "center", border: "none" }}>-</td>
-                                <td style={{ width: "15%", textAlign: "center", border: "none" }}>=</td>
+                                <td style={{ width: "25%", textAlign: "center", border: "none", color: "#000000" }}>{p.frequency}</td>
+                                <td style={{ width: "15%", textAlign: "center", border: "none", color: "#000000" }}>x</td>
+                                <td style={{ width: "45%", textAlign: "center", border: "none", color: "#000000" }}>-</td>
+                                <td style={{ width: "15%", textAlign: "center", border: "none", color: "#000000" }}>=</td>
                               </tr>
                             </tbody>
                           </table>
                         )}
                       </td>
-                      <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", textAlign: "right", fontWeight: "bold" }}>
+                      <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", textAlign: "right", fontWeight: "bold", color: "#000000" }}>
                         {p.isActive ? formatRupiah(totalReceived) : "-"}
                       </td>
-                      <td style={{ border: "1px solid #000", padding: "4px", fontSize: "11.5px", verticalAlign: "top", position: "relative" }}>
+                      <td style={{ border: "1px solid #000", padding: "4px", fontSize: "11.5px", verticalAlign: "top", position: "relative", color: "#000000" }}>
                         <div className="signature-cell" style={{ position: "relative", minHeight: "44px" }}>
                           {isOdd ? (
                             <>
-                              <span className="num" style={{ position: "absolute", left: "4px", top: "4px", fontSize: "10px" }}>{idx + 1}.</span>
-                              <span className="line" style={{ position: "absolute", left: "20px", bottom: "4px", fontSize: "10px", color: "#666" }}>........................</span>
+                              <span className="num" style={{ position: "absolute", left: "4px", top: "4px", fontSize: "10px", color: "#000000" }}>{idx + 1}.</span>
+                              <span className="line" style={{ position: "absolute", left: "20px", bottom: "4px", fontSize: "10px", color: "#000000" }}>........................</span>
                             </>
                           ) : (
                             <>
-                              <span className="num" style={{ position: "absolute", left: "55%", top: "4px", fontSize: "10px" }}>{idx + 1}.</span>
-                              <span className="line" style={{ position: "absolute", left: "62%", bottom: "4px", fontSize: "10px", color: "#666" }}>........................</span>
+                              <span className="num" style={{ position: "absolute", left: "55%", top: "4px", fontSize: "10px", color: "#000000" }}>{idx + 1}.</span>
+                              <span className="line" style={{ position: "absolute", left: "62%", bottom: "4px", fontSize: "10px", color: "#000000" }}>........................</span>
                             </>
                           )}
                         </div>
@@ -1182,27 +1198,27 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                 
                 {/* SUM FOOTER ROW */}
                 <tr className="font-bold" style={{ fontWeight: "bold" }}>
-                  <td colSpan={3} style={{ border: "1px solid #000", padding: "8px", fontSize: "11.5px", textAlign: "center", backgroundColor: "#f8fafc" }}>
+                  <td colSpan={3} style={{ border: "1px solid #000", padding: "8px", fontSize: "11.5px", textAlign: "center", backgroundColor: "#ffffff", color: "#000000" }}>
                     Jumlah
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "4px", fontSize: "11.5px", backgroundColor: "#f8fafc" }}>
+                  <td style={{ border: "1px solid #000", padding: "4px", fontSize: "11.5px", backgroundColor: "#ffffff", color: "#000000" }}>
                     <table className="sub-col-table" style={{ width: "100%", borderCollapse: "collapse" }}>
                       <tbody>
                         <tr>
-                          <td style={{ width: "25%", textAlign: "center", border: "none", fontWeight: "bold" }}></td>
-                          <td style={{ width: "15%", textAlign: "center", border: "none" }}></td>
-                          <td style={{ width: "45%", textAlign: "right", paddingRight: "6px", border: "none", fontWeight: "bold" }}>
+                          <td style={{ width: "25%", textAlign: "center", border: "none", fontWeight: "bold", color: "#000000" }}></td>
+                          <td style={{ width: "15%", textAlign: "center", border: "none", color: "#000000" }}></td>
+                          <td style={{ width: "45%", textAlign: "right", paddingRight: "6px", border: "none", fontWeight: "bold", color: "#000000" }}>
                             {formatRupiah(activeRatesSum)}
                           </td>
-                          <td style={{ width: "15%", textAlign: "center", border: "none" }}></td>
+                          <td style={{ width: "15%", textAlign: "center", border: "none", color: "#000000" }}></td>
                         </tr>
                       </tbody>
                     </table>
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", textAlign: "right", fontWeight: "bold", backgroundColor: "#f8fafc" }}>
+                  <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", textAlign: "right", fontWeight: "bold", backgroundColor: "#ffffff", color: "#000000" }}>
                     {formatRupiah(totalReceivedSum)}
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", backgroundColor: "#f8fafc" }}></td>
+                  <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", backgroundColor: "#ffffff", color: "#000000" }}></td>
                 </tr>
               </tbody>
             </table>
