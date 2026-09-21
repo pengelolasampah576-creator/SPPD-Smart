@@ -171,28 +171,24 @@ export default function App() {
       // 1. Update Nota Dinas cache
       const ndCacheKey = `sppd_doc_notadinas_cache_${updatedTravel.id}`;
       const ndCached = localStorage.getItem(ndCacheKey);
-      if (ndCached) {
-        const ndData = JSON.parse(ndCached);
-        ndData.numNota = updatedTravel.notaNumber;
-        ndData.dateNota = formatIndoDateFull(updatedTravel.notaDate);
-        localStorage.setItem(ndCacheKey, JSON.stringify(ndData));
-      }
+      const ndData = ndCached ? JSON.parse(ndCached) : {};
+      ndData.numNota = updatedTravel.notaNumber;
+      ndData.dateNota = formatIndoDateFull(updatedTravel.notaDate);
+      localStorage.setItem(ndCacheKey, JSON.stringify(ndData));
 
       // 2. Update Surat Tugas cache
       const stCacheKey = `sppd_doc_surattugas_cache_${updatedTravel.id}`;
       const stCached = localStorage.getItem(stCacheKey);
-      if (stCached) {
-        const stData = JSON.parse(stCached);
-        if (Array.isArray(stData.dasarList)) {
-          stData.dasarList = stData.dasarList.map((d: string) => {
-            if (d.startsWith("Nota Dinas")) {
-              return `Nota Dinas Inspektorat Daerah Kabupaten Tabalong Nomor ${updatedTravel.notaNumber || ""} tanggal ${formatIndoDateFull(updatedTravel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${updatedTravel.destination || ""}.`;
-            }
-            return d;
-          });
-        }
-        localStorage.setItem(stCacheKey, JSON.stringify(stData));
+      const stData = stCached ? JSON.parse(stCached) : {};
+      if (Array.isArray(stData.dasarList)) {
+        stData.dasarList = stData.dasarList.map((d: string) => {
+          if (d.startsWith("Nota Dinas")) {
+            return `Nota Dinas Inspektorat Daerah Kabupaten Tabalong Nomor ${updatedTravel.notaNumber || ""} tanggal ${formatIndoDateFull(updatedTravel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${updatedTravel.destination || ""}.`;
+          }
+          return d;
+        });
       }
+      localStorage.setItem(stCacheKey, JSON.stringify(stData));
 
       // 3. Update SPD caches
       const spdCleanPrefix = updatedTravel.spdNumberPrefix ? updatedTravel.spdNumberPrefix.replace(/\/\d+$/, '') : "090/SPD/INSP/2026";
@@ -793,12 +789,21 @@ export default function App() {
               {/* BACK BAR INFO */}
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="space-y-1">
-                  <button
-                    onClick={() => setSelectedTravelId(null)}
-                    className="text-blue-600 hover:text-blue-750 text-xs font-bold flex items-center gap-1 cursor-pointer mb-1.5 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100 transition"
-                  >
-                    ← Kembali ke Daftar Perjalanan Dinas
-                  </button>
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <button
+                      onClick={() => setSelectedTravelId(null)}
+                      className="text-slate-600 hover:text-slate-800 text-xs font-bold flex items-center gap-1 cursor-pointer bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-200 transition"
+                    >
+                      ← Kembali ke Daftar
+                    </button>
+                    <button
+                      onClick={() => setEditingTravel(selectedTravelObj)}
+                      className="text-blue-600 hover:text-blue-800 text-xs font-bold flex items-center gap-1.5 cursor-pointer bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition shadow-xs"
+                    >
+                      <Edit className="w-3.5 h-3.5" />
+                      Edit No / Rute & Data Kegiatan
+                    </button>
+                  </div>
                   <h3 className="text-lg font-black text-slate-800 leading-tight">
                     {selectedTravelObj.purpose}
                   </h3>
@@ -859,16 +864,33 @@ export default function App() {
               {/* RENDERING DOCUMENTS */}
               <div>
                 {activeDocTab === "nota" && (
-                  <DocumentNotaDinas travel={selectedTravelObj} employees={employees} />
+                  <DocumentNotaDinas
+                    key={`nota-${selectedTravelObj.id}-${selectedTravelObj.notaNumber}-${selectedTravelObj.notaDate}-${selectedTravelObj.destination}`}
+                    travel={selectedTravelObj}
+                    employees={employees}
+                    onUpdateTravel={handleEditTravel}
+                  />
                 )}
                 {activeDocTab === "tugas" && (
-                  <DocumentSuratTugas travel={selectedTravelObj} employees={employees} />
+                  <DocumentSuratTugas
+                    key={`tugas-${selectedTravelObj.id}-${selectedTravelObj.taskLetterNumber}-${selectedTravelObj.taskLetterDate}-${selectedTravelObj.notaNumber}-${selectedTravelObj.destination}`}
+                    travel={selectedTravelObj}
+                    employees={employees}
+                  />
                 )}
                 {activeDocTab === "spd" && (
-                  <DocumentSPD travel={selectedTravelObj} employees={employees} />
+                  <DocumentSPD
+                    key={`spd-${selectedTravelObj.id}-${selectedTravelObj.spdNumberPrefix}-${selectedTravelObj.departureDate}-${selectedTravelObj.destination}`}
+                    travel={selectedTravelObj}
+                    employees={employees}
+                  />
                 )}
                 {activeDocTab === "honor" && (
-                  <DocumentHonorarium travel={selectedTravelObj} employees={employees} />
+                  <DocumentHonorarium
+                    key={`honor-${selectedTravelObj.id}`}
+                    travel={selectedTravelObj}
+                    employees={employees}
+                  />
                 )}
               </div>
             </div>

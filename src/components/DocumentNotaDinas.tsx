@@ -5,11 +5,13 @@ import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
 import { getFormattedPangkatGolongan } from "../utils/pangkat";
 
 interface DocumentNotaDinasProps {
+  key?: React.Key;
   travel: Travel;
   employees: Employee[];
+  onUpdateTravel?: (updatedTravel: Travel) => void;
 }
 
-export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDinasProps) {
+export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }: DocumentNotaDinasProps) {
   // Try to find reasonable defaults from the employee directory
   const signatory = employees.find(e => e.id === travel.signatoryId);
   const participants = travel.employeeIds
@@ -212,7 +214,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
 
   // Synchronize numNota and dateNota whenever travel.notaNumber or travel.notaDate changes (e.g. from Edit No/Rute)
   useEffect(() => {
-    if (travel.notaNumber !== undefined) {
+    if (travel.notaNumber !== undefined && travel.notaNumber !== null) {
       setNumNota(travel.notaNumber);
     }
   }, [travel.notaNumber]);
@@ -258,9 +260,18 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
           if (data.kopAlamat !== undefined) setKopAlamat(data.kopAlamat);
           if (data.kopLaman !== undefined) setKopLaman(data.kopLaman);
           
-          // Prioritize active travel master values over cached values
-          setNumNota(travel.notaNumber || data.numNota || "");
-          setDateNota(formatIndoDate(travel.notaDate) || data.dateNota || "");
+          // Master travel values always take absolute precedence over old cached values
+          if (travel.notaNumber !== undefined && travel.notaNumber !== null) {
+            setNumNota(travel.notaNumber);
+          } else if (data.numNota !== undefined) {
+            setNumNota(data.numNota);
+          }
+
+          if (travel.notaDate) {
+            setDateNota(formatIndoDate(travel.notaDate));
+          } else if (data.dateNota !== undefined) {
+            setDateNota(data.dateNota);
+          }
           
           if (data.kepada !== undefined) setKepada(data.kepada);
           if (data.dari !== undefined) setDari(data.dari);
@@ -862,7 +873,13 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   <input
                     type="text"
                     value={numNota}
-                    onChange={(e) => setNumNota(e.target.value)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setNumNota(val);
+                      if (onUpdateTravel) {
+                        onUpdateTravel({ ...travel, notaNumber: val });
+                      }
+                    }}
                     placeholder="Contoh: 090/084/ND-INSP/2026"
                     className="w-full text-xs bg-slate-50 border border-slate-250 p-1.5 rounded focus:bg-white font-mono font-bold text-blue-700"
                   />

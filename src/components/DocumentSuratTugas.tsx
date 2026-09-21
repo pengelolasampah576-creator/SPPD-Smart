@@ -5,6 +5,7 @@ import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
 import { getFormattedPangkatGolongan } from "../utils/pangkat";
 
 interface DocumentSuratTugasProps {
+  key?: React.Key;
   travel: Travel;
   employees: Employee[];
 }

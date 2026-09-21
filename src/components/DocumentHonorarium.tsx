@@ -3,6 +3,7 @@ import { Employee, Travel } from "../types";
 import { Printer, Settings, RefreshCw, AlertCircle, Save, Check, Plus, Trash2, Calendar } from "lucide-react";
 
 interface DocumentHonorariumProps {
+  key?: React.Key;
   travel: Travel;
   employees: Employee[];
 }
