@@ -104,6 +104,10 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
   const [pptkName, setPptkName] = useState("");
   const [pptkNip, setPptkNip] = useState("");
   const [pptkTitle, setPptkTitle] = useState("PPTK");
+
+  // Font standardization (Arial 12pt default)
+  const [docFontFamily, setDocFontFamily] = useState<"Arial" | "Times New Roman">("Arial");
+  const [docFontSize, setDocFontSize] = useState<"12pt" | "11pt" | "10pt">("12pt");
   
   // State for adding new employee to the honorarium table
   const [selectedNewEmpId, setSelectedNewEmpId] = useState("");
@@ -362,6 +366,8 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
           if (data.participants !== undefined) setParticipants(data.participants);
           if (data.calendarYear !== undefined) setCalendarYear(data.calendarYear);
           if (data.calendarMonth !== undefined) setCalendarMonth(data.calendarMonth);
+          if (data.docFontFamily !== undefined) setDocFontFamily(data.docFontFamily);
+          if (data.docFontSize !== undefined) setDocFontSize(data.docFontSize);
           return;
         } catch (e) {
           console.error("Error parsing cached Honorarium document", e);
@@ -463,7 +469,9 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
       pptkTitle,
       participants,
       calendarYear,
-      calendarMonth
+      calendarMonth,
+      docFontFamily,
+      docFontSize
     };
     localStorage.setItem(cacheKey, JSON.stringify(data));
   }, [
@@ -478,7 +486,9 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
     pptkTitle,
     participants,
     calendarYear,
-    calendarMonth
+    calendarMonth,
+    docFontFamily,
+    docFontSize
   ]);
 
   // Handle participant change
@@ -511,6 +521,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
       const hiddenElements = clone.querySelectorAll(".print-hidden, .print\\:hidden, [class*='print-hidden'], [class*='print:hidden']");
       hiddenElements.forEach(el => el.remove());
 
+      const fontStack = docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif';
       const printContent = clone.innerHTML;
       const printWindow = window.open("", "", "height=900,width=1100");
       if (printWindow) {
@@ -519,15 +530,13 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
             <head>
               <title>Cetak Lampiran Tanda Terima Honorarium</title>
               <style>
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-                
                 body {
-                  font-family: 'Arial', 'Inter', sans-serif;
+                  font-family: ${fontStack};
                   background-color: #fff;
                   color: #000;
                   margin: 20px;
                   padding: 0;
-                  font-size: 11.5px;
+                  font-size: ${docFontSize};
                   line-height: 1.4;
                 }
 
@@ -535,6 +544,8 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   width: 100%;
                   max-width: 1000px;
                   margin: 0 auto;
+                  font-family: ${fontStack} !important;
+                  font-size: ${docFontSize} !important;
                 }
 
                 .text-center { text-align: center; }
@@ -571,16 +582,18 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   border-collapse: collapse;
                   margin-top: 15px;
                   margin-bottom: 15px;
+                  font-size: ${docFontSize} !important;
                 }
 
                 #honorarium-printable, #honorarium-printable * {
                   color: #000000 !important;
+                  font-family: ${fontStack} !important;
                 }
 
                 .table-main th, .table-main td {
                   border: 1px solid #000;
                   padding: 6px 8px;
-                  font-size: 11.5px;
+                  font-size: ${docFontSize} !important;
                   vertical-align: middle;
                   color: #000000 !important;
                 }
@@ -593,13 +606,14 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   -webkit-print-color-adjust: exact;
                   print-color-adjust: exact;
                   height: 32px;
-                  font-size: 12px;
+                  font-size: ${docFontSize} !important;
                 }
 
                 .sub-col-table {
                   width: 100%;
                   border-collapse: collapse;
                   border: none !important;
+                  font-size: ${docFontSize} !important;
                 }
 
                 .sub-col-table td {
@@ -607,13 +621,14 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   padding: 0 !important;
                   text-align: center;
                   color: #000000 !important;
+                  font-size: ${docFontSize} !important;
                 }
 
                 .signature-cell {
                   position: relative;
                   height: 48px;
                   min-width: 130px;
-                  font-size: 11px;
+                  font-size: ${docFontSize} !important;
                 }
 
                 .signature-cell .num {
@@ -633,7 +648,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   padding: 8px 12px;
                   margin-top: 10px;
                   margin-bottom: 15px;
-                  font-size: 11.5px;
+                  font-size: ${docFontSize} !important;
                   color: #000000 !important;
                 }
 
@@ -642,6 +657,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   display: flex;
                   justify-content: space-between;
                   margin-top: 25px;
+                  font-size: ${docFontSize} !important;
                   color: #000000 !important;
                 }
 
@@ -649,6 +665,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   width: 40%;
                   text-align: center;
                   color: #000000 !important;
+                  font-size: ${docFontSize} !important;
                 }
 
                 .sign-space {
@@ -666,10 +683,13 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                     color: #000000 !important;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
+                    font-family: ${fontStack} !important;
+                    font-size: ${docFontSize} !important;
                   }
 
                   #honorarium-printable, #honorarium-printable * {
                     color: #000000 !important;
+                    font-family: ${fontStack} !important;
                   }
 
                   .table-main th {
@@ -815,6 +835,39 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                 className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-800 focus:ring-2 focus:ring-blue-500"
                 placeholder="NIP PPTK"
               />
+            </div>
+
+            {/* Standarisasi Jenis & Ukuran Huruf (Font) */}
+            <div className="md:col-span-12 bg-white border border-slate-200 rounded-xl p-3.5 mt-1 shadow-xs">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold uppercase text-blue-600">Standarisasi Jenis & Ukuran Huruf (Font)</span>
+                <span className="text-[10px] text-slate-400">Standar resmi: Arial 12pt</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] text-slate-500 block font-bold uppercase mb-1">Jenis Huruf (Font Family)</label>
+                  <select
+                    value={docFontFamily}
+                    onChange={(e) => setDocFontFamily(e.target.value as any)}
+                    className="w-full text-xs p-2 border border-slate-250 rounded-lg bg-slate-50 font-medium"
+                  >
+                    <option value="Arial">Arial (Sesuai Permintaan)</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 block font-bold uppercase mb-1">Ukuran Huruf (Font Size)</label>
+                  <select
+                    value={docFontSize}
+                    onChange={(e) => setDocFontSize(e.target.value as any)}
+                    className="w-full text-xs p-2 border border-slate-250 rounded-lg bg-slate-50 font-medium"
+                  >
+                    <option value="12pt">Ukuran 12 (12pt Standar)</option>
+                    <option value="11pt">Ukuran 11 (11pt)</option>
+                    <option value="10pt">Ukuran 10 (10pt)</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1103,13 +1156,42 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
             <Check className="w-3 h-3 text-emerald-500" /> Pratinjau Layout Dokumen
           </span>
 
-          <div id="honorarium-printable" className="font-sans leading-relaxed text-black">
+          <div 
+            id="honorarium-printable" 
+            className="leading-relaxed text-black"
+            style={{ 
+              fontFamily: docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif',
+              fontSize: docFontSize
+            }}
+          >
+            <style dangerouslySetInnerHTML={{ __html: `
+              #honorarium-printable, #honorarium-printable * {
+                font-family: ${docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif'} !important;
+                color: #000000 !important;
+              }
+              #honorarium-printable .table-main th, #honorarium-printable .table-main td {
+                font-size: ${docFontSize} !important;
+              }
+              #honorarium-printable .sub-col-table td {
+                font-size: ${docFontSize} !important;
+              }
+              #honorarium-printable .signature-cell {
+                font-size: ${docFontSize} !important;
+              }
+              #honorarium-printable .terbilang-box {
+                font-size: ${docFontSize} !important;
+              }
+              #honorarium-printable .sign-block, #honorarium-printable .sign-column {
+                font-size: ${docFontSize} !important;
+              }
+            ` }} />
+
             {/* DOCUMENT TITLE SECTION */}
             <div className="text-center mb-6">
-              <h3 className="m-0 font-bold uppercase tracking-tight text-center text-[14px] leading-tight" style={{ fontSize: "14px", fontWeight: "bold" }}>
+              <h3 className="m-0 font-bold uppercase tracking-tight text-center leading-tight" style={{ fontSize: "14px", fontWeight: "bold" }}>
                 TANDA TERIMA
               </h3>
-              <p className="m-0 font-bold uppercase tracking-tight text-center text-[12.5px] mt-2 leading-tight" style={{ fontSize: "12.5px", fontWeight: "bold", textTransform: "uppercase" }}>
+              <p className="m-0 font-bold uppercase tracking-tight text-center mt-2 leading-tight" style={{ fontSize: docFontSize, fontWeight: "bold", textTransform: "uppercase" }}>
                 {subActivityText}
               </p>
             </div>

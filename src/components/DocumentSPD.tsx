@@ -133,6 +133,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
   const [showPptkSuggestions, setShowPptkSuggestions] = useState(false);
   const [signCodeCase, setSignCodeCase] = useState<"as-is" | "uppercase" | "lowercase">("as-is");
   const [signCodeSize, setSignCodeSize] = useState<"9px" | "11px" | "13px" | "15px">("11px");
+  const [docFontFamily, setDocFontFamily] = useState<"Arial" | "Times New Roman">("Arial");
+  const [docFontSize, setDocFontSize] = useState<"12pt" | "11pt" | "10pt" | "13px">("12pt");
 
   const matchingPaEmployees = paName.trim() === "" ? [] : employees.filter(emp => 
     emp.name.toLowerCase().includes(paName.toLowerCase()) || 
@@ -205,6 +207,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
           if (data.pptkSpecialCode !== undefined) setPptkSpecialCode(data.pptkSpecialCode);
           if (data.signCodeCase !== undefined) setSignCodeCase(data.signCodeCase);
           if (data.signCodeSize !== undefined) setSignCodeSize(data.signCodeSize);
+          if (data.docFontFamily !== undefined) setDocFontFamily(data.docFontFamily);
+          if (data.docFontSize !== undefined) setDocFontSize(data.docFontSize);
           return;
         } catch (e) {
           console.error("Error parsing cached SPD document", e);
@@ -333,7 +337,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
       signSpecialCode,
       pptkSpecialCode,
       signCodeCase,
-      signCodeSize
+      signCodeSize,
+      docFontFamily,
+      docFontSize
     };
     localStorage.setItem(cacheKey, JSON.stringify(data));
   }, [
@@ -380,7 +386,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     signSpecialCode,
     pptkSpecialCode,
     signCodeCase,
-    signCodeSize
+    signCodeSize,
+    docFontFamily,
+    docFontSize
   ]);
 
   // Handle Preset trigger from screenshots
@@ -448,6 +456,10 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
       const hiddenElements = clone.querySelectorAll(".print-hidden, .print\\:hidden, [class*='print-hidden'], [class*='print:hidden']");
       hiddenElements.forEach(el => el.remove());
 
+      const fontCssFamily = docFontFamily === "Arial" 
+        ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" 
+        : '"Times New Roman", Times, serif';
+
       const printContent = clone.innerHTML;
       const printWindow = window.open("", "", "height=950,width=850");
       if (printWindow) {
@@ -460,7 +472,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   box-sizing: border-box !important;
                 }
                 body {
-                  font-family: "Times New Roman", Times, serif;
+                  font-family: ${fontCssFamily};
+                  font-size: ${docFontSize};
                   line-height: 1.4;
                   color: #000;
                   background-color: #fff;
@@ -499,17 +512,17 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 .leading-none { line-height: 1 !important; }
                 .space-y-0\.5 > * + * { margin-top: 2px !important; }
                 .space-y-2 > * + * { margin-top: 8px !important; }
-                .text-xs { font-size: 12px !important; }
+                .text-xs { font-size: ${docFontSize} !important; }
                 .leading-5 { line-height: 20px !important; }
                 .leading-relaxed { line-height: 1.625 !important; }
-                .text-\[10\.5px\] { font-size: 10.5px !important; }
-                .text-\[12px\] { font-size: 12px !important; }
-                .text-\[12\.5px\] { font-size: 12.5px !important; }
-                .text-\[13px\] { font-size: 13px !important; }
-                .text-\[13\.5px\] { font-size: 13.5px !important; }
-                .text-\[11px\] { font-size: 11px !important; }
-                .text-\[11\.5px\] { font-size: 11.5px !important; }
-                .text-\[14px\] { font-size: 14px !important; }
+                .text-\[10\.5px\] { font-size: ${docFontSize} !important; }
+                .text-\[12px\] { font-size: ${docFontSize} !important; }
+                .text-\[12\.5px\] { font-size: ${docFontSize} !important; }
+                .text-\[13px\] { font-size: ${docFontSize} !important; }
+                .text-\[13\.5px\] { font-size: ${docFontSize} !important; }
+                .text-\[11px\] { font-size: ${docFontSize} !important; }
+                .text-\[11\.5px\] { font-size: ${docFontSize} !important; }
+                .text-\[14px\] { font-size: ${docFontSize} !important; }
                 .print\\:hidden { display: none !important; }
                 .print-hidden { display: none !important; }
                 
@@ -537,6 +550,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   text-align: center;
                   min-height: 80px;
                   display: block;
+                  font-family: ${fontCssFamily};
                 }
                 .kop-logo-container {
                   position: absolute;
@@ -592,7 +606,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   width: 310px;
                   margin-top: 2px;
                   margin-bottom: 4px;
-                  font-size: 12.5px;
+                  font-size: ${docFontSize};
+                  font-family: ${fontCssFamily};
                 }
                 .top-meta-container table {
                   width: 100%;
@@ -601,6 +616,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 .top-meta-container td {
                   padding: 1px 2px;
                   vertical-align: top;
+                  font-size: ${docFontSize} !important;
+                  font-family: ${fontCssFamily};
                 }
 
                 /* Document Title */
@@ -623,14 +640,16 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   width: 100%;
                   border-collapse: collapse;
                   border: 1px solid #000;
-                  font-size: 13px;
+                  font-size: ${docFontSize};
                   margin-bottom: 12px;
+                  font-family: ${fontCssFamily};
                 }
                 .spd-main-table td {
                   border: 1px solid #000;
                   padding: 4px 6px !important;
                   vertical-align: top;
-                  font-size: 13px !important;
+                  font-size: ${docFontSize} !important;
+                  font-family: ${fontCssFamily};
                 }
                 .spd-main-table .center-align {
                   text-align: center;
@@ -679,14 +698,16 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   width: 100%;
                   border-collapse: collapse;
                   border: 1px solid #000;
-                  font-size: 13.5px;
+                  font-size: ${docFontSize};
                   margin-bottom: 12px;
+                  font-family: ${fontCssFamily};
                 }
                 .back-table td {
                   border: 1px solid #000;
                   padding: 5px 8px !important;
                   vertical-align: top;
-                  font-size: 13.5px !important;
+                  font-size: ${docFontSize} !important;
+                  font-family: ${fontCssFamily};
                 }
                 .back-table td:not([colspan]) {
                   width: 50%;
@@ -705,8 +726,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   margin-top: 12px;
                   float: right;
                   width: 270px;
-                  font-size: 14px;
+                  font-size: ${docFontSize};
                   text-align: left;
+                  font-family: ${fontCssFamily};
                 }
                 .sig-box {
                   min-height: 100px;
@@ -1174,6 +1196,36 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 </div>
               </div>
 
+              {/* Standarisasi Jenis & Ukuran Huruf (Font) */}
+              <div className="space-y-2 bg-white p-3 rounded-lg border border-slate-200 mt-2">
+                <span className="text-[10px] font-bold uppercase text-blue-600 block">Standarisasi Jenis & Ukuran Huruf (Font)</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[9px] text-slate-500 block font-bold uppercase mb-0.5">Jenis Huruf</label>
+                    <select
+                      value={docFontFamily}
+                      onChange={(e) => setDocFontFamily(e.target.value as any)}
+                      className="w-full text-xs p-1.5 border border-slate-250 rounded bg-slate-50 font-medium"
+                    >
+                      <option value="Arial">Arial (Sesuai Permintaan)</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[9px] text-slate-500 block font-bold uppercase mb-0.5">Ukuran Huruf</label>
+                    <select
+                      value={docFontSize}
+                      onChange={(e) => setDocFontSize(e.target.value as any)}
+                      className="w-full text-xs p-1.5 border border-slate-250 rounded bg-slate-50 font-medium"
+                    >
+                      <option value="12pt">Ukuran 12 (12pt Standar)</option>
+                      <option value="11pt">Ukuran 11 (11pt)</option>
+                      <option value="10pt">Ukuran 10 (10pt)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -1185,15 +1237,18 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
         {/* PRINTABLE COMPONENT */}
         <div 
           id="spd-printable" 
-          className="bg-white p-10 md:p-14 font-serif text-black leading-normal shadow-lg max-w-[700px] mx-auto select-text select-all"
-          style={{ fontFamily: '"Times New Roman", Times, serif' }}
+          className="bg-white p-10 md:p-14 text-black leading-normal shadow-lg max-w-[700px] mx-auto select-text select-all"
+          style={{ 
+            fontFamily: docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif',
+            fontSize: docFontSize
+          }}
         >
           <style dangerouslySetInnerHTML={{ __html: `
             #spd-printable *, #spd-printable *:before, #spd-printable *:after {
               box-sizing: border-box !important;
             }
             #spd-printable {
-              font-family: "Times New Roman", Times, serif !important;
+              font-family: ${docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif'} !important;
               color: #000 !important;
               background-color: #fff !important;
             }
@@ -1222,17 +1277,17 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
             #spd-printable .leading-none { line-height: 1 !important; }
             #spd-printable .space-y-0\.5 > * + * { margin-top: 2px !important; }
             #spd-printable .space-y-2 > * + * { margin-top: 8px !important; }
-            #spd-printable .text-xs { font-size: 12px !important; }
+            #spd-printable .text-xs { font-size: ${docFontSize} !important; }
             #spd-printable .leading-5 { line-height: 20px !important; }
             #spd-printable .leading-relaxed { line-height: 1.625 !important; }
-            #spd-printable .text-\[10\.5px\] { font-size: 10.5px !important; }
-            #spd-printable .text-\[12px\] { font-size: 12px !important; }
-            #spd-printable .text-\[12\.5px\] { font-size: 12.5px !important; }
-            #spd-printable .text-\[13px\] { font-size: 13px !important; }
-            #spd-printable .text-\[13\.5px\] { font-size: 13.5px !important; }
-            #spd-printable .text-\[11px\] { font-size: 11px !important; }
-            #spd-printable .text-\[11\.5px\] { font-size: 11.5px !important; }
-            #spd-printable .text-\[14px\] { font-size: 14px !important; }
+            #spd-printable .text-\[10\.5px\] { font-size: ${docFontSize} !important; }
+            #spd-printable .text-\[12px\] { font-size: ${docFontSize} !important; }
+            #spd-printable .text-\[12\.5px\] { font-size: ${docFontSize} !important; }
+            #spd-printable .text-\[13px\] { font-size: ${docFontSize} !important; }
+            #spd-printable .text-\[13\.5px\] { font-size: ${docFontSize} !important; }
+            #spd-printable .text-\[11px\] { font-size: ${docFontSize} !important; }
+            #spd-printable .text-\[11\.5px\] { font-size: ${docFontSize} !important; }
+            #spd-printable .text-\[14px\] { font-size: ${docFontSize} !important; }
             
             #spd-printable .w-1\/2 { width: 50% !important; }
             #spd-printable .w-full { width: 100% !important; }
@@ -1309,7 +1364,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               width: 310px;
               margin-top: 2px;
               margin-bottom: 4px;
-              font-size: 12.5px;
+              font-size: ${docFontSize};
             }
             #spd-printable .top-meta-container table {
               width: 100%;
@@ -1318,6 +1373,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
             #spd-printable .top-meta-container td {
               padding: 1px 2px;
               vertical-align: top;
+              font-size: ${docFontSize} !important;
             }
             #spd-printable .doc-title-box {
               text-align: center;
@@ -1336,14 +1392,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               width: 100%;
               border-collapse: collapse;
               border: 1px solid #000;
-              font-size: 13px;
+              font-size: ${docFontSize};
               margin-bottom: 12px;
             }
             #spd-printable .spd-main-table > tbody > tr > td {
               border: 1px solid #000 !important;
               padding: 4px 6px !important;
               vertical-align: top;
-              font-size: 13px !important;
+              font-size: ${docFontSize} !important;
             }
             #spd-printable .sub-nested-table {
               width: 100%;
@@ -1358,14 +1414,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               width: 100%;
               border-collapse: collapse;
               border: 1px solid #000;
-              font-size: 13.5px;
+              font-size: ${docFontSize};
               margin-bottom: 12px;
             }
             #spd-printable .back-table > tbody > tr > td {
               border: 1px solid #000 !important;
               padding: 5px 8px !important;
               vertical-align: top;
-              font-size: 13.5px !important;
+              font-size: ${docFontSize} !important;
             }
             #spd-printable .back-table > tbody > tr > td:not([colspan]) {
               width: 50%;
@@ -1382,7 +1438,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               margin-top: 12px;
               float: right;
               width: 270px;
-              font-size: 14px;
+              font-size: ${docFontSize};
               text-align: left;
             }
             #spd-printable .sig-box {

@@ -14,6 +14,8 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
   const participants = travel.employeeIds.map(id => employees.find(e => e.id === id)).filter(Boolean) as Employee[];
 
   const [showConfig, setShowConfig] = useState(false);
+  const [docFontFamily, setDocFontFamily] = useState<"Arial" | "Times New Roman">("Arial");
+  const [docFontSize, setDocFontSize] = useState<"12pt" | "11pt" | "10pt" | "14px">("12pt");
   const [signSpecialCode, setSignSpecialCode] = useState("");
   const [signCodeCase, setSignCodeCase] = useState<"as-is" | "uppercase" | "lowercase">("as-is");
   const [signCodeSize, setSignCodeSize] = useState<"9px" | "11px" | "13px" | "15px">("11px");
@@ -65,6 +67,8 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
           if (data.signSpecialCode !== undefined) setSignSpecialCode(data.signSpecialCode);
           if (data.signCodeCase !== undefined) setSignCodeCase(data.signCodeCase);
           if (data.signCodeSize !== undefined) setSignCodeSize(data.signCodeSize);
+          if (data.docFontFamily !== undefined) setDocFontFamily(data.docFontFamily);
+          if (data.docFontSize !== undefined) setDocFontSize(data.docFontSize);
           return;
         } catch (e) {
           console.error("Error parsing cached Surat Tugas", e);
@@ -86,10 +90,12 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
       dasarList,
       signSpecialCode,
       signCodeCase,
-      signCodeSize
+      signCodeSize,
+      docFontFamily,
+      docFontSize
     };
     localStorage.setItem(cacheKey, JSON.stringify(data));
-  }, [travel.id, dasarList, signSpecialCode, signCodeCase, signCodeSize]);
+  }, [travel.id, dasarList, signSpecialCode, signCodeCase, signCodeSize, docFontFamily, docFontSize]);
 
   // Helper to split a combined text entry into a list of individual cleaned legal references
   const getFlattenedDasarList = () => {
@@ -169,7 +175,17 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
       cleanItem = cleanItem.replace(leadingNumRegex, "");
     }
 
-    return <span className="text-justify block text-slate-900 leading-relaxed font-serif">{cleanItem}</span>;
+    return (
+      <span 
+        className="text-justify block text-slate-900 leading-relaxed"
+        style={{
+          fontFamily: docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif',
+          fontSize: docFontSize
+        }}
+      >
+        {cleanItem}
+      </span>
+    );
   };
 
   const handlePrint = () => {
@@ -182,6 +198,10 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
       const hiddenElements = clone.querySelectorAll(".print-hidden, .print\\:hidden, [class*='print-hidden'], [class*='print:hidden']");
       hiddenElements.forEach(el => el.remove());
 
+      const fontCssFamily = docFontFamily === "Arial" 
+        ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" 
+        : '"Times New Roman", Times, serif';
+
       const printContent = clone.innerHTML;
       const printWindow = window.open("", "", "height=800,width=700");
       if (printWindow) {
@@ -191,7 +211,8 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               <title>Surat Tugas - ${travel.taskLetterNumber.replace(/\//g, '_')}</title>
               <style>
                 body {
-                  font-family: "Times New Roman", Times, serif;
+                  font-family: ${fontCssFamily};
+                  font-size: ${docFontSize};
                   line-height: 1.5;
                   color: #000;
                   background-color: #fff;
@@ -213,6 +234,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   text-align: center;
                   min-height: 85px;
                   display: block;
+                  font-family: ${fontCssFamily};
                 }
                 .kop-logo-container {
                   position: absolute;
@@ -268,7 +290,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   margin-bottom: 4px;
                 }
                 .doc-subtitle {
-                  font-size: 14px;
+                  font-size: ${docFontSize};
                   margin-bottom: 25px;
                 }
                 
@@ -277,7 +299,8 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   width: 100%;
                   border-collapse: collapse;
                   margin-bottom: 20px;
-                  font-size: 14px;
+                  font-size: ${docFontSize};
+                  font-family: ${fontCssFamily};
                 }
                 .dasar-table td {
                   padding: 4px 6px;
@@ -298,7 +321,8 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   width: 100%;
                   border-collapse: collapse;
                   margin-bottom: 12px;
-                  font-size: 14px;
+                  font-size: ${docFontSize};
+                  font-family: ${fontCssFamily};
                 }
                 .participants-list-table td {
                   padding: 3px 4px;
@@ -309,8 +333,9 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                 .untuk-list {
                   margin-left: 20px;
                   padding-left: 0;
-                  font-size: 14px;
+                  font-size: ${docFontSize};
                   text-align: justify;
+                  font-family: ${fontCssFamily};
                 }
                 .untuk-list li {
                   margin-bottom: 8px;
@@ -321,7 +346,8 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   margin-top: 40px;
                   float: right;
                   width: 250px;
-                  font-size: 14px;
+                  font-size: ${docFontSize};
+                  font-family: ${fontCssFamily};
                 }
                 .sig-box {
                   min-height: 110px;
@@ -355,7 +381,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
         <span className="text-xs text-slate-500 font-medium flex items-center gap-2">
           <FileBadge2 className="w-4 h-4 text-blue-600 shrink-0" />
-          <span>Preview Format Surat Tugas Resmi Daerah (Standard Kepbup/Inpres)</span>
+          <span>Format Surat Tugas Resmi Daerah ({docFontFamily} {docFontSize})</span>
         </span>
         
         <div className="flex flex-wrap items-center gap-2">
@@ -512,12 +538,63 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               )}
             </div>
           </div>
+
+          {/* STANDARISASI HURUF (FONT & UKURAN) */}
+          <div className="bg-white p-3 rounded-lg border border-slate-150 space-y-2">
+            <label className="text-[10px] text-blue-600 font-bold block uppercase tracking-wider">Jenis & Ukuran Huruf (Font)</label>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[9px] text-slate-500 block font-bold uppercase mb-0.5">Jenis Huruf</label>
+                <select
+                  value={docFontFamily}
+                  onChange={(e) => setDocFontFamily(e.target.value as any)}
+                  className="w-full text-xs p-1.5 border border-slate-250 rounded bg-slate-50 font-medium"
+                >
+                  <option value="Arial">Arial (Sesuai Permintaan)</option>
+                  <option value="Times New Roman">Times New Roman</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[9px] text-slate-500 block font-bold uppercase mb-0.5">Ukuran Huruf</label>
+                <select
+                  value={docFontSize}
+                  onChange={(e) => setDocFontSize(e.target.value as any)}
+                  className="w-full text-xs p-1.5 border border-slate-250 rounded bg-slate-50 font-medium"
+                >
+                  <option value="12pt">Ukuran 12 (12pt Standar)</option>
+                  <option value="11pt">Ukuran 11 (11pt)</option>
+                  <option value="10pt">Ukuran 10 (10pt)</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
       {/* RENDER SHEET */}
       <div className="border border-slate-300 p-8 md:p-12 bg-white max-w-3xl mx-auto shadow-sm select-text overflow-x-auto min-w-[320px]">
-        <div id="surat-tugas-printable" className="font-serif text-black leading-relaxed text-sm max-w-[650px] mx-auto bg-white">
+        <div 
+          id="surat-tugas-printable" 
+          className="text-black leading-relaxed max-w-[650px] mx-auto bg-white"
+          style={{
+            fontFamily: docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif',
+            fontSize: docFontSize,
+            lineHeight: "1.5"
+          }}
+        >
+          <style dangerouslySetInnerHTML={{ __html: `
+            #surat-tugas-printable, #surat-tugas-printable * {
+              font-family: ${docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif'} !important;
+            }
+            #surat-tugas-printable td, 
+            #surat-tugas-printable p:not(.kop-pemkab):not(.kop-instansi):not(.kop-alamat):not(.kop-laman):not(.doc-title), 
+            #surat-tugas-printable li, 
+            #surat-tugas-printable ol,
+            #surat-tugas-printable .doc-subtitle,
+            #surat-tugas-printable .sig-container {
+              font-size: ${docFontSize} !important;
+            }
+          ` }} />
           
           {/* KOP SURAT */}
           <div className="kop-header relative border-b-4 border-double border-black pb-3 mb-6 min-h-[85px] flex items-center justify-center">

@@ -118,6 +118,18 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
   const [textPenutup, setTextPenutup] = useState("Demikian nota dinas ini disampaikan, mohon petunjuk, arahan dan persetujuan.");
   const [isFocused, setIsFocused] = useState(false);
 
+  // Disposisi / Kolom Inspektur States (Side-by-side with signature block)
+  const [useDisposisiBox, setUseDisposisiBox] = useState(true);
+  const [disposisiLabel, setDisposisiLabel] = useState("Inspektur :");
+  const [disposisiText, setDisposisiText] = useState("");
+  const [disposisiHeight, setDisposisiHeight] = useState("140px");
+  const [disposisiWidth, setDisposisiWidth] = useState("240px");
+  const [disposisiMarginTop, setDisposisiMarginTop] = useState("32px");
+
+  // Typography Settings (Font Family and Size)
+  const [docFontFamily, setDocFontFamily] = useState<"Arial" | "Times New Roman">("Arial");
+  const [docFontSize, setDocFontSize] = useState<"12pt" | "11pt" | "10pt" | "14px">("12pt");
+
   const renderRujukanText = (text: string) => {
     if (!text) return null;
     const cleanText = text.trim();
@@ -240,6 +252,14 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
           if (data.textAnggaran !== undefined) setTextAnggaran(data.textAnggaran);
           if (data.textPenutup !== undefined) setTextPenutup(data.textPenutup);
           if (data.formatPeserta !== undefined) setFormatPeserta(data.formatPeserta);
+          if (data.useDisposisiBox !== undefined) setUseDisposisiBox(data.useDisposisiBox);
+          if (data.disposisiLabel !== undefined) setDisposisiLabel(data.disposisiLabel);
+          if (data.disposisiText !== undefined) setDisposisiText(data.disposisiText);
+          if (data.disposisiHeight !== undefined) setDisposisiHeight(data.disposisiHeight);
+          if (data.disposisiWidth !== undefined) setDisposisiWidth(data.disposisiWidth);
+          if (data.disposisiMarginTop !== undefined) setDisposisiMarginTop(data.disposisiMarginTop);
+          if (data.docFontFamily !== undefined) setDocFontFamily(data.docFontFamily);
+          if (data.docFontSize !== undefined) setDocFontSize(data.docFontSize);
           return;
         } catch (e) {
           console.error("Error parsing cached Nota Dinas", e);
@@ -316,7 +336,15 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
       useAnggaran,
       textAnggaran,
       textPenutup,
-      formatPeserta
+      formatPeserta,
+      useDisposisiBox,
+      disposisiLabel,
+      disposisiText,
+      disposisiHeight,
+      disposisiWidth,
+      disposisiMarginTop,
+      docFontFamily,
+      docFontSize
     };
     localStorage.setItem(cacheKey, JSON.stringify(data));
   }, [
@@ -350,7 +378,15 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
     useAnggaran,
     textAnggaran,
     textPenutup,
-    formatPeserta
+    formatPeserta,
+    useDisposisiBox,
+    disposisiLabel,
+    disposisiText,
+    disposisiHeight,
+    disposisiWidth,
+    disposisiMarginTop,
+    docFontFamily,
+    docFontSize
   ]);
 
   // Handle restoring exact capture defaults immediately on request
@@ -388,6 +424,16 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
     setSignSpecialCode("");
     setSignCodeCase("as-is");
     setSignCodeSize("11px");
+
+    setUseDisposisiBox(true);
+    setDisposisiLabel("Inspektur :");
+    setDisposisiText("");
+    setDisposisiHeight("140px");
+    setDisposisiWidth("240px");
+    setDisposisiMarginTop("32px");
+
+    setDocFontFamily("Arial");
+    setDocFontSize("12pt");
   };
 
   const handlePrint = () => {
@@ -408,13 +454,19 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
 
       const printWindow = window.open("", "", "height=900,width=800");
       if (printWindow) {
+        const fontFamilyCss = docFontFamily === "Arial" 
+          ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" 
+          : '"Times New Roman", Times, serif';
+        const fontSizeCss = docFontSize;
+
         printWindow.document.write(`
           <html>
             <head>
               <title>Nota Dinas - ${numNota.replace(/\//g, '_')}</title>
               <style>
                 body {
-                  font-family: "Times New Roman", Times, serif;
+                  font-family: ${fontFamilyCss};
+                  font-size: ${fontSizeCss};
                   line-height: 1.45;
                   color: #000;
                   background-color: #fff;
@@ -437,16 +489,16 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                 .border-none { border: none !important; }
                 .border-collapse { border-collapse: collapse !important; }
                 .py-0 { padding-top: 0 !important; padding-bottom: 0 !important; }
-                .h-1\.5 { height: 6px !important; }
+                .h-1\\.5 { height: 6px !important; }
                 .leading-none { line-height: 1 !important; }
                 .leading-relaxed { line-height: 1.625 !important; }
                 .break-inside-avoid { break-inside: avoid; page-break-inside: avoid; }
                 .pl-8 { padding-left: 32px !important; }
                 .p-1 { padding: 4px !important; }
-                .p-1\.5 { padding: 6px !important; }
-                .px-1\.5 { padding-left: 6px !important; padding-right: 6px !important; }
-                .text-\[11px\] { font-size: 11px !important; }
-                .mt-0\.5 { margin-top: 2px !important; }
+                .p-1\\.5 { padding: 6px !important; }
+                .px-1\\.5 { padding-left: 6px !important; padding-right: 6px !important; }
+                .text-\\[11px\\] { font-size: 11px !important; }
+                .mt-0\\.5 { margin-top: 2px !important; }
                 .print\\:hidden { display: none !important; }
                 .print-hidden { display: none !important; }
                 
@@ -459,6 +511,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   text-align: center;
                   min-height: 80px;
                   display: block;
+                  font-family: ${fontFamilyCss};
                 }
                 .kop-logo-container {
                   position: absolute;
@@ -479,48 +532,55 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   width: 100%;
                   box-sizing: border-box;
                   text-align: center;
+                  font-family: ${fontFamilyCss};
                 }
                  .kop-pemkab {
-                  font-size: 16px;
+                  font-size: 15px;
                   font-weight: bold;
                   letter-spacing: 0.5px;
                   margin: 0;
                   line-height: 1.2;
+                  font-family: ${fontFamilyCss};
                 }
                 .kop-instansi {
-                  font-size: 21px;
+                  font-size: 19px;
                   font-weight: bold;
                   letter-spacing: 0.5px;
                   margin: 0;
                   margin-top: 2px;
                   line-height: 1.2;
+                  font-family: ${fontFamilyCss};
                 }
                 .kop-alamat {
-                  font-size: 11px;
+                  font-size: 10.5px;
                   margin: 0;
                   margin-top: 3px;
                   line-height: 1.3;
+                  font-family: ${fontFamilyCss};
                 }
                 .kop-laman {
-                  font-size: 11px;
+                  font-size: 10.5px;
                   margin: 0;
                   margin-top: 1px;
                   line-height: 1.3;
+                  font-family: ${fontFamilyCss};
                 }
                 
                 /* Document Title */
                 .doc-title {
-                  font-size: 18px;
+                  font-size: 15px;
                   font-weight: bold;
                   text-align: center;
                   margin-top: 10px;
                   margin-bottom: 2px;
                   letter-spacing: 0.5px;
+                  font-family: ${fontFamilyCss};
                 }
                 .doc-subtitle {
-                  font-size: 14px;
+                  font-size: ${fontSizeCss};
                   text-align: center;
                   margin-bottom: 20px;
+                  font-family: ${fontFamilyCss};
                 }
                 
                 /* Metadata Table */
@@ -528,11 +588,14 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   width: 100%;
                   border-collapse: collapse;
                   margin-bottom: 12px;
-                  font-size: 14px;
+                  font-size: ${fontSizeCss};
+                  font-family: ${fontFamilyCss};
                 }
                 .meta-table td {
                   padding: 3px 4px;
                   vertical-align: top;
+                  font-size: ${fontSizeCss};
+                  font-family: ${fontFamilyCss};
                 }
                 .line-divider {
                   border-top: 1.5px solid #000;
@@ -541,10 +604,11 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                 
                 /* Body Paragraphs */
                 .body-text {
-                  font-size: 14px;
+                  font-size: ${fontSizeCss};
                   text-align: justify;
                   margin-bottom: 12px;
-                  line-height: 1.45;
+                  line-height: 1.5;
+                  font-family: ${fontFamilyCss};
                 }
                 .indent-8 {
                   text-indent: 30px;
@@ -555,12 +619,15 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   width: 100%;
                   border-collapse: collapse;
                   margin: 6px 0;
-                  font-size: 14px;
+                  font-size: ${fontSizeCss};
+                  font-family: ${fontFamilyCss};
                 }
                 .table-participants th, .table-participants td {
                   border: 1px solid #000;
-                  padding: 3px 5px;
+                  padding: 4px 6px;
                   text-align: left;
+                  font-size: ${fontSizeCss};
+                  font-family: ${fontFamilyCss};
                 }
                 .table-participants th {
                   background-color: #f2f2f2;
@@ -571,8 +638,9 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                 /* Capture's Enumerated Participant List Format */
                 .list-participants-container {
                   margin: 6px 0;
-                  font-size: 14px;
+                  font-size: ${fontSizeCss};
                   padding-left: 32px;
+                  font-family: ${fontFamilyCss};
                 }
                 .list-participant-item {
                   margin-bottom: 6px;
@@ -582,25 +650,52 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
                   width: 100%;
                   border-collapse: collapse;
                   border: none;
+                  font-family: ${fontFamilyCss};
                 }
                 .list-participant-item td {
-                  padding: 1.5px 0;
+                  padding: 2px 0;
                   vertical-align: top;
+                  font-size: ${fontSizeCss};
+                  font-family: ${fontFamilyCss};
                 }
                 
-                /* Signature block */
+                /* Signature & Disposisi row */
+                .sig-and-disposisi-row {
+                  margin-top: 32px;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: flex-start;
+                  page-break-inside: avoid;
+                  width: 100%;
+                  font-family: ${fontFamilyCss};
+                }
+                .disposisi-box {
+                  border: 1.5px solid #000;
+                  width: 240px;
+                  min-height: 140px;
+                  padding: 8px 10px;
+                  box-sizing: border-box;
+                  font-size: ${fontSizeCss};
+                  font-family: ${fontFamilyCss};
+                  text-align: left;
+                  float: left;
+                  margin-right: 40px;
+                }
                 .sig-container {
-                  margin-top: 25px;
-                  float: right;
-                  width: 280px;
-                  font-size: 14px;
+                  width: 250px;
+                  font-size: ${fontSizeCss};
+                  font-family: ${fontFamilyCss};
                   text-align: left;
                   page-break-inside: avoid;
+                  float: right;
                 }
                 .sig-box {
-                  min-height: 110px;
+                  min-height: 95px;
                   height: auto;
-                  margin-bottom: 12px;
+                  margin-bottom: 10px;
+                }
+                .clear-both {
+                  clear: both;
                 }
                 
                 @media print {
@@ -631,7 +726,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
         <span className="text-xs text-slate-600 font-medium flex items-center gap-2">
           <FileText className="w-4 h-4 text-blue-600 shrink-0" />
-          <span>Format Nota Dinas Resmi (Times New Roman Standard) - <b className="text-slate-800 uppercase">{formatPeserta} Mode</b></span>
+          <span>Format Nota Dinas Resmi ({docFontFamily} {docFontSize}) - <b className="text-slate-800 uppercase">{formatPeserta} Mode</b></span>
         </span>
         
         <div className="flex flex-wrap items-center gap-2">
@@ -904,8 +999,8 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
             </div>
           </div>
 
-          {/* Expanded Bottom Row: Signatory and Budget text overrides */}
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-3 rounded-lg border border-slate-150">
+          {/* Expanded Bottom Row: Signatory, Disposisi, and Budget text overrides */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white p-3 rounded-lg border border-slate-150">
             <div className="space-y-2">
               <p className="text-[10px] font-bold uppercase text-blue-600 border-b pb-1">4. Penanda Tangan Dinas (Sign-Off)</p>
               
@@ -1024,44 +1119,169 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
               </div>
             </div>
 
+            {/* Column 2: Kolom Disposisi Inspektur */}
             <div className="space-y-2">
               <div className="flex items-center justify-between border-b pb-1 mb-1.5">
-                <p className="text-[10px] font-bold uppercase text-blue-600">5. Redaksi Pembebanan Anggaran</p>
+                <p className="text-[10px] font-bold uppercase text-blue-600">5. Kolom Disposisi Inspektur</p>
                 <div className="flex items-center gap-1.5">
                   <input
-                    id="enable-anggaran"
+                    id="enable-disposisi"
                     type="checkbox"
-                    checked={useAnggaran}
-                    onChange={(e) => setUseAnggaran(e.target.checked)}
+                    checked={useDisposisiBox}
+                    onChange={(e) => setUseDisposisiBox(e.target.checked)}
                     className="rounded text-blue-600 focus:ring-blue-500 cursor-pointer w-3.5 h-3.5"
                   />
-                  <label htmlFor="enable-anggaran" className="text-[9px] text-slate-600 font-bold uppercase cursor-pointer select-none">Tampilkan</label>
+                  <label htmlFor="enable-disposisi" className="text-[9px] text-slate-600 font-bold uppercase cursor-pointer select-none">Tampilkan</label>
                 </div>
               </div>
-              {useAnggaran ? (
-                <textarea
-                  rows={3}
-                  value={textAnggaran}
-                  onChange={(e) => setTextAnggaran(e.target.value)}
-                  className="w-full text-xs p-2 border rounded bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Sesuaikan redaksi anggaran belanja..."
-                />
+
+              {useDisposisiBox ? (
+                <div className="space-y-2">
+                  <div>
+                    <label className="text-[10px] text-slate-400 block font-bold uppercase">Judul Kolom</label>
+                    <input
+                      type="text"
+                      value={disposisiLabel}
+                      onChange={(e) => setDisposisiLabel(e.target.value)}
+                      placeholder="Contoh: Inspektur :"
+                      className="w-full text-xs p-1.5 border rounded bg-slate-50 font-medium"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-slate-400 block font-bold uppercase">Lebar Kotak</label>
+                      <select
+                        value={disposisiWidth}
+                        onChange={(e) => setDisposisiWidth(e.target.value)}
+                        className="w-full text-xs p-1.5 border rounded bg-slate-50 font-medium"
+                      >
+                        <option value="210px">Kecil (210px)</option>
+                        <option value="240px">Proporsional (240px)</option>
+                        <option value="260px">Sedang (260px)</option>
+                        <option value="280px">Besar (280px)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 block font-bold uppercase">Tinggi Kolom</label>
+                      <select
+                        value={disposisiHeight}
+                        onChange={(e) => setDisposisiHeight(e.target.value)}
+                        className="w-full text-xs p-1.5 border rounded bg-slate-50 font-medium"
+                      >
+                        <option value="120px">Kecil (120px)</option>
+                        <option value="140px">Standar (140px)</option>
+                        <option value="160px">Sedang (160px)</option>
+                        <option value="180px">Besar (180px)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-400 block font-bold uppercase">Jarak dari Penutup</label>
+                    <select
+                      value={disposisiMarginTop}
+                      onChange={(e) => setDisposisiMarginTop(e.target.value)}
+                      className="w-full text-xs p-1.5 border rounded bg-slate-50 font-medium"
+                    >
+                      <option value="24px">Ketat (24px)</option>
+                      <option value="32px">Standar Renggang (32px)</option>
+                      <option value="40px">Luas (40px)</option>
+                      <option value="48px">Sangat Luas (48px)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-400 block font-bold uppercase">Catatan / Arahan (Opsional)</label>
+                    <textarea
+                      rows={2}
+                      value={disposisiText}
+                      onChange={(e) => setDisposisiText(e.target.value)}
+                      placeholder="Kosongkan untuk tulisan tangan/paraf langsung..."
+                      className="w-full text-xs p-1.5 border rounded bg-slate-50 focus:bg-white"
+                    />
+                    <p className="text-[9px] text-slate-400 italic mt-0.5">
+                      Bila dikosongkan, kotak akan terbuka bersih untuk paraf/disposisi fisik seperti contoh.
+                    </p>
+                  </div>
+                </div>
               ) : (
-                <p className="text-[10px] text-slate-400 italic">Paragraf anggaran disembunyikan dari nota dinas.</p>
+                <p className="text-[10px] text-slate-400 italic">Kolom disposisi disembunyikan. Tanda tangan akan rata kanan.</p>
               )}
+            </div>
+
+            {/* Column 3: Redaksi Pembebanan Anggaran */}
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between border-b pb-1 mb-1.5">
+                  <p className="text-[10px] font-bold uppercase text-blue-600">6. Redaksi Pembebanan Anggaran</p>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      id="enable-anggaran"
+                      type="checkbox"
+                      checked={useAnggaran}
+                      onChange={(e) => setUseAnggaran(e.target.checked)}
+                      className="rounded text-blue-600 focus:ring-blue-500 cursor-pointer w-3.5 h-3.5"
+                    />
+                    <label htmlFor="enable-anggaran" className="text-[9px] text-slate-600 font-bold uppercase cursor-pointer select-none">Tampilkan</label>
+                  </div>
+                </div>
+                {useAnggaran ? (
+                  <textarea
+                    rows={3}
+                    value={textAnggaran}
+                    onChange={(e) => setTextAnggaran(e.target.value)}
+                    className="w-full text-xs p-2 border rounded bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Sesuaikan redaksi anggaran belanja..."
+                  />
+                ) : (
+                  <p className="text-[10px] text-slate-400 italic">Paragraf anggaran disembunyikan dari nota dinas.</p>
+                )}
+              </div>
+
+              {/* Section 7: Standarisasi Huruf (Font & Ukuran) */}
+              <div className="space-y-2 border-t pt-2 border-slate-200">
+                <p className="text-[10px] font-bold uppercase text-blue-600">7. Jenis & Ukuran Huruf (Font)</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-slate-400 block font-bold uppercase">Jenis Huruf</label>
+                    <select
+                      value={docFontFamily}
+                      onChange={(e) => setDocFontFamily(e.target.value as any)}
+                      className="w-full text-xs p-1.5 border rounded bg-slate-50 font-medium"
+                    >
+                      <option value="Arial">Arial (Sesuai Permintaan)</option>
+                      <option value="Times New Roman">Times New Roman</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-400 block font-bold uppercase">Ukuran Huruf</label>
+                    <select
+                      value={docFontSize}
+                      onChange={(e) => setDocFontSize(e.target.value as any)}
+                      className="w-full text-xs p-1.5 border rounded bg-slate-50 font-medium"
+                    >
+                      <option value="12pt">Ukuran 12 (12pt Standar)</option>
+                      <option value="11pt">Ukuran 11 (11pt)</option>
+                      <option value="10pt">Ukuran 10 (10pt)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* RENDER SHEET WRAPPER WITH TIMES NEW ROMAN STYLES FOR THE SIMULATION */}
+      {/* RENDER SHEET WRAPPER WITH CONFIGURABLE FONT AND SIZE */}
       <div className="border border-slate-300 p-8 md:p-14 bg-slate-100 max-w-4xl mx-auto shadow-inner overflow-x-auto min-w-[320px]">
         
         {/* PRINTABLE COMPONENT */}
         <div 
           id="nota-dinas-printable" 
-          className="bg-white p-12 md:p-14 font-serif text-black leading-relaxed shadow-lg max-w-[700px] mx-auto select-text select-all"
-          style={{ fontFamily: '"Times New Roman", Times, serif' }}
+          className="bg-white p-12 md:p-14 text-black leading-relaxed shadow-lg max-w-[700px] mx-auto select-text select-all"
+          style={{ 
+            fontFamily: docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif',
+            fontSize: docFontSize === "12pt" ? "12pt" : docFontSize === "11pt" ? "11pt" : docFontSize === "10pt" ? "10pt" : "12pt",
+            lineHeight: "1.45"
+          }}
         >
           
           {/* KOP SURAT */}
@@ -1092,13 +1312,13 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
 
           {/* TITLE */}
           <div className="text-center mb-6">
-            <h3 className="doc-title text-lg font-bold uppercase tracking-wide m-0">
+            <h3 className="doc-title font-bold uppercase tracking-wide m-0" style={{ fontSize: "15px" }}>
               NOTA DINAS
             </h3>
           </div>
 
           {/* METADATA TABLES */}
-          <table className="meta-table w-full text-sm md:text-[14px] border-collapse mb-4 select-text leading-normal">
+          <table className="meta-table w-full border-collapse mb-4 select-text leading-normal" style={{ fontSize: docFontSize }}>
             <tbody>
               <tr>
                 <td className="w-20 font-medium py-1">Kepada</td>
@@ -1149,7 +1369,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
           <div className="line-divider border-t-1.5 border-black mb-4"></div>
 
           {/* BODY CONTENT */}
-          <div className="space-y-4 text-sm md:text-[14.5px] text-justify leading-relaxed">
+          <div className="space-y-4 text-justify leading-relaxed" style={{ fontSize: docFontSize }}>
             
             {useRujukan && (
               <div className="relative group">
@@ -1204,8 +1424,8 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
 
             {/* SEGMENT: RENDERING PESERTA (DYNAMIC FORMAT BASED ON CONTROLS) */}
             {formatPeserta === "list" ? (
-              <div className="list-participants-container pl-8">
-                <table className="w-full text-sm md:text-[14.5px] text-black border-none border-collapse text-left">
+              <div className="list-participants-container pl-8" style={{ fontSize: docFontSize }}>
+                <table className="w-full text-black border-none border-collapse text-left" style={{ fontSize: docFontSize }}>
                   <tbody>
                     {participants.map((emp, index) => (
                       <React.Fragment key={`nd-p-list-${emp.id}-${index}`}>
@@ -1251,7 +1471,7 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
               </div>
             ) : (
               // 2. Traditional Matrix Table Format (Permendagri Style)
-              <table className="table-participants w-full border-collapse border border-black my-4 text-sm md:text-[14px] text-black text-left">
+              <table className="table-participants w-full border-collapse border border-black my-4 text-black text-left" style={{ fontSize: docFontSize }}>
                 <thead>
                   <tr className="bg-slate-50">
                     <th className="border border-black p-1 text-center w-8 font-bold">No</th>
@@ -1280,24 +1500,64 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
 
             {/* BUDGET SUB-STATEMENT */}
             {useAnggaran && textAnggaran && (
-              <p className="body-text text-justify text-black">
+              <p className="body-text text-justify text-black" style={{ fontSize: docFontSize }}>
                 {textAnggaran}
               </p>
             )}
 
             {/* CLOSING STATEMENT */}
-            <p className="body-text text-justify text-black">
+            <p className="body-text text-justify text-black" style={{ fontSize: docFontSize }}>
               {textPenutup}
             </p>
           </div>
 
-          {/* SIGNATURE BLOCK */}
-          <div className="mt-8 flex justify-end break-inside-avoid">
-            <div className="sig-container w-72 text-black text-sm md:text-[14.5px] text-left">
+          {/* SIGNATURE & DISPOSISI BLOCK */}
+          <div 
+            className={`sig-and-disposisi-row flex ${useDisposisiBox ? "justify-between" : "justify-end"} items-start break-inside-avoid`}
+            style={{ marginTop: disposisiMarginTop, fontSize: docFontSize }}
+          >
+            {useDisposisiBox && (
+              <div 
+                className="disposisi-box border border-black p-3 text-black text-left"
+                style={{
+                  border: "1.5px solid #000",
+                  width: disposisiWidth,
+                  minHeight: disposisiHeight,
+                  boxSizing: "border-box",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-start",
+                  marginRight: "28px",
+                  fontSize: docFontSize
+                }}
+              >
+                <div
+                  contentEditable
+                  suppressContentEditableWarning
+                  onBlur={(e) => {
+                    const txt = e.currentTarget.innerText.trim();
+                    if (txt) setDisposisiLabel(txt);
+                  }}
+                  className="m-0 font-normal leading-snug outline-none cursor-text hover:bg-amber-50/50 rounded px-0.5"
+                  title="Klik langsung untuk mengubah teks (misal: Inspektur :)"
+                >
+                  {disposisiLabel}
+                </div>
+                {disposisiText ? (
+                  <div className="mt-2 italic whitespace-pre-wrap leading-relaxed" style={{ fontSize: docFontSize }}>
+                    {disposisiText}
+                  </div>
+                ) : (
+                  <div className="flex-1 min-h-[90px]"></div>
+                )}
+              </div>
+            )}
+
+            <div className="sig-container text-black text-left" style={{ width: "250px", fontSize: docFontSize }}>
               <p className="m-0 leading-snug">{sigJabatan},</p>
               
               {/* Spaces for signature */}
-              <div className="sig-box min-h-[110px] flex flex-col justify-center my-2" style={{ minHeight: '110px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div className="sig-box min-h-[95px] flex flex-col justify-center my-2" style={{ minHeight: '95px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 {signSpecialCode ? (
                   <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                     {signCodeCase === "uppercase" 
