@@ -210,6 +210,37 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
 
   const [prevTravelId, setPrevTravelId] = useState<string | null>(null);
 
+  // Synchronize numNota and dateNota whenever travel.notaNumber or travel.notaDate changes (e.g. from Edit No/Rute)
+  useEffect(() => {
+    if (travel.notaNumber !== undefined) {
+      setNumNota(travel.notaNumber);
+    }
+  }, [travel.notaNumber]);
+
+  useEffect(() => {
+    if (travel.notaDate) {
+      setDateNota(formatIndoDate(travel.notaDate));
+    }
+  }, [travel.notaDate]);
+
+  // Synchronize Hal and Budget Sentence if purpose or budget source changes
+  useEffect(() => {
+    if (travel.purpose) {
+      setHal((prev) => {
+        if (!prev || prev.startsWith("Mohon persetujuan mengikuti Kegiatan")) {
+          return `Mohon persetujuan mengikuti Kegiatan ${travel.purpose}`;
+        }
+        return prev;
+      });
+    }
+  }, [travel.purpose]);
+
+  useEffect(() => {
+    if (travel.budgetSource) {
+      setTextAnggaran(formatBudgetSentence(travel.budgetSource));
+    }
+  }, [travel.budgetSource]);
+
   // Keep states synchronized when active travel changes
   useEffect(() => {
     if (travel.id !== prevTravelId) {
@@ -226,8 +257,11 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
           if (data.kopInstansi !== undefined) setKopInstansi(data.kopInstansi);
           if (data.kopAlamat !== undefined) setKopAlamat(data.kopAlamat);
           if (data.kopLaman !== undefined) setKopLaman(data.kopLaman);
-          if (data.numNota !== undefined) setNumNota(data.numNota);
-          if (data.dateNota !== undefined) setDateNota(data.dateNota);
+          
+          // Prioritize active travel master values over cached values
+          setNumNota(travel.notaNumber || data.numNota || "");
+          setDateNota(formatIndoDate(travel.notaDate) || data.dateNota || "");
+          
           if (data.kepada !== undefined) setKepada(data.kepada);
           if (data.dari !== undefined) setDari(data.dari);
           if (data.tembusan !== undefined) setTembusan(data.tembusan);
@@ -816,8 +850,36 @@ export default function DocumentNotaDinas({ travel, employees }: DocumentNotaDin
 
             {/* Column 2: Metadata Memo & Rujukan */}
             <div className="space-y-3 bg-white p-3 rounded-lg border border-slate-150">
-              <p className="text-[10px] font-bold uppercase text-blue-600 border-b pb-1">2. Metadata Kepala Nota</p>
+              <div className="flex items-center justify-between border-b pb-1">
+                <p className="text-[10px] font-bold uppercase text-blue-600">2. Metadata Kepala Nota</p>
+                <span className="text-[9px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded">Sinkron Otomatis</span>
+              </div>
               <div className="space-y-2 text-xs">
+                <div>
+                  <label className="text-[10px] text-slate-500 font-bold uppercase block mb-0.5">
+                    Nomor Nota Dinas
+                  </label>
+                  <input
+                    type="text"
+                    value={numNota}
+                    onChange={(e) => setNumNota(e.target.value)}
+                    placeholder="Contoh: 090/084/ND-INSP/2026"
+                    className="w-full text-xs bg-slate-50 border border-slate-250 p-1.5 rounded focus:bg-white font-mono font-bold text-blue-700"
+                  />
+                  <p className="text-[9px] text-slate-400 mt-0.5">Tersinkron dengan menu Edit No/Rute</p>
+                </div>
+                <div>
+                  <label className="text-[10px] text-slate-500 font-bold uppercase block mb-0.5">
+                    Tanggal Nota Dinas
+                  </label>
+                  <input
+                    type="text"
+                    value={dateNota}
+                    onChange={(e) => setDateNota(e.target.value)}
+                    placeholder="Contoh: 6 Agustus 2026"
+                    className="w-full text-xs bg-slate-50 border border-slate-250 p-1.5 rounded focus:bg-white font-medium text-slate-800"
+                  />
+                </div>
                 <div>
                   <label className="text-[10px] text-slate-400 font-bold uppercase block">Kepada</label>
                   <input

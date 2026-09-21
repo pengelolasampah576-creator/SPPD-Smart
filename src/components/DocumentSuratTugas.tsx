@@ -51,6 +51,18 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
 
   const [prevTravelId, setPrevTravelId] = useState<string | null>(null);
 
+  // Synchronize dasarList with current travel notaNumber, notaDate, and destination
+  useEffect(() => {
+    setDasarList(prev => {
+      const notaDinasText = `Nota Dinas ${signatory?.name || "DIYANTO, SE, MT, FRMP"} (${signatory?.jabatan || "Inspektur"}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`;
+      const hasNota = prev.some(d => d.startsWith("Nota Dinas"));
+      if (hasNota) {
+        return prev.map(d => d.startsWith("Nota Dinas") ? notaDinasText : d);
+      }
+      return prev;
+    });
+  }, [travel.notaNumber, travel.notaDate, travel.destination, signatory?.name, signatory?.jabatan]);
+
   // Synchronize or initialize default Dasar lists based on active travel and signatory configuration
   useEffect(() => {
     if (travel.id !== prevTravelId) {
@@ -63,7 +75,12 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
       if (cached) {
         try {
           const data = JSON.parse(cached);
-          if (data.dasarList !== undefined) setDasarList(data.dasarList);
+          if (data.dasarList !== undefined && Array.isArray(data.dasarList)) {
+            // Update the Nota Dinas entry with current travel values
+            const notaDinasText = `Nota Dinas ${signatory?.name || "DIYANTO, SE, MT, FRMP"} (${signatory?.jabatan || "Inspektur"}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`;
+            const syncedList = data.dasarList.map((d: string) => d.startsWith("Nota Dinas") ? notaDinasText : d);
+            setDasarList(syncedList);
+          }
           if (data.signSpecialCode !== undefined) setSignSpecialCode(data.signSpecialCode);
           if (data.signCodeCase !== undefined) setSignCodeCase(data.signCodeCase);
           if (data.signCodeSize !== undefined) setSignCodeSize(data.signCodeSize);

@@ -148,9 +148,100 @@ export default function App() {
     setActiveDocTab("nota"); // start with nota dinas
   };
 
+  const formatIndoDateFull = (dateStr: string) => {
+    if (!dateStr) return "-";
+    const months = [
+      "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+      "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ];
+    const parts = dateStr.split("-");
+    if (parts.length !== 3) return dateStr;
+    const day = parseInt(parts[2], 10);
+    const month = months[parseInt(parts[1], 10) - 1];
+    const year = parts[0];
+    return `${day} ${month} ${year}`;
+  };
+
   const handleEditTravel = (updatedTravel: Travel) => {
     const updated = travels.map(t => t.id === updatedTravel.id ? updatedTravel : t);
     handleUpdateTravels(updated);
+
+    // Synchronize document caches with the newly edited travel numbers & route
+    try {
+      // 1. Update Nota Dinas cache
+      const ndCacheKey = `sppd_doc_notadinas_cache_${updatedTravel.id}`;
+      const ndCached = localStorage.getItem(ndCacheKey);
+      if (ndCached) {
+        const ndData = JSON.parse(ndCached);
+        ndData.numNota = updatedTravel.notaNumber;
+        ndData.dateNota = formatIndoDateFull(updatedTravel.notaDate);
+        localStorage.setItem(ndCacheKey, JSON.stringify(ndData));
+      }
+
+      // 2. Update Surat Tugas cache
+      const stCacheKey = `sppd_doc_surattugas_cache_${updatedTravel.id}`;
+      const stCached = localStorage.getItem(stCacheKey);
+      if (stCached) {
+        const stData = JSON.parse(stCached);
+        if (Array.isArray(stData.dasarList)) {
+          stData.dasarList = stData.dasarList.map((d: string) => {
+            if (d.startsWith("Nota Dinas")) {
+              return `Nota Dinas Inspektorat Daerah Kabupaten Tabalong Nomor ${updatedTravel.notaNumber || ""} tanggal ${formatIndoDateFull(updatedTravel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${updatedTravel.destination || ""}.`;
+            }
+            return d;
+          });
+        }
+        localStorage.setItem(stCacheKey, JSON.stringify(stData));
+      }
+
+      // 3. Update SPD caches
+      const spdCleanPrefix = updatedTravel.spdNumberPrefix ? updatedTravel.spdNumberPrefix.replace(/\/\d+$/, '') : "090/SPD/INSP/2026";
+      const durationDays = calculateDays(updatedTravel.departureDate, updatedTravel.returnDate);
+      
+      updatedTravel.employeeIds.forEach((empId, idx) => {
+        const spdCacheKey = `sppd_doc_spd_cache_${updatedTravel.id}_${empId}`;
+        const spdCached = localStorage.getItem(spdCacheKey);
+        if (spdCached) {
+          const spdData = JSON.parse(spdCached);
+          const serialNo = (idx + 1).toString().padStart(2, '0');
+          spdData.numSpd = `${spdCleanPrefix}/${serialNo}`;
+          spdData.maksudDinas = updatedTravel.purpose;
+          spdData.tempatBerangkat = updatedTravel.departurePlace || "Tanjung";
+          spdData.tempatTujuan = updatedTravel.destination;
+          spdData.lamanyaDinas = `${durationDays} hari`;
+          spdData.tglBerangkat = formatIndoDateFull(updatedTravel.departureDate);
+          spdData.tglKembali = formatIndoDateFull(updatedTravel.returnDate);
+          spdData.p2BerangkatDari = updatedTravel.departurePlace || "Tanjung";
+          spdData.p2Ke = updatedTravel.destination;
+          spdData.p2TglBerangkat = formatIndoDateFull(updatedTravel.departureDate);
+          spdData.p2Row1TibaDi = updatedTravel.destination;
+          spdData.p2Row1TibaTgl = formatIndoDateFull(updatedTravel.departureDate);
+          spdData.p2Row1BerangkatDari = updatedTravel.destination;
+          spdData.p2Row1BerangkatKe = updatedTravel.departurePlace || "Tanjung";
+          spdData.p2Row1BerangkatTgl = formatIndoDateFull(updatedTravel.returnDate);
+          spdData.p2Row3TibaDi = updatedTravel.departurePlace || "Tanjung";
+          spdData.p2Row3TibaTgl = formatIndoDateFull(updatedTravel.returnDate);
+          localStorage.setItem(spdCacheKey, JSON.stringify(spdData));
+        }
+      });
+
+      // 4. Update Honorarium cache
+      const honCacheKey = `sppd_doc_honorarium_cache_${updatedTravel.id}`;
+      const honCached = localStorage.getItem(honCacheKey);
+      if (honCached) {
+        const honData = JSON.parse(honCached);
+        const formattedDepDate = formatIndoDateFull(updatedTravel.departureDate);
+        const formattedRetDate = formatIndoDateFull(updatedTravel.returnDate);
+        const dateRange = updatedTravel.departureDate === updatedTravel.returnDate
+          ? formattedDepDate
+          : `${formattedDepDate} s.d ${formattedRetDate}`;
+        honData.subActivityText = `HONORARIUM BELANJA PERJALANAN DINAS DALAM KOTA PADA SUB KEGIATAN ${updatedTravel.purpose.toUpperCase()} TANGGAL ${dateRange.toUpperCase()}`;
+        localStorage.setItem(honCacheKey, JSON.stringify(honData));
+      }
+    } catch (e) {
+      console.error("Error updating document caches on travel edit", e);
+    }
+
     setEditingTravel(null);
   };
 

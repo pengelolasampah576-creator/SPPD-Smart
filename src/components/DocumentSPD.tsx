@@ -150,6 +150,38 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
   const [prevSyncKey, setPrevSyncKey] = useState<string | null>(null);
 
+  // Synchronize SPD number, route, purpose and dates whenever travel properties change
+  useEffect(() => {
+    if (!travel) return;
+    const cleanPrefix = travel.spdNumberPrefix ? travel.spdNumberPrefix.replace(/\/\d+$/, '') : "090/SPD/INSP/2026";
+    setNumSpd(`${cleanPrefix}/${serialNo}`);
+    setTempatBerangkat(travel.departurePlace || "Tanjung");
+    setTempatTujuan(travel.destination);
+    setMaksudDinas(travel.purpose);
+    setLamanyaDinas(`${durationDays} (${durationDaysToWords(durationDays)}) hari`);
+    setTglBerangkat(formatIndoDate(travel.departureDate));
+    setTglKembali(formatIndoDate(travel.returnDate));
+    setP2BerangkatDari(travel.departurePlace || "Tanjung");
+    setP2Ke(travel.destination);
+    setP2TglBerangkat(formatIndoDate(travel.departureDate));
+    setP2Row1TibaDi(travel.destination);
+    setP2Row1TibaTgl(formatIndoDate(travel.departureDate));
+    setP2Row1BerangkatDari(travel.destination);
+    setP2Row1BerangkatKe(travel.departurePlace || "Tanjung");
+    setP2Row1BerangkatTgl(formatIndoDate(travel.returnDate));
+    setP2Row3TibaDi(travel.departurePlace || "Tanjung");
+    setP2Row3TibaTgl(formatIndoDate(travel.returnDate));
+  }, [
+    travel.spdNumberPrefix,
+    serialNo,
+    travel.departurePlace,
+    travel.destination,
+    travel.purpose,
+    durationDays,
+    travel.departureDate,
+    travel.returnDate
+  ]);
+
   // Keep state synchronized with travel select choices
   useEffect(() => {
     if (!activeEmployee) return;
@@ -171,7 +203,11 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
           if (data.kopLaman !== undefined) setKopLaman(data.kopLaman);
           if (data.lembarKe !== undefined) setLembarKe(data.lembarKe);
           if (data.kodeNo !== undefined) setKodeNo(data.kodeNo);
-          if (data.numSpd !== undefined) setNumSpd(data.numSpd);
+          
+          // Prioritize current travel prefix
+          const cleanPrefix = travel.spdNumberPrefix ? travel.spdNumberPrefix.replace(/\/\d+$/, '') : "090/SPD/INSP/2026";
+          setNumSpd(`${cleanPrefix}/${serialNo}`);
+          
           if (data.paName !== undefined) setPaName(data.paName);
           if (data.paNip !== undefined) setPaNip(data.paNip);
           if (data.paPangkat !== undefined) setPaPangkat(data.paPangkat);
