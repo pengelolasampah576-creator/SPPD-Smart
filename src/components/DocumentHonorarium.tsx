@@ -552,12 +552,12 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                 .text-center { text-align: center; }
                 .text-right { text-align: right; }
                 .text-left { text-align: left; }
-                .font-bold { font-weight: bold; }
-                .font-semibold { font-weight: 600; }
+                .font-bold { font-weight: normal !important; }
+                .font-semibold { font-weight: normal !important; }
                 .uppercase { text-transform: uppercase; }
                 .italic { font-style: italic; }
                 .font-mono { font-family: 'Courier New', monospace; }
-                .print\\:hidden { display: none !important; }
+                .print\:hidden { display: none !important; }
                 .print-hidden { display: none !important; }
                 
                 .m-0 { margin: 0 !important; }
@@ -600,7 +600,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                 }
 
                 .table-main th {
-                  font-weight: bold;
+                  font-weight: normal !important;
                   text-align: center;
                   background-color: #ffffff !important;
                   color: #000000 !important;
@@ -664,7 +664,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
 
                 .sign-column {
                   width: 40%;
-                  text-align: center;
+                  text-align: left;
                   color: #000000 !important;
                   font-size: ${docFontSize} !important;
                 }
@@ -1189,10 +1189,10 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
 
             {/* DOCUMENT TITLE SECTION */}
             <div className="text-center mb-6">
-              <h3 className="m-0 font-bold uppercase tracking-tight text-center leading-tight" style={{ fontSize: "14px", fontWeight: "bold" }}>
+              <h3 className="m-0 uppercase tracking-tight text-center leading-tight font-normal" style={{ fontSize: "14px", fontWeight: "normal" }}>
                 TANDA TERIMA
               </h3>
-              <p className="m-0 font-bold uppercase tracking-tight text-center mt-2 leading-tight" style={{ fontSize: docFontSize, fontWeight: "bold", textTransform: "uppercase" }}>
+              <p className="m-0 uppercase tracking-tight text-center mt-2 leading-tight font-normal" style={{ fontSize: docFontSize, fontWeight: "normal", textTransform: "uppercase" }}>
                 {subActivityText}
               </p>
             </div>
@@ -1201,12 +1201,12 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
             <table className="table-main" style={{ width: "100%", borderCollapse: "collapse", marginTop: "15px", marginBottom: "15px" }}>
               <thead>
                 <tr>
-                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "4%" }}>NO</th>
-                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "32%" }}>NAMA</th>
-                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "25%" }}>JABATAN</th>
-                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "18%" }}>JUMLAH</th>
-                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "11%" }}>JUMLAH YANG DITERIMA</th>
-                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "bold", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "10%" }}>TANDA TANGAN</th>
+                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "normal", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "4%" }}>NO</th>
+                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "normal", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "32%" }}>NAMA</th>
+                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "normal", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "25%" }}>JABATAN</th>
+                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "normal", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "18%" }}>JUMLAH</th>
+                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "normal", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "11%" }}>JUMLAH YANG DITERIMA</th>
+                  <th style={{ border: "1px solid #000", padding: "6px 8px", backgroundColor: "#ffffff", color: "#000000", fontWeight: "normal", textTransform: "uppercase", fontSize: "11px", textAlign: "center", width: "10%" }}>TANDA TANGAN</th>
                 </tr>
               </thead>
               <tbody>
@@ -1216,16 +1216,16 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   
                   return (
                     <tr key={p.employeeId}>
-                      <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", textAlign: "center", fontWeight: "bold", color: "#000000" }}>
+                      <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", textAlign: "center", fontWeight: "normal", color: "#000000" }}>
                         {idx + 1}
                       </td>
                       <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", color: "#000000" }}>
-                        <div style={{ fontWeight: "bold", color: "#000000" }}>{p.name}</div>
+                        <div style={{ fontWeight: "normal", color: "#000000" }}>{p.name}</div>
                         <div style={{ fontSize: "10.5px", marginTop: "2px", color: "#000000" }}>NIP. {p.nip}</div>
                         {p.monitoringDates && (
                           <div style={{ fontSize: "9.5px", marginTop: "4px", color: "#000000", borderTop: "1px dashed #000000", paddingTop: "2px" }}>
                             <span style={{ fontWeight: "normal", color: "#000000" }}>Hari Pengawasan: </span>
-                            <span style={{ fontWeight: "600", color: "#000000" }}>{formatMonitoringDatesWithMonth(p.monitoringDates)}</span>
+                            <span style={{ fontWeight: "normal", color: "#000000" }}>{formatMonitoringDatesWithMonth(p.monitoringDates)}</span>
                           </div>
                         )}
                       </td>
@@ -1257,7 +1257,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                           </table>
                         )}
                       </td>
-                      <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", textAlign: "right", fontWeight: "bold", color: "#000000" }}>
+                      <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", textAlign: "right", fontWeight: "normal", color: "#000000" }}>
                         {p.isActive ? formatRupiah(totalReceived) : "-"}
                       </td>
                       <td style={{ border: "1px solid #000", padding: "4px", fontSize: "11.5px", verticalAlign: "top", position: "relative", color: "#000000" }}>
@@ -1280,7 +1280,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                 })}
                 
                 {/* SUM FOOTER ROW */}
-                <tr className="font-bold" style={{ fontWeight: "bold" }}>
+                <tr style={{ fontWeight: "normal" }}>
                   <td colSpan={3} style={{ border: "1px solid #000", padding: "8px", fontSize: "11.5px", textAlign: "center", backgroundColor: "#ffffff", color: "#000000" }}>
                     Jumlah
                   </td>
@@ -1288,9 +1288,9 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                     <table className="sub-col-table" style={{ width: "100%", borderCollapse: "collapse" }}>
                       <tbody>
                         <tr>
-                          <td style={{ width: "25%", textAlign: "center", border: "none", fontWeight: "bold", color: "#000000" }}></td>
+                          <td style={{ width: "25%", textAlign: "center", border: "none", color: "#000000" }}></td>
                           <td style={{ width: "15%", textAlign: "center", border: "none", color: "#000000" }}></td>
-                          <td style={{ width: "45%", textAlign: "right", paddingRight: "6px", border: "none", fontWeight: "bold", color: "#000000" }}>
+                          <td style={{ width: "45%", textAlign: "right", paddingRight: "6px", border: "none", color: "#000000" }}>
                             {formatRupiah(activeRatesSum)}
                           </td>
                           <td style={{ width: "15%", textAlign: "center", border: "none", color: "#000000" }}></td>
@@ -1298,7 +1298,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                       </tbody>
                     </table>
                   </td>
-                  <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", textAlign: "right", fontWeight: "bold", backgroundColor: "#ffffff", color: "#000000" }}>
+                  <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", textAlign: "right", fontWeight: "normal", backgroundColor: "#ffffff", color: "#000000" }}>
                     {formatRupiah(totalReceivedSum)}
                   </td>
                   <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", backgroundColor: "#ffffff", color: "#000000" }}></td>
@@ -1309,8 +1309,8 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
             {/* TERBILANG ALIGNMENT BLOCK */}
             <div className="terbilang-box" style={{ border: "1px solid #000", padding: "8px 12px", marginTop: "10px", marginBottom: "15px", fontSize: "11.5px" }}>
               <div style={{ display: "flex", gap: "20px" }}>
-                <div style={{ fontWeight: "bold", minWidth: "100px" }}>Terbilang :</div>
-                <div style={{ fontStyle: "italic", fontWeight: "bold" }}>
+                <div style={{ minWidth: "100px" }}>Terbilang :</div>
+                <div style={{ fontStyle: "italic" }}>
                   {getTerbilang(totalReceivedSum)}
                 </div>
               </div>
@@ -1319,14 +1319,14 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
             {/* LOWER SIGN-OFF BLOCKS */}
             <div className="sign-block" style={{ width: "100%", display: "flex", justifyContent: "space-between", marginTop: "25px" }}>
               {/* Left Signatory (PA) */}
-              <div className="sign-column" style={{ width: "40%", textAlign: "center" }}>
+              <div className="sign-column text-left" style={{ width: "40%", textAlign: "left" }}>
                 <div style={{ height: "18px" }}>&nbsp;</div>
-                <div style={{ fontWeight: "bold" }}>Menyetujui,</div>
-                <div style={{ fontWeight: "bold" }}>{paTitle}</div>
+                <div>Menyetujui,</div>
+                <div>{paTitle}</div>
                 
                 <div className="sign-space" style={{ height: "65px" }}></div>
                 
-                <div style={{ fontWeight: "bold", textDecoration: "underline" }}>{paName}</div>
+                <div style={{ textDecoration: "underline" }}>{paName}</div>
                 <div>NIP. {paNip}</div>
               </div>
 
@@ -1334,14 +1334,14 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
               <div style={{ width: "20%" }}></div>
 
               {/* Right Signatory (PPTK) */}
-              <div className="sign-column" style={{ width: "40%", textAlign: "center" }}>
+              <div className="sign-column text-left" style={{ width: "40%", textAlign: "left" }}>
                 <div style={{ fontWeight: "normal", fontStyle: "normal", marginBottom: "2px" }}>{locationDate}</div>
-                <div style={{ fontWeight: "bold" }}>Mengetahui,</div>
-                <div style={{ fontWeight: "bold" }}>{pptkTitle}</div>
+                <div>Mengetahui,</div>
+                <div>{pptkTitle}</div>
                 
                 <div className="sign-space" style={{ height: "65px" }}></div>
                 
-                <div style={{ fontWeight: "bold", textDecoration: "underline" }}>{pptkName}</div>
+                <div style={{ textDecoration: "underline" }}>{pptkName}</div>
                 <div>NIP. {pptkNip}</div>
               </div>
             </div>

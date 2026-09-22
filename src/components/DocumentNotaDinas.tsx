@@ -521,7 +521,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 .text-center { text-align: center; }
                 .text-right { text-align: right; }
                 .text-justify { text-align: justify; }
-                .font-bold { font-weight: bold; }
+                .font-bold { font-weight: normal !important; }
                 .uppercase { text-transform: uppercase; }
                 
                 /* Tailwind utility mappings for print wrapper */
@@ -581,7 +581,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 }
                  .kop-pemkab {
                   font-size: 15px;
-                  font-weight: bold;
+                  font-weight: normal;
                   letter-spacing: 0.5px;
                   margin: 0;
                   line-height: 1.2;
@@ -589,7 +589,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 }
                 .kop-instansi {
                   font-size: 19px;
-                  font-weight: bold;
+                  font-weight: normal;
                   letter-spacing: 0.5px;
                   margin: 0;
                   margin-top: 2px;
@@ -614,7 +614,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 /* Document Title */
                 .doc-title {
                   font-size: 15px;
-                  font-weight: bold;
+                  font-weight: normal;
                   text-align: center;
                   margin-top: 10px;
                   margin-bottom: 2px;
@@ -677,7 +677,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 .table-participants th {
                   background-color: #f2f2f2;
                   text-align: center;
-                  font-weight: bold;
+                  font-weight: normal;
                 }
                 
                 /* Capture's Enumerated Participant List Format */
@@ -1374,10 +1374,10 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
             </div>
             
             <div className="kop-text-container text-center w-full px-16 md:px-20">
-              <h1 className="kop-pemkab text-[16px] font-bold tracking-tight uppercase m-0 leading-tight">
+              <h1 className="kop-pemkab text-[16px] font-normal tracking-tight uppercase m-0 leading-tight">
                 {kopPemkab}
               </h1>
-              <h2 className="kop-instansi text-2xl font-bold tracking-normal uppercase m-0 leading-tight mt-1">
+              <h2 className="kop-instansi text-2xl font-normal tracking-normal uppercase m-0 leading-tight mt-1">
                 {kopInstansi}
               </h2>
               <p className="kop-alamat text-[11px] text-slate-800 m-0 mt-1 leading-normal">
@@ -1391,7 +1391,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
 
           {/* TITLE */}
           <div className="text-center mb-6">
-            <h3 className="doc-title font-bold uppercase tracking-wide m-0" style={{ fontSize: "15px" }}>
+            <h3 className="doc-title font-normal uppercase tracking-wide m-0" style={{ fontSize: "15px" }}>
               NOTA DINAS
             </h3>
           </div>
@@ -1477,10 +1477,10 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
             )}
 
             <p className="body-text indent-8 text-black">
-              Berkenaan dengan hal tersebut di atas, mohon persetujuan untuk melaksanakan perjalanan dinas dalam rangka mengikuti kegiatan <span className="font-bold">"{travel.purpose}"</span> selama <span className="font-bold">{durationDays} ({durationDaysToWords(durationDays)}) hari</span> {travel.customDates && travel.customDates.length > 0 ? (
+              Berkenaan dengan hal tersebut di atas, mohon persetujuan untuk melaksanakan perjalanan dinas dalam rangka mengikuti kegiatan "{travel.purpose}" selama {durationDays} ({durationDaysToWords(durationDays)}) hari {travel.customDates && travel.customDates.length > 0 ? (
                 <>
                   yaitu pada tanggal{" "}
-                  <span className="font-bold">
+                  <span>
                     {(() => {
                       const sorted = [...travel.customDates].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
                       const formatted = sorted.map(d => formatIndoDate(d));
@@ -1492,9 +1492,9 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 </>
               ) : (
                 <>
-                  dari tanggal <span className="font-bold">{formatIndoDate(travel.departureDate)} s.d {formatIndoDate(travel.returnDate)}</span>
+                  dari tanggal <span>{formatIndoDate(travel.departureDate)} s.d {formatIndoDate(travel.returnDate)}</span>
                 </>
-              )} bertempat di <span className="font-bold">{travel.destination}</span>.
+              )} bertempat di <span>{travel.destination}</span>.
             </p>
 
             <p className="body-text text-black">
@@ -1510,12 +1510,12 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                       <React.Fragment key={`nd-p-list-${emp.id}-${index}`}>
                         {/* Nama Row */}
                         <tr className="break-inside-avoid">
-                          <td className="w-8 font-bold align-top py-0 text-black" rowSpan={4}>
+                          <td className="w-8 align-top py-0 text-black" rowSpan={4}>
                             {index + 1}.
                           </td>
                           <td className="w-24 align-top py-0 text-black">Nama</td>
                           <td className="w-4 align-top py-0 text-center text-black">:</td>
-                          <td className="align-top py-0 font-bold text-black">{emp.name}</td>
+                          <td className="align-top py-0 text-black">{emp.name}</td>
                         </tr>
                         {/* Pangkat/Gol Row */}
                         <tr className="break-inside-avoid">
@@ -1553,10 +1553,10 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
               <table className="table-participants w-full border-collapse border border-black my-4 text-black text-left" style={{ fontSize: docFontSize }}>
                 <thead>
                   <tr className="bg-slate-50">
-                    <th className="border border-black p-1 text-center w-8 font-bold">No</th>
-                    <th className="border border-black p-1.5 font-bold">Nama / NIP</th>
-                    <th className="border border-black p-1.5 font-bold">Pangkat / Gol</th>
-                    <th className="border border-black p-1.5 font-bold">Jabatan</th>
+                    <th className="border border-black p-1 text-center w-8 font-normal">No</th>
+                    <th className="border border-black p-1.5 font-normal">Nama / NIP</th>
+                    <th className="border border-black p-1.5 font-normal">Pangkat / Gol</th>
+                    <th className="border border-black p-1.5 font-normal">Jabatan</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1564,7 +1564,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                     <tr key={`nd-p-tab-${emp.id}-${index}`}>
                       <td className="border border-black p-1 text-center text-black">{index + 1}</td>
                       <td className="border border-black p-1 px-1.5">
-                        <div className="font-bold text-black">{emp.name}</div>
+                        <div className="text-black">{emp.name}</div>
                         <div className="text-[11px] text-slate-800 leading-none mt-0.5">
                           {emp.nip !== "-" ? `NIP: ${emp.nip}` : "Pramubakti / Non-ASN"}
                         </div>
@@ -1638,7 +1638,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
               {/* Spaces for signature */}
               <div className="sig-box min-h-[95px] flex flex-col justify-center my-2" style={{ minHeight: '95px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 {signSpecialCode ? (
-                  <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                  <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                     {signCodeCase === "uppercase" 
                       ? signSpecialCode.toUpperCase() 
                       : signCodeCase === "lowercase" 
@@ -1650,7 +1650,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 )}
               </div>
               
-              <p className="m-0 font-bold underline leading-snug">{sigNama}</p>
+              <p className="m-0 underline leading-snug">{sigNama}</p>
               <p className="m-0 leading-snug">{sigPangkat}</p>
               {sigNip && sigNip !== "-" && (
                 <p className="m-0 leading-snug">NIP. {sigNip}</p>

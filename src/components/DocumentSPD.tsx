@@ -521,8 +521,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 .text-right { text-align: right; }
                 .text-justify { text-align: justify; }
                 .text-left { text-align: left !important; }
-                .font-bold { font-weight: bold; }
-                .font-semibold { font-weight: 600 !important; }
+                .font-bold { font-weight: normal !important; }
+                .font-semibold { font-weight: normal !important; }
                 .uppercase { text-transform: uppercase; }
                 .italic { font-style: italic !important; }
                 .font-mono { font-family: Courier, monospace !important; }
@@ -611,14 +611,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 }
                 .kop-pemkab {
                   font-size: 16px;
-                  font-weight: bold;
+                  font-weight: normal;
                   letter-spacing: 0.5px;
                   margin: 0;
                   line-height: 1.2;
                 }
                 .kop-instansi {
                   font-size: 21px;
-                  font-weight: bold;
+                  font-weight: normal;
                   letter-spacing: 0.5px;
                   margin: 0;
                   margin-top: 2px;
@@ -666,7 +666,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 }
                 .doc-title {
                   font-size: 15px;
-                  font-weight: bold;
+                  font-weight: normal;
                   letter-spacing: 0.5px;
                   text-decoration: none;
                   margin: 0;
@@ -714,7 +714,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   padding: 3px 4px;
                 }
                 .pengikut-header-row td {
-                  font-weight: bold;
+                  font-weight: normal;
                   border-bottom: 1px solid #000;
                   background-color: #fcfcfc;
                 }
@@ -1371,14 +1371,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
             }
             #spd-printable .kop-pemkab {
               font-size: 16px;
-              font-weight: bold;
+              font-weight: normal;
               letter-spacing: 0.5px;
               margin: 0;
               line-height: 1.2;
             }
             #spd-printable .kop-instansi {
               font-size: 21px;
-              font-weight: bold;
+              font-weight: normal;
               letter-spacing: 0.5px;
               margin: 0;
               margin-top: 2px;
@@ -1420,7 +1420,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
             }
             #spd-printable .doc-title {
               font-size: 15px;
-              font-weight: bold;
+              font-weight: normal;
               letter-spacing: 0.5px;
               text-decoration: none;
               margin: 0;
@@ -1551,28 +1551,28 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                 <tbody>
                   {/* Row 1 */}
                   <tr>
-                    <td className="center-align w-8 font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>1</td>
-                    <td className="w-56 font-bold" style={{ border: '1px solid black', padding: '4px 6px' }}>Pengguna Anggaran</td>
-                    <td className="font-bold" style={{ border: '1px solid black', padding: '4px 6px' }}>{paName}</td>
+                    <td className="center-align w-8" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>1</td>
+                    <td className="w-56" style={{ border: '1px solid black', padding: '4px 6px' }}>Pengguna Anggaran</td>
+                    <td style={{ border: '1px solid black', padding: '4px 6px' }}>{paName}</td>
                   </tr>
 
                   {/* Row 2 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>2</td>
-                    <td className="font-bold" style={{ border: '1px solid black', padding: '4px 6px' }}>Nama/NIP Pegawai yang melaksanakan perjalanan dinas</td>
+                    <td className="center-align" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>2</td>
+                    <td style={{ border: '1px solid black', padding: '4px 6px' }}>Nama/NIP Pegawai yang melaksanakan perjalanan dinas</td>
                     <td style={{ border: '1px solid black', padding: '4px 6px' }}>
-                      <div className="font-bold">{activeEmployee.name}</div>
+                      <div>{activeEmployee.name}</div>
                       <div className="mt-0.5 font-mono">{activeEmployee.nip !== "-" ? activeEmployee.nip : "Non-ASN"}</div>
                     </td>
                   </tr>
 
                   {/* Row 3 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>3</td>
+                    <td className="center-align" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>3</td>
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
-                      <div className="font-bold py-0 leading-tight">a. Pangkat dan Golongan</div>
-                      <div className="font-bold py-0 leading-tight mt-0.5">b. Jabatan / Instansi</div>
-                      <div className="font-bold py-0 leading-tight mt-0.5">c. Tingkat Perjalanan Dinas</div>
+                      <div className="py-0 leading-tight">a. Pangkat dan Golongan</div>
+                      <div className="py-0 leading-tight mt-0.5">b. Jabatan / Instansi</div>
+                      <div className="py-0 leading-tight mt-0.5">c. Tingkat Perjalanan Dinas</div>
                     </td>
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
                       <div className="py-0 leading-tight">a. {pangkatTraveler}</div>
@@ -1583,24 +1583,24 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
                   {/* Row 4 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>4</td>
-                    <td className="font-bold" style={{ border: '1px solid black', padding: '4px 6px' }}>Maksud Perjalanan Dinas</td>
+                    <td className="center-align" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>4</td>
+                    <td style={{ border: '1px solid black', padding: '4px 6px' }}>Maksud Perjalanan Dinas</td>
                     <td className="text-justify leading-normal text-[12.5px]" style={{ border: '1px solid black', padding: '4px 6px' }}>{maksudDinas}</td>
                   </tr>
 
                   {/* Row 5 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>5</td>
-                    <td className="font-bold" style={{ border: '1px solid black', padding: '4px 6px' }}>Alat angkut yang dipergunakan</td>
+                    <td className="center-align" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>5</td>
+                    <td style={{ border: '1px solid black', padding: '4px 6px' }}>Alat angkut yang dipergunakan</td>
                     <td style={{ border: '1px solid black', padding: '4px 6px' }}>{alatTransport}</td>
                   </tr>
 
                   {/* Row 6 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>6</td>
+                    <td className="center-align" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>6</td>
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
-                      <div className="font-bold py-0 leading-tight">a. Tempat berangkat</div>
-                      <div className="font-bold py-0 leading-tight mt-0.5">b. Tempat tujuan</div>
+                      <div className="py-0 leading-tight">a. Tempat berangkat</div>
+                      <div className="py-0 leading-tight mt-0.5">b. Tempat tujuan</div>
                     </td>
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
                       <div className="py-0 leading-tight">a. {tempatBerangkat}</div>
@@ -1610,11 +1610,11 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
                   {/* Row 7 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>7</td>
+                    <td className="center-align" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>7</td>
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
-                      <div className="font-bold py-0 leading-tight">a. Lamanya Perjalanan Dinas</div>
-                      <div className="font-bold py-0 leading-tight mt-0.5">b. Tanggal berangkat</div>
-                      <div className="font-bold py-0 leading-tight mt-0.5">c. Tanggal harus kembali/tiba di tempat</div>
+                      <div className="py-0 leading-tight">a. Lamanya Perjalanan Dinas</div>
+                      <div className="py-0 leading-tight mt-0.5">b. Tanggal berangkat</div>
+                      <div className="py-0 leading-tight mt-0.5">c. Tanggal harus kembali/tiba di tempat</div>
                     </td>
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
                       <div className="py-0 leading-tight">a. {lamanyaDinas}</div>
@@ -1625,9 +1625,9 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
                   {/* Row 8 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>8</td>
+                    <td className="center-align" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>8</td>
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
-                      <div className="font-bold py-0 leading-tight">Pengikut : Nama</div>
+                      <div className="py-0 leading-tight">Pengikut : Nama</div>
                       <div className="mt-0.5 space-y-0.5 text-[12px] md:text-[13px]">
                         <div className="py-0 leading-none">1.</div>
                         <div className="py-0 leading-none">2.</div>
@@ -1635,8 +1635,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                     </td>
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
                       <div style={{ display: 'table', width: '100%', tableLayout: 'fixed', borderBottom: '1px solid black', paddingBottom: '2px', marginBottom: '4px' }}>
-                        <div style={{ display: 'table-cell', width: '50%', textAlign: 'center', fontWeight: 'bold', fontSize: '12px' }}>Tanggal Lahir</div>
-                        <div style={{ display: 'table-cell', width: '50%', textAlign: 'center', fontWeight: 'bold', fontSize: '12px' }}>Keterangan</div>
+                        <div style={{ display: 'table-cell', width: '50%', textAlign: 'center', fontWeight: 'normal', fontSize: '12px' }}>Tanggal Lahir</div>
+                        <div style={{ display: 'table-cell', width: '50%', textAlign: 'center', fontWeight: 'normal', fontSize: '12px' }}>Keterangan</div>
                       </div>
                       <div className="space-y-0.5 text-[12px] md:text-[13px]">
                         <div style={{ display: 'table', width: '100%', tableLayout: 'fixed' }}>
@@ -1653,11 +1653,11 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
                   {/* Row 9 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>9</td>
+                    <td className="center-align" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>9</td>
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
-                      <div className="font-bold py-0 leading-tight">Pembebanan anggaran</div>
-                      <div className="font-bold py-0 leading-tight mt-0.5">a. Instansi</div>
-                      <div className="font-bold py-0 leading-tight mt-0.5">b. Akun</div>
+                      <div className="py-0 leading-tight">Pembebanan anggaran</div>
+                      <div className="py-0 leading-tight mt-0.5">a. Instansi</div>
+                      <div className="py-0 leading-tight mt-0.5">b. Akun</div>
                     </td>
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
                       <div className="py-0 leading-tight">&nbsp;</div>
@@ -1668,8 +1668,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
 
                   {/* Row 10 */}
                   <tr>
-                    <td className="center-align font-bold" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>10</td>
-                    <td className="font-bold" style={{ border: '1px solid black', padding: '4px 6px' }}>Keterangan lain-lain</td>
+                    <td className="center-align" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>10</td>
+                    <td style={{ border: '1px solid black', padding: '4px 6px' }}>Keterangan lain-lain</td>
                     <td style={{ border: '1px solid black', padding: '4px 6px' }}>-</td>
                   </tr>
                 </tbody>
@@ -1682,11 +1682,11 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   <p className="m-0">Tanggal {formatIndoDate(travel.taskLetterDate)}</p>
                   
                   <div className="mt-2 text-left">
-                    <p className="m-0 font-bold leading-tight">Pengguna Anggaran,</p>
-                    <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
+                    <p className="m-0 leading-tight">Pengguna Anggaran,</p>
+                    <p className="m-0 leading-tight">Inspektur Daerah Kab. Tabalong</p>
                     <div className="sig-box" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       {signSpecialCode ? (
-                        <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                        <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                           {signCodeCase === "uppercase" 
                             ? signSpecialCode.toUpperCase() 
                             : signCodeCase === "lowercase" 
@@ -1697,7 +1697,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                         <div className="h-full"></div>
                       )}
                     </div>
-                    <p className="m-0 font-bold leading-tight uppercase text-[13px] mt-1">{paName}</p>
+                    <p className="m-0 leading-tight uppercase text-[13px] mt-1">{paName}</p>
                     <p className="m-0 leading-tight text-[12px]">NIP. {paNip}</p>
                   </div>
                 </div>
@@ -1746,7 +1746,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                         <p className="m-0 text-[11.5px]">{p2TopRightLabel}</p>
                         <div className="signature-box-mini min-h-[90px] h-auto flex flex-col justify-center my-2" style={{ minHeight: '90px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                           {pptkSpecialCode ? (
-                            <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                            <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                               {signCodeCase === "uppercase" 
                                 ? pptkSpecialCode.toUpperCase() 
                                 : signCodeCase === "lowercase" 
@@ -1755,7 +1755,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                             </p>
                           ) : null}
                         </div>
-                        <p className="m-0 font-bold text-left text-[11.5px]">{pptkName}</p>
+                        <p className="m-0 text-left text-[11.5px]">{pptkName}</p>
                         <p className="m-0 text-[11px]">NIP. {pptkNip}</p>
                       </div>
                     </td>
@@ -1765,7 +1765,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   <tr>
                     <td className="text-xs leading-5 w-1/2" style={{ border: '1px solid black', padding: '5px 8px', verticalAlign: 'top' }}>
                       <div className="flex mb-1">
-                        <div className="w-5 font-bold shrink-0">I.</div>
+                        <div className="w-5 shrink-0">I.</div>
                         <div className="w-24 shrink-0">Tiba di</div>
                         <div className="w-4 text-center">:</div>
                         <div>{p2Row1TibaDi}</div>
@@ -1806,7 +1806,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   <tr>
                     <td className="text-xs leading-5 w-1/2" style={{ border: '1px solid black', padding: '5px 8px', verticalAlign: 'top' }}>
                       <div className="flex mb-1">
-                        <div className="w-5 font-bold shrink-0">III.</div>
+                        <div className="w-5 shrink-0">III.</div>
                         <div className="w-24 shrink-0">Tiba di</div>
                         <div className="w-4 text-center">:</div>
                         <div>{p2Row3TibaDi}</div>
@@ -1822,7 +1822,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                         <p className="m-0 text-[11.5px]">{p2Row4LeftLabel}</p>
                         <div className="signature-box-mini min-h-[90px] h-auto flex flex-col justify-center my-2" style={{ minHeight: '90px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                           {pptkSpecialCode ? (
-                            <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                            <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                               {signCodeCase === "uppercase" 
                                 ? pptkSpecialCode.toUpperCase() 
                                 : signCodeCase === "lowercase" 
@@ -1831,7 +1831,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                             </p>
                           ) : null}
                         </div>
-                        <p className="m-0 font-bold text-left text-[11.5px]">{pptkName}</p>
+                        <p className="m-0 text-left text-[11.5px]">{pptkName}</p>
                         <p className="m-0 text-[11px]">NIP. {pptkNip}</p>
                       </div>
                     </td>
@@ -1845,14 +1845,14 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   {/* Row 4: Catatan Lain-Lain */}
                   <tr>
                     <td colSpan={2} className="text-xs" style={{ border: '1px solid black', padding: '5px 8px' }}>
-                      <span className="font-bold">IV. Catatan lain-lain :</span> {p2Notes}
+                      <span>IV. Catatan lain-lain :</span> {p2Notes}
                     </td>
                   </tr>
 
                   {/* Row 5: Perhatian */}
                   <tr>
                     <td colSpan={2} className="text-xs text-justify leading-normal" style={{ border: '1px solid black', padding: '5px 8px' }}>
-                      <span className="font-bold">V. PERHATIAN :</span>
+                      <span>V. PERHATIAN :</span>
                       <p className="m-0 mt-1 leading-normal">
                         PA yang menerbitkan SPD, pegawai yang melakukan perjalanan dinas, para pejabat yang mengesahkan tanggal berangkat/tiba, serta bendahara pengeluaran bertanggung jawab berdasarkan peraturan-peraturan Keuangan Negara apabila negara menderita rugi akibat kesalahan, kelalaian, dan kealpaannya.
                       </p>
@@ -1864,11 +1864,11 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               {/* OUTSIDE TABLE footer block for Halaman 2 bottom right signature */}
               <div className="mt-2 flex justify-end">
                 <div className="footer-sig-block w-72 text-left" style={{ fontSize: '14px' }}>
-                  <p className="m-0 font-bold leading-tight">{p2Row4RightLabel},</p>
-                  <p className="m-0 font-bold leading-tight">Inspektur Daerah Kab. Tabalong</p>
+                  <p className="m-0 leading-tight">{p2Row4RightLabel},</p>
+                  <p className="m-0 leading-tight">Inspektur Daerah Kab. Tabalong</p>
                   <div className="sig-box min-h-[100px] flex flex-col justify-center my-1.5" style={{ minHeight: '100px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     {signSpecialCode ? (
-                      <p className="m-0 font-mono text-slate-800 font-semibold text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                      <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                         {signCodeCase === "uppercase" 
                           ? signSpecialCode.toUpperCase() 
                           : signCodeCase === "lowercase" 
@@ -1879,7 +1879,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                       <div className="h-full"></div>
                     )}
                   </div>
-                  <p className="m-0 font-bold leading-tight uppercase text-[13.5px] mt-1">{paName}</p>
+                  <p className="m-0 leading-tight uppercase text-[13.5px] mt-1">{paName}</p>
                   <p className="m-0 leading-tight text-[12.5px]">NIP. {paNip}</p>
                 </div>
               </div>

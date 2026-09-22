@@ -240,7 +240,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                 .text-center { text-align: center; }
                 .text-right { text-align: right; }
                 .text-justify { text-align: justify; }
-                .font-bold { font-weight: bold; }
+                .font-bold { font-weight: normal !important; }
                 .uppercase { text-transform: uppercase; }
                 
                 /* Letterhead Kop */
@@ -277,13 +277,13 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                 }
                 .kop-pemkab {
                   font-size: 16px;
-                  font-weight: bold;
+                  font-weight: normal;
                   letter-spacing: 1px;
                   margin: 0;
                 }
                 .kop-instansi {
                   font-size: 21px;
-                  font-weight: bold;
+                  font-weight: normal;
                   letter-spacing: 0.5px;
                   margin: 0;
                   margin-top: 4px;
@@ -302,7 +302,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                 /* title */
                 .doc-title {
                   font-size: 18px;
-                  font-weight: bold;
+                  font-weight: normal;
                   text-decoration: underline;
                   margin-top: 15px;
                   margin-bottom: 4px;
@@ -328,7 +328,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                 /* Memerintahkan */
                 .memperin {
                   font-size: 15px;
-                  font-weight: bold;
+                  font-weight: normal;
                   letter-spacing: 1px;
                   text-align: center;
                   margin: 12px 0 10px 0;
@@ -366,6 +366,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   width: 250px;
                   font-size: ${docFontSize};
                   font-family: ${fontCssFamily};
+                  text-align: left;
                 }
                 .sig-box {
                   min-height: 110px;
@@ -624,10 +625,10 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               />
             </div>
             <div className="kop-text-container text-center w-full px-16 md:px-20">
-              <h1 className="kop-pemkab text-base md:text-lg font-bold tracking-wide uppercase m-0 leading-tight">
+              <h1 className="kop-pemkab text-base md:text-lg font-normal tracking-wide uppercase m-0 leading-tight">
                 PEMERINTAH KABUPATEN TABALONG
               </h1>
-              <h2 className="kop-instansi text-lg md:text-2xl font-bold tracking-normal uppercase m-0 leading-tight mt-1">
+              <h2 className="kop-instansi text-lg md:text-2xl font-normal tracking-normal uppercase m-0 leading-tight mt-1">
                 INSPEKTORAT DAERAH
               </h2>
               <p className="kop-alamat text-[11px] text-slate-850 m-0 mt-1 leading-normal animate-fadeIn">
@@ -641,7 +642,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
 
           {/* TITLE */}
           <div className="text-center mb-6">
-            <h3 className="doc-title text-base md:text-lg font-bold uppercase underline tracking-wide m-0">
+            <h3 className="doc-title text-base md:text-lg font-normal uppercase underline tracking-wide m-0">
               SURAT TUGAS
             </h3>
             <p className="doc-subtitle text-xs md:text-sm m-0 mt-1">
@@ -653,7 +654,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
           <table className="dasar-table w-full text-xs md:text-sm border-collapse select-text">
             <tbody>
               <tr>
-                <td className="w-16 md:w-20 font-bold py-1">Dasar</td>
+                <td className="w-16 md:w-20 py-1">Dasar</td>
                 <td className="w-3 py-1">:</td>
                 <td className="py-1 text-justify">
                   <ol className="list-decimal list-outside ml-4 p-0 space-y-2 text-justify text-slate-900">
@@ -669,7 +670,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
           </table>
 
           {/* MEMERINTAHKAN SECTION */}
-          <div className="memperin text-center font-bold tracking-widest text-slate-900 border-y border-stone-300 py-1 my-4 text-sm">
+          <div className="memperin text-center font-normal tracking-widest text-slate-900 border-y border-stone-300 py-1 my-4 text-sm">
             M E M E R I N T A H K A N :
           </div>
 
@@ -677,7 +678,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
           <table className="participants-list-table w-full text-xs md:text-sm select-text">
             <tbody>
               <tr>
-                <td className="w-16 md:w-20 font-bold py-1 align-top text-black">Kepada</td>
+                <td className="w-16 md:w-20 py-1 align-top text-black">Kepada</td>
                 <td className="w-3 py-1 align-top text-black">:</td>
                 <td className="py-1">
                   <table className="w-full text-xs md:text-sm text-black border-none border-collapse text-left">
@@ -686,12 +687,12 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                         <React.Fragment key={`st-p-${emp.id}-${index}`}>
                           {/* Nama Row */}
                           <tr className="break-inside-avoid">
-                            <td className="w-6 font-bold align-top py-0.5 text-black" rowSpan={4}>
+                            <td className="w-6 align-top py-0.5 text-black" rowSpan={4}>
                               {index + 1}.
                             </td>
                             <td className="w-32 align-top py-0 text-black">Nama</td>
                             <td className="w-4 align-top py-0 text-center text-black">:</td>
-                            <td className="align-top py-0 font-bold text-black">{emp.name}</td>
+                            <td className="align-top py-0 text-black">{emp.name}</td>
                           </tr>
                           {/* NIP Row */}
                           <tr className="break-inside-avoid">
@@ -713,7 +714,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                           <tr className="break-inside-avoid">
                             <td className="align-top py-0 text-black">Jabatan</td>
                             <td className="align-top py-0 text-center text-black">:</td>
-                            <td className="align-top py-0 text-black font-semibold">{emp.jabatan}</td>
+                            <td className="align-top py-0 text-black">{emp.jabatan}</td>
                           </tr>
                           {/* Spacer row between participants */}
                           {index < participants.length - 1 && (
@@ -734,21 +735,21 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
           <table className="dasar-table w-full text-xs md:text-sm border-collapse select-text">
             <tbody>
               <tr>
-                <td className="w-16 md:w-20 font-bold py-2">Untuk</td>
+                <td className="w-16 md:w-20 py-2">Untuk</td>
                 <td className="w-3 py-2">:</td>
                 <td className="py-2">
                   <ol className="list-decimal list-outside ml-4 p-0 space-y-2 text-justify text-slate-900">
                     <li>
-                      Melaksanakan Perjalanan Dinas dalam rangka: <span className="font-bold">"{travel.purpose}"</span>.
+                      Melaksanakan Perjalanan Dinas dalam rangka: "{travel.purpose}".
                     </li>
                     <li>
-                      Tujuan perjalanan dinas bertempat di <span className="font-bold">{travel.destination}</span>, berlokasi kedudukan awal di <span className="font-bold">{travel.departurePlace}</span>.
+                      Tujuan perjalanan dinas bertempat di {travel.destination}, berlokasi kedudukan awal di {travel.departurePlace}.
                     </li>
                     <li>
-                      Tugas ini dilaksanakan selama <span className="font-bold">{durationDays} hari kerja</span> {travel.customDates && travel.customDates.length > 0 ? (
+                      Tugas ini dilaksanakan selama {durationDays} hari kerja {travel.customDates && travel.customDates.length > 0 ? (
                         <>
                           yaitu pada tanggal{" "}
-                          <span className="font-bold">
+                          <span>
                             {(() => {
                               const sorted = [...travel.customDates].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
                               const formatted = sorted.map(d => formatIndoDate(d));
@@ -760,9 +761,9 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                         </>
                       ) : (
                         <>
-                          terhitung mulai tanggal <span className="font-bold">{formatIndoDate(travel.departureDate)}</span> s.d <span className="font-bold">{formatIndoDate(travel.returnDate)}</span>
+                          terhitung mulai tanggal {formatIndoDate(travel.departureDate)} s.d {formatIndoDate(travel.returnDate)}
                         </>
-                      )} dengan mengendarai angkutan <span className="font-bold">{travel.transportMode}</span>.
+                      )} dengan mengendarai angkutan {travel.transportMode}.
                     </li>
                     <li>
                       Melaporkan secara tertulis pertanggungjawaban hasil pelaksanaan dinas dan mengumpulkan rincian biaya kepada Inspektur Daerah Kabupaten Tabalong melalui PPK setibanya kembali.
@@ -778,15 +779,15 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
 
           {/* SIGNATURE BLOCK */}
           <div className="mt-12 flex flex-col items-end break-inside-avoid">
-            <div className="sig-container w-64 text-xs md:text-sm text-slate-900">
-              <p className="m-0">Dikeluarkan di : Tabalong</p>
-              <p className="m-0 border-b border-black pb-1">Pada Tanggal : {formatIndoDate(travel.taskLetterDate)}</p>
+            <div className="sig-container w-64 text-xs md:text-sm text-slate-900 text-left">
+              <p className="m-0 text-left">Dikeluarkan di : Tabalong</p>
+              <p className="m-0 text-left border-b border-black pb-1">Pada Tanggal : {formatIndoDate(travel.taskLetterDate)}</p>
               
-              <div className="mt-3">
-                <p className="m-0 text-center font-bold uppercase">{signatory?.jabatan || "Inspektur Daerah"},</p>
+              <div className="mt-3 text-left">
+                <p className="m-0 text-left uppercase">{signatory?.jabatan || "Inspektur Daerah"},</p>
                 <div className="sig-box min-h-[110px] flex flex-col justify-center my-2" style={{ minHeight: '110px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   {signSpecialCode ? (
-                    <p className="m-0 font-mono text-slate-800 font-semibold text-center" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
+                    <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                       {signCodeCase === "uppercase" 
                         ? signSpecialCode.toUpperCase() 
                         : signCodeCase === "lowercase" 
@@ -797,9 +798,9 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                     <div className="h-full"></div>
                   )}
                 </div>
-                <p className="m-0 text-center font-bold underline uppercase">{signatory?.name || "DIYANTO, SE, MT"}</p>
+                <p className="m-0 text-left underline uppercase">{signatory?.name || "DIYANTO, SE, MT"}</p>
                 {signatory?.nip && signatory.nip !== "-" && (
-                  <p className="m-0 text-center text-xs">
+                  <p className="m-0 text-left text-xs">
                     Pangkat: {getFormattedPangkatGolongan(signatory.pangkat)} <br/>
                     NIP. {signatory.nip}
                   </p>
