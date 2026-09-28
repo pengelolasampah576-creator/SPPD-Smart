@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Employee } from "../types";
 import { Search, UserPlus, FileSpreadsheet, Trash2, Edit3, Clipboard, Check, Filter, Sparkles, RefreshCw } from "lucide-react";
+import { formatProperName, formatProperJabatan } from "../utils/formatters";
 
 // Helper to convert names with academic degrees and titles to proper/title case
 export function convertToTitleCaseWithTitles(name: string): string {
@@ -416,15 +417,15 @@ export default function EmployeeDirectory({
               </div>
 
               <h4 className="text-sm font-bold text-slate-800 mt-3 group-hover:text-blue-600 transition line-clamp-1">
-                {emp.name}
+                {formatProperName(emp.name)}
               </h4>
               <p className="text-xs text-slate-600 font-medium mt-1 min-h-[32px] line-clamp-2">
-                {emp.jabatan}
+                {formatProperJabatan(emp.jabatan)}
               </p>
             </div>
 
             <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center bg-slate-50/50 p-2 rounded-xl">
-              <span className="text-[10px] text-slate-400 font-mono">NIP:</span>
+              <span className="text-[10px] text-slate-400 font-mono">NIP</span>
               {emp.nip !== "-" ? (
                 <button
                   onClick={() => handleCopyNip(emp.nip, emp.id)}

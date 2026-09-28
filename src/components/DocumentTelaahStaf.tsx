@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { StaffStudy, Employee } from "../types";
 import { FileText, Sparkles, Plus, Trash2, Edit, Printer, ArrowLeft, Check, Loader2, AlertCircle, Bookmark, Calendar, User, Eye } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
+import { formatProperName, formatProperJabatan } from "../utils/formatters";
 
 interface DocumentTelaahStafProps {
   employees: Employee[];
@@ -448,7 +449,7 @@ export default function DocumentTelaahStaf({ employees }: DocumentTelaahStafProp
             }
             .sig-name {
               font-weight: bold;
-              text-decoration: underline;
+              text-decoration: none;
             }
 
             /* UTILITIES */
@@ -555,11 +556,11 @@ export default function DocumentTelaahStaf({ employees }: DocumentTelaahStafProp
                 <tr>
                   <td style="width: 55%;"></td>
                   <td style="text-align: left; vertical-align: top;">
-                    <div style="text-transform: capitalize;">${study.signatoryTitle},</div>
+                    <div>${formatProperJabatan(study.signatoryTitle)},</div>
                     <div class="sig-space"></div>
-                    <div class="sig-name">${study.signatoryName}</div>
-                    <div>Pangkat/Golongan: Pembina Utama Muda (IV/c)</div>
-                    <div>NIP. ${study.signatoryNip}</div>
+                    <div class="sig-name">${formatProperName(study.signatoryName)}</div>
+                    <div>Pangkat/Golongan Pembina Utama Muda (IV/c)</div>
+                    <div>NIP ${study.signatoryNip}</div>
                   </td>
                 </tr>
               </table>
@@ -869,7 +870,7 @@ export default function DocumentTelaahStaf({ employees }: DocumentTelaahStafProp
               >
                 {employees.map(emp => (
                   <option key={emp.id} value={emp.id}>
-                    {emp.name} — NIP. {emp.nip} ({emp.jabatan})
+                    {formatProperName(emp.name)} — NIP {emp.nip} ({formatProperJabatan(emp.jabatan)})
                   </option>
                 ))}
               </select>
@@ -1096,10 +1097,10 @@ export default function DocumentTelaahStaf({ employees }: DocumentTelaahStafProp
                   {/* SIGN ZONE */}
                   <div className="mt-6 flex justify-end font-sans">
                     <div className="text-left w-64 text-xs">
-                      <div>{selectedStudy.signatoryTitle},</div>
+                      <div>{formatProperJabatan(selectedStudy.signatoryTitle)},</div>
                       <div className="h-16"></div>
-                      <div className="font-bold underline text-slate-900">{selectedStudy.signatoryName}</div>
-                      <div className="text-slate-500 font-mono text-[10px]">NIP. {selectedStudy.signatoryNip}</div>
+                      <div className="font-bold text-slate-900" style={{ textDecoration: 'none' }}>{formatProperName(selectedStudy.signatoryName)}</div>
+                      <div className="text-slate-500 font-mono text-[10px]">NIP {selectedStudy.signatoryNip}</div>
                     </div>
                   </div>
 

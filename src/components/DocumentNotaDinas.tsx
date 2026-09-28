@@ -3,6 +3,7 @@ import { Employee, Travel } from "../types";
 import { Printer, FileText, Settings, RefreshCw } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
 import { getFormattedPangkatGolongan } from "../utils/pangkat";
+import { formatProperName, formatProperJabatan } from "../utils/formatters";
 
 interface DocumentNotaDinasProps {
   key?: React.Key;
@@ -1515,7 +1516,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                           </td>
                           <td className="w-24 align-top py-0 text-black">Nama</td>
                           <td className="w-4 align-top py-0 text-center text-black">:</td>
-                          <td className="align-top py-0 text-black">{emp.name}</td>
+                          <td className="align-top py-0 text-black">{formatProperName(emp.name)}</td>
                         </tr>
                         {/* Pangkat/Gol Row */}
                         <tr className="break-inside-avoid">
@@ -1535,7 +1536,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                         <tr className="break-inside-avoid">
                           <td className="align-top py-0 text-black">Jabatan</td>
                           <td className="align-top py-0 text-center text-black">:</td>
-                          <td className="align-top py-0 text-black">{emp.jabatan}</td>
+                          <td className="align-top py-0 text-black">{formatProperJabatan(emp.jabatan)}</td>
                         </tr>
                         {/* Spacer row between participants */}
                         {index < participants.length - 1 && (
@@ -1564,13 +1565,13 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                     <tr key={`nd-p-tab-${emp.id}-${index}`}>
                       <td className="border border-black p-1 text-center text-black">{index + 1}</td>
                       <td className="border border-black p-1 px-1.5">
-                        <div className="text-black">{emp.name}</div>
+                        <div className="text-black">{formatProperName(emp.name)}</div>
                         <div className="text-[11px] text-slate-800 leading-none mt-0.5">
-                          {emp.nip !== "-" ? `NIP: ${emp.nip}` : "Pramubakti / Non-ASN"}
+                          {emp.nip !== "-" ? `NIP ${emp.nip}` : "Pramubakti / Non-ASN"}
                         </div>
                       </td>
                       <td className="border border-black p-1 px-1.5 text-black">{getFormattedPangkatGolongan(emp.pangkat)}</td>
-                      <td className="border border-black p-1 px-1.5 text-black">{emp.jabatan}</td>
+                      <td className="border border-black p-1 px-1.5 text-black">{formatProperJabatan(emp.jabatan)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -1633,7 +1634,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
             )}
 
             <div className="sig-container text-black text-left" style={{ width: "250px", fontSize: docFontSize }}>
-              <p className="m-0 leading-snug">{sigJabatan},</p>
+              <p className="m-0 leading-snug">{formatProperJabatan(sigJabatan)},</p>
               
               {/* Spaces for signature */}
               <div className="sig-box min-h-[95px] flex flex-col justify-center my-2" style={{ minHeight: '95px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -1650,10 +1651,10 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 )}
               </div>
               
-              <p className="m-0 underline leading-snug">{sigNama}</p>
+              <p className="m-0 leading-snug" style={{ textDecoration: 'none' }}>{formatProperName(sigNama)}</p>
               <p className="m-0 leading-snug">{sigPangkat}</p>
               {sigNip && sigNip !== "-" && (
-                <p className="m-0 leading-snug">NIP. {sigNip}</p>
+                <p className="m-0 leading-snug">NIP {sigNip}</p>
               )}
             </div>
           </div>

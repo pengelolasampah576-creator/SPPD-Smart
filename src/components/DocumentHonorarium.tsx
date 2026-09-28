@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Employee, Travel } from "../types";
 import { Printer, Settings, RefreshCw, AlertCircle, Save, Check, Plus, Trash2, Calendar } from "lucide-react";
+import { formatProperName, formatProperJabatan } from "../utils/formatters";
 
 interface DocumentHonorariumProps {
   key?: React.Key;
@@ -944,8 +945,8 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                     <tr key={p.employeeId} className={p.isActive ? "bg-white" : "bg-slate-50 opacity-60"}>
                       <td className="px-4 py-3.5 text-center font-bold font-mono">{idx + 1}</td>
                       <td className="px-4 py-3.5">
-                        <div className="font-bold text-slate-800 leading-tight">{p.name}</div>
-                        <div className="text-[10px] text-slate-500 mt-0.5">{p.jabatan} — NIP. {p.nip}</div>
+                        <div className="font-bold text-slate-800 leading-tight">{formatProperName(p.name)}</div>
+                        <div className="text-[10px] text-slate-500 mt-0.5">{formatProperJabatan(p.jabatan)} — NIP {p.nip}</div>
                         <div className="mt-2 max-w-[280px]">
                           <div className="flex items-center justify-between mb-1">
                             <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Hari/Tanggal Pengawasan</label>
@@ -1220,8 +1221,8 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                         {idx + 1}
                       </td>
                       <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", color: "#000000" }}>
-                        <div style={{ fontWeight: "normal", color: "#000000" }}>{p.name}</div>
-                        <div style={{ fontSize: "10.5px", marginTop: "2px", color: "#000000" }}>NIP. {p.nip}</div>
+                        <div style={{ fontWeight: "normal", color: "#000000" }}>{formatProperName(p.name)}</div>
+                        <div style={{ fontSize: "10.5px", marginTop: "2px", color: "#000000" }}>NIP {p.nip}</div>
                         {p.monitoringDates && (
                           <div style={{ fontSize: "9.5px", marginTop: "4px", color: "#000000", borderTop: "1px dashed #000000", paddingTop: "2px" }}>
                             <span style={{ fontWeight: "normal", color: "#000000" }}>Hari Pengawasan: </span>
@@ -1230,7 +1231,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                         )}
                       </td>
                       <td style={{ border: "1px solid #000", padding: "6px 8px", fontSize: "11.5px", color: "#000000" }}>
-                        {p.jabatan}
+                        {formatProperJabatan(p.jabatan)}
                       </td>
                       <td style={{ border: "1px solid #000", padding: "4px", fontSize: "11.5px", color: "#000000" }}>
                         {p.isActive ? (
@@ -1322,12 +1323,12 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
               <div className="sign-column text-left" style={{ width: "40%", textAlign: "left" }}>
                 <div style={{ height: "18px" }}>&nbsp;</div>
                 <div>Menyetujui,</div>
-                <div>{paTitle}</div>
+                <div>{formatProperJabatan(paTitle)}</div>
                 
                 <div className="sign-space" style={{ height: "65px" }}></div>
                 
-                <div style={{ textDecoration: "underline" }}>{paName}</div>
-                <div>NIP. {paNip}</div>
+                <div style={{ textDecoration: "none" }}>{formatProperName(paName)}</div>
+                <div>NIP {paNip}</div>
               </div>
 
               {/* Middle space filler */}
@@ -1337,12 +1338,12 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
               <div className="sign-column text-left" style={{ width: "40%", textAlign: "left" }}>
                 <div style={{ fontWeight: "normal", fontStyle: "normal", marginBottom: "2px" }}>{locationDate}</div>
                 <div>Mengetahui,</div>
-                <div>{pptkTitle}</div>
+                <div>{formatProperJabatan(pptkTitle)}</div>
                 
                 <div className="sign-space" style={{ height: "65px" }}></div>
                 
-                <div style={{ textDecoration: "underline" }}>{pptkName}</div>
-                <div>NIP. {pptkNip}</div>
+                <div style={{ textDecoration: "none" }}>{formatProperName(pptkName)}</div>
+                <div>NIP {pptkNip}</div>
               </div>
             </div>
 

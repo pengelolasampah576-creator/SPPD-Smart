@@ -12,6 +12,7 @@ import LoginPortal from "./components/LoginPortal";
 import DocumentTelaahStaf from "./components/DocumentTelaahStaf";
 import DocumentHonorarium from "./components/DocumentHonorarium";
 import VortexBridging from "./components/VortexBridging";
+import { formatProperName } from "./utils/formatters";
 
 import {
   Briefcase,
@@ -714,7 +715,7 @@ export default function App() {
                               if (!emp) return null;
                               return (
                                 <span key={empId} className="bg-slate-50 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded border border-slate-200">
-                                  {emp.name.split(',')[0]}
+                                  {formatProperName(emp.name).split(',')[0]}
                                 </span>
                               );
                             })}

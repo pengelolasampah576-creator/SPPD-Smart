@@ -3,6 +3,7 @@ import { Employee, Travel } from "../types";
 import { Printer, Settings, RefreshCw, FileText, Layers } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
 import { getFormattedPangkatGolongan } from "../utils/pangkat";
+import { formatProperName, formatProperJabatan, formatProperText } from "../utils/formatters";
 
 interface DocumentSPDProps {
   key?: React.Key;
@@ -259,18 +260,18 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
       // Try to find the actual PA/PPK or default to Diyanto
       const matchedPpk = employees.find(e => e.id === travel.ppkId);
       if (matchedPpk) {
-        setPaName(matchedPpk.name);
+        setPaName(formatProperName(matchedPpk.name));
         setPaNip(matchedPpk.nip);
         setPaPangkat(getFormattedPangkatGolongan(matchedPpk.pangkat));
       } else {
-        setPaName("Diyanto, SE, MT, FRMP");
+        setPaName(formatProperName("Diyanto, SE, MT, FRMP"));
         setPaNip("197110132005011005");
         setPaPangkat("Pembina Utama Muda (IV/c)");
       }
 
       // Traveler details
       setPangkatTraveler(getFormattedPangkatGolongan(activeEmployee.pangkat));
-      setJabatanTraveler(activeEmployee.jabatan);
+      setJabatanTraveler(formatProperJabatan(activeEmployee.jabatan));
       setTingkatBiaya(getTingkatBiaya(travel.destination));
 
       // Travel particulars
@@ -917,7 +918,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                       onChange={(e) => {
                         const emp = employees.find(x => x.id === e.target.value);
                         if (emp) {
-                          setPaName(emp.name);
+                          setPaName(formatProperName(emp.name));
                           setPaNip(emp.nip);
                           setPaPangkat(getFormattedPangkatGolongan(emp.pangkat));
                         }
@@ -956,7 +957,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                           <div
                             key={`pa-sugg-${emp.id}`}
                             onMouseDown={() => {
-                              setPaName(emp.name);
+                              setPaName(formatProperName(emp.name));
                               setPaNip(emp.nip);
                               setPaPangkat(getFormattedPangkatGolongan(emp.pangkat));
                               setShowPaSuggestions(false);
@@ -1131,7 +1132,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                     onChange={(e) => {
                       const emp = employees.find(x => x.id === e.target.value);
                       if (emp) {
-                        setPptkName(emp.name);
+                        setPptkName(formatProperName(emp.name));
                         setPptkNip(emp.nip);
                       }
                     }}
@@ -1169,7 +1170,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                         <div
                           key={`pptk-sugg-${emp.id}`}
                           onMouseDown={() => {
-                            setPptkName(emp.name);
+                            setPptkName(formatProperName(emp.name));
                             setPptkNip(emp.nip);
                             setShowPptkSuggestions(false);
                           }}
@@ -1553,7 +1554,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   <tr>
                     <td className="center-align w-8" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>1</td>
                     <td className="w-56" style={{ border: '1px solid black', padding: '4px 6px' }}>Pengguna Anggaran</td>
-                    <td style={{ border: '1px solid black', padding: '4px 6px' }}>{paName}</td>
+                    <td style={{ border: '1px solid black', padding: '4px 6px' }}>{formatProperName(paName)}</td>
                   </tr>
 
                   {/* Row 2 */}
@@ -1561,7 +1562,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                     <td className="center-align" style={{ border: '1px solid black', textAlign: 'center', padding: '4px 6px' }}>2</td>
                     <td style={{ border: '1px solid black', padding: '4px 6px' }}>Nama/NIP Pegawai yang melaksanakan perjalanan dinas</td>
                     <td style={{ border: '1px solid black', padding: '4px 6px' }}>
-                      <div>{activeEmployee.name}</div>
+                      <div>{formatProperName(activeEmployee.name)}</div>
                       <div className="mt-0.5 font-mono">{activeEmployee.nip !== "-" ? activeEmployee.nip : "Non-ASN"}</div>
                     </td>
                   </tr>
@@ -1576,7 +1577,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                     </td>
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
                       <div className="py-0 leading-tight">a. {pangkatTraveler}</div>
-                      <div className="py-0 leading-tight mt-0.5">b. {jabatanTraveler}</div>
+                      <div className="py-0 leading-tight mt-0.5">b. {formatProperJabatan(jabatanTraveler)}</div>
                       <div className="py-0 leading-tight mt-0.5">c. {tingkatBiaya}</div>
                     </td>
                   </tr>
@@ -1683,7 +1684,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   
                   <div className="mt-2 text-left">
                     <p className="m-0 leading-tight">Pengguna Anggaran,</p>
-                    <p className="m-0 leading-tight">Inspektur Daerah Kab. Tabalong</p>
+                    <p className="m-0 leading-tight">{formatProperJabatan("Inspektur Daerah Kab. Tabalong")}</p>
                     <div className="sig-box" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       {signSpecialCode ? (
                         <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
@@ -1697,8 +1698,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                         <div className="h-full"></div>
                       )}
                     </div>
-                    <p className="m-0 leading-tight uppercase text-[13px] mt-1">{paName}</p>
-                    <p className="m-0 leading-tight text-[12px]">NIP. {paNip}</p>
+                    <p className="m-0 leading-tight text-[13px] mt-1" style={{ textDecoration: 'none' }}>{formatProperName(paName)}</p>
+                    <p className="m-0 leading-tight text-[12px]">NIP {paNip}</p>
                   </div>
                 </div>
               </div>
@@ -1743,7 +1744,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                       </div>
                       
                       <div className="mt-2">
-                        <p className="m-0 text-[11.5px]">{p2TopRightLabel}</p>
+                        <p className="m-0 text-[11.5px]">{formatProperJabatan(p2TopRightLabel)}</p>
                         <div className="signature-box-mini min-h-[90px] h-auto flex flex-col justify-center my-2" style={{ minHeight: '90px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                           {pptkSpecialCode ? (
                             <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
@@ -1755,8 +1756,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                             </p>
                           ) : null}
                         </div>
-                        <p className="m-0 text-left text-[11.5px]">{pptkName}</p>
-                        <p className="m-0 text-[11px]">NIP. {pptkNip}</p>
+                        <p className="m-0 text-left text-[11.5px]" style={{ textDecoration: 'none' }}>{formatProperName(pptkName)}</p>
+                        <p className="m-0 text-[11px]">NIP {pptkNip}</p>
                       </div>
                     </td>
                   </tr>
@@ -1819,7 +1820,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                       </div>
                       
                       <div className="mt-2">
-                        <p className="m-0 text-[11.5px]">{p2Row4LeftLabel}</p>
+                        <p className="m-0 text-[11.5px]">{formatProperJabatan(p2Row4LeftLabel)}</p>
                         <div className="signature-box-mini min-h-[90px] h-auto flex flex-col justify-center my-2" style={{ minHeight: '90px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                           {pptkSpecialCode ? (
                             <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
@@ -1831,8 +1832,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                             </p>
                           ) : null}
                         </div>
-                        <p className="m-0 text-left text-[11.5px]">{pptkName}</p>
-                        <p className="m-0 text-[11px]">NIP. {pptkNip}</p>
+                        <p className="m-0 text-left text-[11.5px]" style={{ textDecoration: 'none' }}>{formatProperName(pptkName)}</p>
+                        <p className="m-0 text-[11px]">NIP {pptkNip}</p>
                       </div>
                     </td>
                     <td className="text-xs w-1/2" style={{ border: '1px solid black', padding: '5px 8px', verticalAlign: 'top' }}>
@@ -1852,7 +1853,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                   {/* Row 5: Perhatian */}
                   <tr>
                     <td colSpan={2} className="text-xs text-justify leading-normal" style={{ border: '1px solid black', padding: '5px 8px' }}>
-                      <span>V. PERHATIAN :</span>
+                      <span>V. Perhatian :</span>
                       <p className="m-0 mt-1 leading-normal">
                         PA yang menerbitkan SPD, pegawai yang melakukan perjalanan dinas, para pejabat yang mengesahkan tanggal berangkat/tiba, serta bendahara pengeluaran bertanggung jawab berdasarkan peraturan-peraturan Keuangan Negara apabila negara menderita rugi akibat kesalahan, kelalaian, dan kealpaannya.
                       </p>
@@ -1864,8 +1865,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
               {/* OUTSIDE TABLE footer block for Halaman 2 bottom right signature */}
               <div className="mt-2 flex justify-end">
                 <div className="footer-sig-block w-72 text-left" style={{ fontSize: '14px' }}>
-                  <p className="m-0 leading-tight">{p2Row4RightLabel},</p>
-                  <p className="m-0 leading-tight">Inspektur Daerah Kab. Tabalong</p>
+                  <p className="m-0 leading-tight">{formatProperJabatan(p2Row4RightLabel)},</p>
+                  <p className="m-0 leading-tight">{formatProperJabatan("Inspektur Daerah Kab. Tabalong")}</p>
                   <div className="sig-box min-h-[100px] flex flex-col justify-center my-1.5" style={{ minHeight: '100px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     {signSpecialCode ? (
                       <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
@@ -1879,8 +1880,8 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
                       <div className="h-full"></div>
                     )}
                   </div>
-                  <p className="m-0 leading-tight uppercase text-[13.5px] mt-1">{paName}</p>
-                  <p className="m-0 leading-tight text-[12.5px]">NIP. {paNip}</p>
+                  <p className="m-0 leading-tight text-[13.5px] mt-1" style={{ textDecoration: 'none' }}>{formatProperName(paName)}</p>
+                  <p className="m-0 leading-tight text-[12.5px]">NIP {paNip}</p>
                 </div>
               </div>
 
