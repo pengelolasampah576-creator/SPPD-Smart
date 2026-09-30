@@ -418,6 +418,17 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   margin-bottom: 25px;
                 }
                 
+                table td, td, th {
+                  vertical-align: top !important;
+                }
+                .align-top {
+                  vertical-align: top !important;
+                }
+                ol, ul {
+                  margin-top: 0 !important;
+                  margin-bottom: 0 !important;
+                }
+                
                 /* Dasar Block */
                 .dasar-table {
                   width: 100%;
@@ -427,8 +438,9 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   font-family: ${fontCssFamily};
                 }
                 .dasar-table td {
-                  padding: 4px 6px;
-                  vertical-align: top;
+                  padding: 2px 4px;
+                  vertical-align: top !important;
+                  line-height: 1.5;
                 }
                 
                 /* Memerintahkan */
@@ -449,20 +461,23 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   font-family: ${fontCssFamily};
                 }
                 .participants-list-table td {
-                  padding: 3px 4px;
-                  vertical-align: top;
+                  padding: 2px 4px;
+                  vertical-align: top !important;
+                  line-height: 1.5;
                 }
 
                 /* Goals / Untuk */
                 .untuk-list {
                   margin-left: 20px;
                   padding-left: 0;
+                  margin-top: 0;
                   font-size: ${docFontSize};
                   text-align: justify;
                   font-family: ${fontCssFamily};
                 }
                 .untuk-list li {
                   margin-bottom: 8px;
+                  line-height: 1.5;
                 }
                 
                 /* Signature block */
@@ -489,8 +504,9 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   font-family: ${fontCssFamily};
                 }
                 .format-baru-table td {
-                  padding: 3px 0;
-                  vertical-align: top;
+                  padding: 2px 0;
+                  vertical-align: top !important;
+                  line-height: 1.5;
                 }
                 .format-baru-memperin {
                   font-size: 14px;
@@ -919,12 +935,12 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               <table className="dasar-table w-full text-xs md:text-sm border-collapse select-text">
                 <tbody>
                   <tr>
-                    <td className="w-16 md:w-20 py-1">Dasar</td>
-                    <td className="w-3 py-1">:</td>
-                    <td className="py-1 text-justify">
-                      <ol className="list-decimal list-outside ml-4 p-0 space-y-2 text-justify text-slate-900">
+                    <td className="w-16 md:w-20 align-top text-black whitespace-nowrap" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>Dasar</td>
+                    <td className="w-3 align-top text-center text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
+                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>
+                      <ol className="list-decimal list-outside ml-4 p-0 space-y-2 text-justify text-slate-900" style={{ margin: 0, padding: 0, paddingLeft: '1.25rem' }}>
                         {getFlattenedDasarList().map((item, index) => (
-                          <li key={`st-dasar-${index}`}>
+                          <li key={`st-dasar-${index}`} style={{ margin: 0, padding: 0, lineHeight: '1.5' }}>
                             {renderFormattedDasarItem(item)}
                           </li>
                         ))}
@@ -943,9 +959,9 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               <table className="participants-list-table w-full text-xs md:text-sm select-text">
                 <tbody>
                   <tr>
-                    <td className="w-16 md:w-20 py-1 align-top text-black">Kepada</td>
-                    <td className="w-3 py-1 align-top text-black">:</td>
-                    <td className="py-1">
+                    <td className="w-16 md:w-20 align-top text-black whitespace-nowrap" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>Kepada</td>
+                    <td className="w-3 align-top text-center text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
+                    <td className="align-top" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px' }}>
                       <table className="w-full text-xs md:text-sm text-black border-none border-collapse text-left">
                         <tbody>
                           {participants.map((emp, index) => (
@@ -1000,11 +1016,11 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               <table className="dasar-table w-full text-xs md:text-sm border-collapse select-text">
                 <tbody>
                   <tr>
-                    <td className="w-16 md:w-20 py-2">Untuk</td>
-                    <td className="w-3 py-2">:</td>
-                    <td className="py-2">
-                      <ol className="list-decimal list-outside ml-4 p-0 space-y-2 text-justify text-slate-900">
-                        <li>
+                    <td className="w-16 md:w-20 align-top text-black whitespace-nowrap" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>Untuk</td>
+                    <td className="w-3 align-top text-center text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
+                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>
+                      <ol className="list-decimal list-outside ml-4 p-0 space-y-1.5 text-justify text-slate-900" style={{ margin: 0, padding: 0, paddingLeft: '1.25rem' }}>
+                        <li style={{ margin: 0, padding: 0, lineHeight: '1.5' }}>
                           Melaksanakan Perjalanan Dinas dalam rangka: "{travel.purpose}".
                         </li>
                         <li>
@@ -1089,12 +1105,12 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </div>
 
               {/* DASAR SECTION */}
-              <table className="w-full text-xs md:text-sm border-collapse select-text mb-4" style={{ fontFamily: 'inherit' }}>
+              <table className="format-baru-table w-full text-xs md:text-sm border-collapse select-text mb-4" style={{ fontFamily: 'inherit' }}>
                 <tbody>
                   <tr>
-                    <td className="align-top py-1 text-black whitespace-nowrap" style={{ width: '80px' }}>Dasar</td>
-                    <td className="align-top py-1 text-center text-black" style={{ width: '20px' }}>:</td>
-                    <td className="align-top py-1 text-justify text-black leading-relaxed">
+                    <td className="align-top text-black whitespace-nowrap" style={{ width: '80px', verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>Dasar</td>
+                    <td className="align-top text-center text-black" style={{ width: '20px', verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
+                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>
                       {dasarTextFormatBaru || defaultDasarTextBaru}
                     </td>
                   </tr>
@@ -1107,12 +1123,12 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </div>
 
               {/* KEPADA SECTION */}
-              <table className="w-full text-xs md:text-sm border-collapse select-text mb-4" style={{ fontFamily: 'inherit' }}>
+              <table className="format-baru-table w-full text-xs md:text-sm border-collapse select-text mb-4" style={{ fontFamily: 'inherit' }}>
                 <tbody>
                   <tr>
-                    <td className="align-top py-1 text-black whitespace-nowrap" style={{ width: '80px' }}>Kepada</td>
-                    <td className="align-top py-1 text-center text-black" style={{ width: '20px' }}>:</td>
-                    <td className="align-top py-1">
+                    <td className="align-top text-black whitespace-nowrap" style={{ width: '80px', verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>Kepada</td>
+                    <td className="align-top text-center text-black" style={{ width: '20px', verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
+                    <td className="align-top" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px' }}>
                       <table className="w-full text-xs md:text-sm text-black border-none border-collapse text-left">
                         <tbody>
                           {participants.map((emp, index) => (
@@ -1174,12 +1190,12 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </table>
 
               {/* UNTUK SECTION */}
-              <table className="w-full text-xs md:text-sm border-collapse select-text mb-6" style={{ fontFamily: 'inherit' }}>
+              <table className="format-baru-table w-full text-xs md:text-sm border-collapse select-text mb-6" style={{ fontFamily: 'inherit' }}>
                 <tbody>
                   <tr>
-                    <td className="align-top py-1 text-black whitespace-nowrap" style={{ width: '80px' }}>Untuk</td>
-                    <td className="align-top py-1 text-center text-black" style={{ width: '20px' }}>:</td>
-                    <td className="align-top py-1 text-justify text-black leading-relaxed">
+                    <td className="align-top text-black whitespace-nowrap" style={{ width: '80px', verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>Untuk</td>
+                    <td className="align-top text-center text-black" style={{ width: '20px', verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
+                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>
                       {untukTextFormatBaru || defaultUntukTextBaru}
                     </td>
                   </tr>
