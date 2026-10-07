@@ -125,9 +125,10 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
   const [useDisposisiBox, setUseDisposisiBox] = useState(true);
   const [disposisiLabel, setDisposisiLabel] = useState("Inspektur :");
   const [disposisiText, setDisposisiText] = useState("");
-  const [disposisiHeight, setDisposisiHeight] = useState("140px");
-  const [disposisiWidth, setDisposisiWidth] = useState("240px");
-  const [disposisiMarginTop, setDisposisiMarginTop] = useState("32px");
+  const [disposisiHeight, setDisposisiHeight] = useState("95px");
+  const [disposisiWidth, setDisposisiWidth] = useState("230px");
+  const [disposisiMarginTop, setDisposisiMarginTop] = useState("14px");
+  const [sigBoxHeight, setSigBoxHeight] = useState("55px");
 
   // Typography Settings (Font Family and Size)
   const [docFontFamily, setDocFontFamily] = useState<"Arial" | "Times New Roman">("Arial");
@@ -474,9 +475,10 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
     setUseDisposisiBox(true);
     setDisposisiLabel("Inspektur :");
     setDisposisiText("");
-    setDisposisiHeight("140px");
-    setDisposisiWidth("240px");
-    setDisposisiMarginTop("32px");
+    setDisposisiHeight("95px");
+    setDisposisiWidth("230px");
+    setDisposisiMarginTop("14px");
+    setSigBoxHeight("55px");
 
     setDocFontFamily("Arial");
     setDocFontSize("12pt");
@@ -513,11 +515,11 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 body {
                   font-family: ${fontFamilyCss};
                   font-size: ${fontSizeCss};
-                  line-height: 1.45;
+                  line-height: 1.38;
                   color: #000;
                   background-color: #fff;
                   margin: 0;
-                  padding: 30px;
+                  padding: 0;
                 }
                 .text-center { text-align: center; }
                 .text-right { text-align: right; }
@@ -537,12 +539,12 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 .py-0 { padding-top: 0 !important; padding-bottom: 0 !important; }
                 .h-1\\.5 { height: 6px !important; }
                 .leading-none { line-height: 1 !important; }
-                .leading-relaxed { line-height: 1.625 !important; }
+                .leading-relaxed { line-height: 1.45 !important; }
                 .break-inside-avoid { break-inside: avoid; page-break-inside: avoid; }
-                .pl-8 { padding-left: 32px !important; }
-                .p-1 { padding: 4px !important; }
-                .p-1\\.5 { padding: 6px !important; }
-                .px-1\\.5 { padding-left: 6px !important; padding-right: 6px !important; }
+                .pl-8 { padding-left: 24px !important; }
+                .p-1 { padding: 3px !important; }
+                .p-1\\.5 { padding: 4px !important; }
+                .px-1\\.5 { padding-left: 4px !important; padding-right: 4px !important; }
                 .text-\\[11px\\] { font-size: 11px !important; }
                 .mt-0\\.5 { margin-top: 2px !important; }
                 .print\\:hidden { display: none !important; }
@@ -551,11 +553,11 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 /* Letterhead Kop */
                 .kop-header {
                   position: relative;
-                  border-bottom: 4px double #000;
-                  padding-bottom: 10px;
-                  margin-bottom: 22px;
+                  border-bottom: 3.5px double #000;
+                  padding-bottom: 6px;
+                  margin-bottom: 12px;
                   text-align: center;
-                  min-height: 80px;
+                  min-height: 72px;
                   display: block;
                   font-family: ${fontFamilyCss};
                 }
@@ -568,56 +570,56 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                   align-items: center;
                 }
                 .kop-logo {
-                  height: 80px;
-                  width: 70px;
+                  height: 72px;
+                  width: 62px;
                   object-fit: contain;
                 }
                 .kop-text-container {
-                  padding-left: 80px;
-                  padding-right: 80px;
+                  padding-left: 70px;
+                  padding-right: 70px;
                   width: 100%;
                   box-sizing: border-box;
                   text-align: center;
                   font-family: ${fontFamilyCss};
                 }
                  .kop-pemkab {
-                  font-size: 15px;
+                  font-size: 14px;
                   font-weight: normal;
                   letter-spacing: 0.5px;
                   margin: 0;
-                  line-height: 1.2;
+                  line-height: 1.15;
                   font-family: ${fontFamilyCss};
                 }
                 .kop-instansi {
-                  font-size: 19px;
+                  font-size: 18px;
                   font-weight: normal;
                   letter-spacing: 0.5px;
+                  margin: 0;
+                  margin-top: 1px;
+                  line-height: 1.15;
+                  font-family: ${fontFamilyCss};
+                }
+                .kop-alamat {
+                  font-size: 10px;
                   margin: 0;
                   margin-top: 2px;
                   line-height: 1.2;
                   font-family: ${fontFamilyCss};
                 }
-                .kop-alamat {
-                  font-size: 10.5px;
-                  margin: 0;
-                  margin-top: 3px;
-                  line-height: 1.3;
-                  font-family: ${fontFamilyCss};
-                }
                 .kop-laman {
-                  font-size: 10.5px;
+                  font-size: 10px;
                   margin: 0;
                   margin-top: 1px;
-                  line-height: 1.3;
+                  line-height: 1.2;
                   font-family: ${fontFamilyCss};
                 }
                 
                 /* Document Title */
                 .doc-title {
-                  font-size: 15px;
+                  font-size: 14.5px;
                   font-weight: normal;
                   text-align: center;
-                  margin-top: 10px;
+                  margin-top: 6px;
                   margin-bottom: 2px;
                   letter-spacing: 0.5px;
                   font-family: ${fontFamilyCss};
@@ -625,7 +627,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 .doc-subtitle {
                   font-size: ${fontSizeCss};
                   text-align: center;
-                  margin-bottom: 20px;
+                  margin-bottom: 10px;
                   font-family: ${fontFamilyCss};
                 }
                 
@@ -633,44 +635,45 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 .meta-table {
                   width: 100%;
                   border-collapse: collapse;
-                  margin-bottom: 12px;
+                  margin-bottom: 8px;
                   font-size: ${fontSizeCss};
                   font-family: ${fontFamilyCss};
                 }
                 .meta-table td {
-                  padding: 3px 4px;
+                  padding: 1.5px 3px;
                   vertical-align: top;
                   font-size: ${fontSizeCss};
                   font-family: ${fontFamilyCss};
                 }
                 .line-divider {
                   border-top: 1.5px solid #000;
-                  margin-bottom: 15px;
+                  margin-top: 4px;
+                  margin-bottom: 8px;
                 }
                 
                 /* Body Paragraphs */
                 .body-text {
                   font-size: ${fontSizeCss};
                   text-align: justify;
-                  margin-bottom: 12px;
-                  line-height: 1.5;
+                  margin-bottom: 8px;
+                  line-height: 1.38;
                   font-family: ${fontFamilyCss};
                 }
                 .indent-8 {
-                  text-indent: 30px;
+                  text-indent: 28px;
                 }
                 
                 /* Traditional Table Format */
                 .table-participants {
                   width: 100%;
                   border-collapse: collapse;
-                  margin: 6px 0;
+                  margin: 4px 0;
                   font-size: ${fontSizeCss};
                   font-family: ${fontFamilyCss};
                 }
                 .table-participants th, .table-participants td {
                   border: 1px solid #000;
-                  padding: 4px 6px;
+                  padding: 2.5px 4px;
                   text-align: left;
                   font-size: ${fontSizeCss};
                   font-family: ${fontFamilyCss};
@@ -683,13 +686,13 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 
                 /* Capture's Enumerated Participant List Format */
                 .list-participants-container {
-                  margin: 6px 0;
+                  margin: 4px 0;
                   font-size: ${fontSizeCss};
-                  padding-left: 32px;
+                  padding-left: 24px;
                   font-family: ${fontFamilyCss};
                 }
                 .list-participant-item {
-                  margin-bottom: 6px;
+                  margin-bottom: 4px;
                   page-break-inside: avoid;
                 }
                 .list-participant-item table {
@@ -699,7 +702,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                   font-family: ${fontFamilyCss};
                 }
                 .list-participant-item td {
-                  padding: 2px 0;
+                  padding: 1px 0;
                   vertical-align: top;
                   font-size: ${fontSizeCss};
                   font-family: ${fontFamilyCss};
@@ -707,25 +710,26 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 
                 /* Signature & Disposisi row */
                 .sig-and-disposisi-row {
-                  margin-top: 32px;
+                  margin-top: ${disposisiMarginTop};
                   display: flex;
-                  justify-content: space-between;
+                  justify-content: ${useDisposisiBox ? "space-between" : "flex-end"};
                   align-items: flex-start;
                   page-break-inside: avoid;
+                  break-inside: avoid;
                   width: 100%;
                   font-family: ${fontFamilyCss};
                 }
                 .disposisi-box {
                   border: 1.5px solid #000;
-                  width: 240px;
-                  min-height: 140px;
-                  padding: 8px 10px;
+                  width: ${disposisiWidth};
+                  min-height: ${disposisiHeight};
+                  padding: 6px 8px;
                   box-sizing: border-box;
                   font-size: ${fontSizeCss};
                   font-family: ${fontFamilyCss};
                   text-align: left;
                   float: left;
-                  margin-right: 40px;
+                  margin-right: 20px;
                 }
                 .sig-container {
                   width: 250px;
@@ -733,20 +737,21 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                   font-family: ${fontFamilyCss};
                   text-align: left;
                   page-break-inside: avoid;
+                  break-inside: avoid;
                   float: right;
                 }
                 .sig-box {
-                  min-height: 95px;
+                  min-height: ${sigBoxHeight};
                   height: auto;
-                  margin-bottom: 10px;
+                  margin-bottom: 4px;
                 }
                 .clear-both {
                   clear: both;
                 }
                 
                 @media print {
-                  body { padding: 1.5cm 1.5cm; }
-                  @page { size: A4 portrait; margin: 1.5cm; }
+                  body { margin: 0 !important; padding: 0 !important; }
+                  @page { size: A4 portrait; margin: 1.2cm 1.8cm 1.2cm 1.8cm; }
                 }
               </style>
             </head>
@@ -1248,10 +1253,10 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                         onChange={(e) => setDisposisiHeight(e.target.value)}
                         className="w-full text-xs p-1.5 border rounded bg-slate-50 font-medium"
                       >
-                        <option value="120px">Kecil (120px)</option>
-                        <option value="140px">Standar (140px)</option>
-                        <option value="160px">Sedang (160px)</option>
-                        <option value="180px">Besar (180px)</option>
+                        <option value="95px">Kompak (95px - Pas 1 Halaman)</option>
+                        <option value="110px">Standar (110px)</option>
+                        <option value="130px">Sedang (130px)</option>
+                        <option value="150px">Besar (150px)</option>
                       </select>
                     </div>
                   </div>
@@ -1262,10 +1267,10 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                       onChange={(e) => setDisposisiMarginTop(e.target.value)}
                       className="w-full text-xs p-1.5 border rounded bg-slate-50 font-medium"
                     >
-                      <option value="24px">Ketat (24px)</option>
-                      <option value="32px">Standar Renggang (32px)</option>
-                      <option value="40px">Luas (40px)</option>
-                      <option value="48px">Sangat Luas (48px)</option>
+                      <option value="12px">Sangat Rapat (12px - Pas 1 Halaman)</option>
+                      <option value="14px">Rapat Standar (14px)</option>
+                      <option value="20px">Sedang (20px)</option>
+                      <option value="32px">Renggang (32px)</option>
                     </select>
                   </div>
                   <div>
@@ -1316,10 +1321,10 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                 )}
               </div>
 
-              {/* Section 7: Standarisasi Huruf (Font & Ukuran) */}
+              {/* Section 7: Standarisasi Huruf (Font & Ukuran) & Ruang TTD */}
               <div className="space-y-2 border-t pt-2 border-slate-200">
-                <p className="text-[10px] font-bold uppercase text-blue-600">7. Jenis & Ukuran Huruf (Font)</p>
-                <div className="grid grid-cols-2 gap-2">
+                <p className="text-[10px] font-bold uppercase text-blue-600">7. Format Huruf & Ruang TTD (SRIKANDI)</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <div>
                     <label className="text-[10px] text-slate-400 block font-bold uppercase">Jenis Huruf</label>
                     <select
@@ -1339,8 +1344,21 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                       className="w-full text-xs p-1.5 border rounded bg-slate-50 font-medium"
                     >
                       <option value="12pt">Ukuran 12 (12pt Standar)</option>
-                      <option value="11pt">Ukuran 11 (11pt)</option>
+                      <option value="11pt">Ukuran 11 (11pt - Pas 1 Halaman)</option>
                       <option value="10pt">Ukuran 10 (10pt)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-slate-400 block font-bold uppercase">Tinggi Ruang TTD</label>
+                    <select
+                      value={sigBoxHeight}
+                      onChange={(e) => setSigBoxHeight(e.target.value)}
+                      className="w-full text-xs p-1.5 border rounded bg-slate-50 font-medium"
+                    >
+                      <option value="45px">Kompak (45px - TTE Srikandi)</option>
+                      <option value="55px">Standar (55px - Pas 1 Halaman)</option>
+                      <option value="75px">Sedang (75px)</option>
+                      <option value="95px">Longgar (95px - Tanda Tangan Basah)</option>
                     </select>
                   </div>
                 </div>
@@ -1356,29 +1374,29 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
         {/* PRINTABLE COMPONENT */}
         <div 
           id="nota-dinas-printable" 
-          className="bg-white p-12 md:p-14 text-black leading-relaxed shadow-lg max-w-[700px] mx-auto select-text select-all"
+          className="bg-white p-8 md:p-10 text-black leading-relaxed shadow-lg max-w-[700px] mx-auto select-text select-all"
           style={{ 
             fontFamily: docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif',
             fontSize: docFontSize === "12pt" ? "12pt" : docFontSize === "11pt" ? "11pt" : docFontSize === "10pt" ? "10pt" : "12pt",
-            lineHeight: "1.45"
+            lineHeight: "1.38"
           }}
         >
           
           {/* KOP SURAT */}
-          <div className="kop-header relative border-b-4 border-double border-black pb-3 mb-6 min-h-[85px] flex items-center justify-center">
+          <div className="kop-header relative border-b-4 border-double border-black pb-2 mb-3 min-h-[75px] flex items-center justify-center">
             <div className="kop-logo-container absolute left-0 top-1/2 -translate-y-1/2 flex items-center">
               <img
                 src={TABALONG_LOGO_BASE64}
                 alt="Logo Kabupaten Tabalong"
-                className="kop-logo h-20 w-16 md:h-[80px] md:w-[70px] object-contain"
+                className="kop-logo h-20 w-16 md:h-[75px] md:w-[65px] object-contain"
               />
             </div>
             
             <div className="kop-text-container text-center w-full px-16 md:px-20">
-              <h1 className="kop-pemkab text-[16px] font-normal tracking-tight uppercase m-0 leading-tight">
+              <h1 className="kop-pemkab text-[15px] font-normal tracking-tight uppercase m-0 leading-tight">
                 {kopPemkab}
               </h1>
-              <h2 className="kop-instansi text-2xl font-normal tracking-normal uppercase m-0 leading-tight mt-1">
+              <h2 className="kop-instansi text-xl md:text-2xl font-normal tracking-normal uppercase m-0 leading-tight mt-1">
                 {kopInstansi}
               </h2>
               <p className="kop-alamat text-[11px] text-slate-800 m-0 mt-1 leading-normal">
@@ -1391,14 +1409,14 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
           </div>
 
           {/* TITLE */}
-          <div className="text-center mb-6">
+          <div className="text-center mb-3">
             <h3 className="doc-title font-normal uppercase tracking-wide m-0" style={{ fontSize: "15px" }}>
               NOTA DINAS
             </h3>
           </div>
 
           {/* METADATA TABLES */}
-          <table className="meta-table w-full border-collapse mb-4 select-text leading-normal" style={{ fontSize: docFontSize }}>
+          <table className="meta-table w-full border-collapse mb-3 select-text leading-normal" style={{ fontSize: docFontSize }}>
             <tbody>
               <tr>
                 <td className="w-20 font-medium py-1">Kepada</td>
@@ -1446,10 +1464,10 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
           </table>
 
           {/* SEPARATOR LINE */}
-          <div className="line-divider border-t-1.5 border-black mb-4"></div>
+          <div className="line-divider border-t-1.5 border-black mb-3"></div>
 
           {/* BODY CONTENT */}
-          <div className="space-y-4 text-justify leading-relaxed" style={{ fontSize: docFontSize }}>
+          <div className="space-y-2.5 text-justify leading-relaxed" style={{ fontSize: docFontSize }}>
             
             {useRujukan && (
               <div className="relative group">
@@ -1628,7 +1646,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                     {disposisiText}
                   </div>
                 ) : (
-                  <div className="flex-1 min-h-[90px]"></div>
+                  <div className="flex-1 min-h-[55px]"></div>
                 )}
               </div>
             )}
@@ -1637,7 +1655,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
               <p className="m-0 leading-snug">{formatProperJabatan(sigJabatan)},</p>
               
               {/* Spaces for signature */}
-              <div className="sig-box min-h-[95px] flex flex-col justify-center my-2" style={{ minHeight: '95px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div className="sig-box flex flex-col justify-center my-1.5" style={{ minHeight: sigBoxHeight, height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 {signSpecialCode ? (
                   <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                     {signCodeCase === "uppercase" 

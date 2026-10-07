@@ -25,6 +25,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
   const [dasarTextFormatBaru, setDasarTextFormatBaru] = useState("");
   const [untukTextFormatBaru, setUntukTextFormatBaru] = useState("");
   const [issuedCity, setIssuedCity] = useState("Tanjung");
+  const [sigBoxHeight, setSigBoxHeight] = useState("55px");
 
   // Helper to format Indonesian dates
   const formatIndoDate = (dateStr: string) => {
@@ -123,9 +124,21 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
     return `${formattedBase}, ${formattedDegrees.join(", ")}`;
   };
 
-  const defaultDasarTextBaru = `Nota Dinas ${formatProperName(signatory?.name || "Diyanto, SE, MT, FRMP")} (${formatProperJabatan(signatory?.jabatan || "Inspektur Daerah")}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`;
+  const cleanSpacing = (str?: string): string => {
+    if (!str) return "";
+    return str
+      .replace(/\s+/g, " ")
+      .replace(/\s+([.,;:])/g, "$1")
+      .trim();
+  };
 
-  const defaultUntukTextBaru = `Melaksanakan Perjalanan Dinas dalam rangka: "${travel.purpose}" pada hari ${getDayNameIndo(travel.departureDate)}, ${formatIndoDate(travel.departureDate)}${travel.departureDate !== travel.returnDate ? ` s.d ${formatIndoDate(travel.returnDate)}` : ""} bertempat di ${travel.destination}.`;
+  const defaultDasarTextBaru = cleanSpacing(
+    `Nota Dinas ${formatProperName(signatory?.name || "Diyanto, SE, MT, FRMP")} (${formatProperJabatan(signatory?.jabatan || "Inspektur Daerah")}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`
+  );
+
+  const defaultUntukTextBaru = cleanSpacing(
+    `Melaksanakan Perjalanan Dinas dalam rangka: "${travel.purpose}" pada hari ${getDayNameIndo(travel.departureDate)}, ${formatIndoDate(travel.departureDate)}${travel.departureDate !== travel.returnDate ? ` s.d ${formatIndoDate(travel.returnDate)}` : ""} bertempat di ${travel.destination}.`
+  );
 
   const calculateDays = (start: string, end: string) => {
     if (!start || !end) return 0;
@@ -145,7 +158,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
   // Synchronize dasarList with current travel notaNumber, notaDate, and destination
   useEffect(() => {
     setDasarList(prev => {
-      const notaDinasText = `Nota Dinas ${formatProperName(signatory?.name || "Diyanto, SE, MT, FRMP")} (${formatProperJabatan(signatory?.jabatan || "Inspektur")}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`;
+      const notaDinasText = cleanSpacing(`Nota Dinas ${formatProperName(signatory?.name || "Diyanto, SE, MT, FRMP")} (${formatProperJabatan(signatory?.jabatan || "Inspektur")}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`);
       const hasNota = prev.some(d => d.startsWith("Nota Dinas"));
       if (hasNota) {
         return prev.map(d => d.startsWith("Nota Dinas") ? notaDinasText : d);
@@ -167,12 +180,12 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
         try {
           const data = JSON.parse(cached);
           if (data.formatType !== undefined) setFormatType(data.formatType);
-          if (data.dasarTextFormatBaru !== undefined) setDasarTextFormatBaru(data.dasarTextFormatBaru);
-          if (data.untukTextFormatBaru !== undefined) setUntukTextFormatBaru(data.untukTextFormatBaru);
+          if (data.dasarTextFormatBaru !== undefined) setDasarTextFormatBaru(cleanSpacing(data.dasarTextFormatBaru));
+          if (data.untukTextFormatBaru !== undefined) setUntukTextFormatBaru(cleanSpacing(data.untukTextFormatBaru));
           if (data.issuedCity !== undefined) setIssuedCity(data.issuedCity);
           if (data.dasarList !== undefined && Array.isArray(data.dasarList)) {
             // Update the Nota Dinas entry with current travel values
-            const notaDinasText = `Nota Dinas ${formatProperName(signatory?.name || "Diyanto, SE, MT, FRMP")} (${formatProperJabatan(signatory?.jabatan || "Inspektur")}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`;
+            const notaDinasText = cleanSpacing(`Nota Dinas ${formatProperName(signatory?.name || "Diyanto, SE, MT, FRMP")} (${formatProperJabatan(signatory?.jabatan || "Inspektur")}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`);
             const syncedList = data.dasarList.map((d: string) => d.startsWith("Nota Dinas") ? notaDinasText : d);
             setDasarList(syncedList);
           }
@@ -190,14 +203,14 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
       setFormatType("standar");
       setIssuedCity("Tanjung");
       setDasarTextFormatBaru(
-        `Nota Dinas ${formatProperName(signatory?.name || "Diyanto, SE, MT, FRMP")} (${formatProperJabatan(signatory?.jabatan || "Inspektur Daerah")}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`
+        cleanSpacing(`Nota Dinas ${formatProperName(signatory?.name || "Diyanto, SE, MT, FRMP")} (${formatProperJabatan(signatory?.jabatan || "Inspektur Daerah")}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`)
       );
       setUntukTextFormatBaru(
-        `Melaksanakan Perjalanan Dinas dalam rangka: "${travel.purpose}" pada hari ${getDayNameIndo(travel.departureDate)}, ${formatIndoDate(travel.departureDate)}${travel.departureDate !== travel.returnDate ? ` s.d ${formatIndoDate(travel.returnDate)}` : ""} bertempat di ${travel.destination}.`
+        cleanSpacing(`Melaksanakan Perjalanan Dinas dalam rangka: "${travel.purpose}" pada hari ${getDayNameIndo(travel.departureDate)}, ${formatIndoDate(travel.departureDate)}${travel.departureDate !== travel.returnDate ? ` s.d ${formatIndoDate(travel.returnDate)}` : ""} bertempat di ${travel.destination}.`)
       );
       setDasarList([
         "Peraturan Daerah Kabupaten Tabalong Nomor 3 Tahun 2021 tentang Organisasi dan Tata Kerja Inspektorat Daerah Kabupaten Tabalong.",
-        `Nota Dinas ${formatProperName(signatory?.name || "Diyanto, SE, MT, FRMP")} (${formatProperJabatan(signatory?.jabatan || "Inspektur")}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`
+        cleanSpacing(`Nota Dinas ${formatProperName(signatory?.name || "Diyanto, SE, MT, FRMP")} (${formatProperJabatan(signatory?.jabatan || "Inspektur")}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`)
       ]);
     }
   }, [travel.id, travel.notaNumber, travel.notaDate, travel.destination, travel.purpose, travel.departureDate, travel.returnDate, signatory?.id, signatory?.name, signatory?.jabatan, prevTravelId]);
@@ -301,13 +314,19 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
 
     return (
       <span 
-        className="text-justify block text-slate-900 leading-relaxed"
+        className="text-justify inline text-slate-900"
         style={{
           fontFamily: docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif',
-          fontSize: docFontSize
+          fontSize: docFontSize,
+          lineHeight: '1.5',
+          textAlign: 'justify',
+          textAlignLast: 'left',
+          textJustify: 'inter-word',
+          letterSpacing: 'normal',
+          wordSpacing: 'normal'
         }}
       >
-        {cleanItem}
+        {cleanSpacing(cleanItem)}
       </span>
     );
   };
@@ -337,15 +356,21 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                 body {
                   font-family: ${fontCssFamily};
                   font-size: ${docFontSize};
-                  line-height: 1.5;
+                  line-height: 1.45;
                   color: #000;
                   background-color: #fff;
                   margin: 0;
-                  padding: 40px;
+                  padding: 0;
                 }
                 .text-center { text-align: center; }
                 .text-right { text-align: right; }
-                .text-justify { text-align: justify; }
+                .text-justify { 
+                  text-align: justify; 
+                  text-align-last: left;
+                  text-justify: inter-word;
+                  letter-spacing: normal;
+                  word-spacing: normal;
+                }
                 .font-bold { font-weight: normal !important; }
                 .uppercase { text-transform: uppercase; }
                 
@@ -353,10 +378,10 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                 .kop-header {
                   position: relative;
                   border-bottom: 4px double #000;
-                  padding-bottom: 12px;
-                  margin-bottom: 25px;
+                  padding-bottom: 8px;
+                  margin-bottom: 14px;
                   text-align: center;
-                  min-height: 85px;
+                  min-height: 75px;
                   display: block;
                   font-family: ${fontCssFamily};
                 }
@@ -369,53 +394,57 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   align-items: center;
                 }
                 .kop-logo {
-                  height: 80px;
-                  width: 70px;
+                  height: 75px;
+                  width: 65px;
                   object-fit: contain;
                 }
                 .kop-text-container {
-                  padding-left: 80px;
-                  padding-right: 80px;
+                  padding-left: 75px;
+                  padding-right: 75px;
                   text-align: center;
                   display: block;
                   width: 100%;
                   box-sizing: border-box;
                 }
                 .kop-pemkab {
-                  font-size: 16px;
-                  font-weight: normal;
-                  letter-spacing: 1px;
-                  margin: 0;
-                }
-                .kop-instansi {
-                  font-size: 21px;
+                  font-size: 15px;
                   font-weight: normal;
                   letter-spacing: 0.5px;
                   margin: 0;
-                  margin-top: 4px;
+                  line-height: 1.2;
                 }
-                .kop-alamat {
-                  font-size: 11px;
-                  margin: 0;
-                  margin-top: 4px;
-                }
-                .kop-laman {
-                  font-size: 11px;
+                .kop-instansi {
+                  font-size: 19px;
+                  font-weight: normal;
+                  letter-spacing: 0.5px;
                   margin: 0;
                   margin-top: 2px;
+                  line-height: 1.2;
+                }
+                .kop-alamat {
+                  font-size: 10.5px;
+                  margin: 0;
+                  margin-top: 3px;
+                  line-height: 1.2;
+                }
+                .kop-laman {
+                  font-size: 10.5px;
+                  margin: 0;
+                  margin-top: 1px;
+                  line-height: 1.2;
                 }
                 
                 /* title */
                 .doc-title {
-                  font-size: 18px;
+                  font-size: 16px;
                   font-weight: normal;
                   text-decoration: underline;
-                  margin-top: 15px;
-                  margin-bottom: 4px;
+                  margin-top: 8px;
+                  margin-bottom: 2px;
                 }
                 .doc-subtitle {
                   font-size: ${docFontSize};
-                  margin-bottom: 25px;
+                  margin-bottom: 12px;
                 }
                 
                 table td, td, th {
@@ -433,30 +462,31 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                 .dasar-table {
                   width: 100%;
                   border-collapse: collapse;
-                  margin-bottom: 20px;
+                  margin-bottom: 10px;
                   font-size: ${docFontSize};
                   font-family: ${fontCssFamily};
                 }
                 .dasar-table td {
-                  padding: 2px 4px;
+                  padding: 0 4px;
                   vertical-align: top !important;
                   line-height: 1.5;
+                  letter-spacing: normal;
                 }
                 
                 /* Memerintahkan */
                 .memperin {
-                  font-size: 15px;
+                  font-size: 13.5px;
                   font-weight: normal;
-                  letter-spacing: 1px;
+                  letter-spacing: 0.5px;
                   text-align: center;
-                  margin: 12px 0 10px 0;
+                  margin: 10px 0 8px 0;
                 }
 
                 /* Participants */
                 .participants-list-table {
                   width: 100%;
                   border-collapse: collapse;
-                  margin-bottom: 12px;
+                  margin-bottom: 8px;
                   font-size: ${docFontSize};
                   font-family: ${fontCssFamily};
                 }
@@ -473,52 +503,63 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   margin-top: 0;
                   font-size: ${docFontSize};
                   text-align: justify;
+                  text-align-last: left;
+                  text-justify: inter-word;
+                  letter-spacing: normal;
+                  word-spacing: normal;
                   font-family: ${fontCssFamily};
                 }
                 .untuk-list li {
-                  margin-bottom: 8px;
+                  margin-bottom: 6px;
                   line-height: 1.5;
                 }
                 
                 /* Signature block */
                 .sig-container {
-                  margin-top: 40px;
+                  margin-top: 18px;
                   float: right;
-                  width: 280px;
+                  width: 270px;
                   font-size: ${docFontSize};
                   font-family: ${fontCssFamily};
                   text-align: left;
+                  page-break-inside: avoid;
+                  break-inside: avoid;
                 }
                 .sig-box {
-                  min-height: 95px;
+                  min-height: ${sigBoxHeight};
                   height: auto;
-                  margin-bottom: 12px;
+                  margin-bottom: 4px;
                 }
                 
                 .whitespace-nowrap { white-space: nowrap !important; }
                 .format-baru-table {
                   width: 100%;
                   border-collapse: collapse;
-                  margin-bottom: 16px;
+                  margin-bottom: 10px;
                   font-size: ${docFontSize};
                   font-family: ${fontCssFamily};
                 }
                 .format-baru-table td {
-                  padding: 2px 0;
+                  padding: 0 2px;
                   vertical-align: top !important;
                   line-height: 1.5;
+                  letter-spacing: normal;
                 }
                 .format-baru-memperin {
-                  font-size: 14px;
+                  font-size: 13.5px;
                   font-weight: normal;
                   letter-spacing: 0.5px;
                   text-align: center;
-                  margin: 18px 0 16px 0;
+                  margin: 10px 0 8px 0;
+                }
+                .break-inside-avoid {
+                  break-inside: avoid;
+                  page-break-inside: avoid;
                 }
 
                 @media print {
-                  body { padding: 20px; }
-                  @page { size: portrait; margin: 2cm; }
+                  body { margin: 0 !important; padding: 0 !important; }
+                  @page { size: A4 portrait; margin: 1.5cm 2cm 1.5cm 2cm; }
                 }
               </style>
             </head>
@@ -836,10 +877,10 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
             </div>
           </div>
 
-          {/* STANDARISASI HURUF (FONT & UKURAN) */}
+          {/* STANDARISASI HURUF (FONT & UKURAN) & RUANG TTD */}
           <div className="bg-white p-3 rounded-lg border border-slate-150 space-y-2">
-            <label className="text-[10px] text-blue-600 font-bold block uppercase tracking-wider">Jenis & Ukuran Huruf (Font)</label>
-            <div className="grid grid-cols-2 gap-2">
+            <label className="text-[10px] text-blue-600 font-bold block uppercase tracking-wider">Format Tampilan & Ruang Tanda Tangan (SRIKANDI)</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div>
                 <label className="text-[9px] text-slate-500 block font-bold uppercase mb-0.5">Jenis Huruf</label>
                 <select
@@ -859,8 +900,21 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   className="w-full text-xs p-1.5 border border-slate-250 rounded bg-slate-50 font-medium"
                 >
                   <option value="12pt">Ukuran 12 (12pt Standar)</option>
-                  <option value="11pt">Ukuran 11 (11pt)</option>
+                  <option value="11pt">Ukuran 11 (11pt - Pas 1 Halaman)</option>
                   <option value="10pt">Ukuran 10 (10pt)</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[9px] text-slate-500 block font-bold uppercase mb-0.5">Tinggi Ruang TTD / TTE</label>
+                <select
+                  value={sigBoxHeight}
+                  onChange={(e) => setSigBoxHeight(e.target.value)}
+                  className="w-full text-xs p-1.5 border border-slate-250 rounded bg-slate-50 font-medium"
+                >
+                  <option value="45px">Kompak (45px - TTE SRIKANDI)</option>
+                  <option value="55px">Standar (55px - Pas 1 Halaman)</option>
+                  <option value="75px">Sedang (75px)</option>
+                  <option value="95px">Longgar (95px - Tanda Tangan Basah)</option>
                 </select>
               </div>
             </div>
@@ -935,12 +989,12 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               <table className="dasar-table w-full text-xs md:text-sm border-collapse select-text">
                 <tbody>
                   <tr>
-                    <td className="w-16 md:w-20 align-top text-black whitespace-nowrap" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>Dasar</td>
-                    <td className="w-3 align-top text-center text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
-                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>
-                      <ol className="list-decimal list-outside ml-4 p-0 space-y-2 text-justify text-slate-900" style={{ margin: 0, padding: 0, paddingLeft: '1.25rem' }}>
+                    <td className="w-16 md:w-20 align-top text-black whitespace-nowrap" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>Dasar</td>
+                    <td className="w-3 align-top text-center text-black" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
+                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5', textAlign: 'justify', textAlignLast: 'left', textJustify: 'inter-word', letterSpacing: 'normal' }}>
+                      <ol className="list-decimal list-outside ml-4 p-0 space-y-2 text-justify text-slate-900" style={{ margin: 0, marginTop: 0, paddingTop: 0, paddingLeft: '1.25rem' }}>
                         {getFlattenedDasarList().map((item, index) => (
-                          <li key={`st-dasar-${index}`} style={{ margin: 0, padding: 0, lineHeight: '1.5' }}>
+                          <li key={`st-dasar-${index}`} style={{ margin: 0, marginTop: 0, paddingTop: 0, padding: 0, lineHeight: '1.5' }}>
                             {renderFormattedDasarItem(item)}
                           </li>
                         ))}
@@ -951,8 +1005,8 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </table>
 
               {/* MEMERINTAHKAN SECTION */}
-              <div className="memperin text-center font-normal tracking-widest text-slate-900 border-y border-stone-300 py-1 my-4 text-sm">
-                M E M E R I N T A H K A N :
+              <div className="memperin text-center font-normal tracking-wide text-slate-900 border-y border-stone-300 py-1 my-4 text-sm">
+                MEMERINTAHKAN :
               </div>
 
               {/* KEPADA SECTION */}
@@ -1016,11 +1070,11 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               <table className="dasar-table w-full text-xs md:text-sm border-collapse select-text">
                 <tbody>
                   <tr>
-                    <td className="w-16 md:w-20 align-top text-black whitespace-nowrap" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>Untuk</td>
-                    <td className="w-3 align-top text-center text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
-                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>
-                      <ol className="list-decimal list-outside ml-4 p-0 space-y-1.5 text-justify text-slate-900" style={{ margin: 0, padding: 0, paddingLeft: '1.25rem' }}>
-                        <li style={{ margin: 0, padding: 0, lineHeight: '1.5' }}>
+                    <td className="w-16 md:w-20 align-top text-black whitespace-nowrap" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>Untuk</td>
+                    <td className="w-3 align-top text-center text-black" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
+                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5', textAlign: 'justify', textAlignLast: 'left', textJustify: 'inter-word', letterSpacing: 'normal' }}>
+                      <ol className="list-decimal list-outside ml-4 p-0 space-y-1.5 text-justify text-slate-900" style={{ margin: 0, marginTop: 0, paddingTop: 0, paddingLeft: '1.25rem' }}>
+                        <li style={{ margin: 0, marginTop: 0, paddingTop: 0, padding: 0, lineHeight: '1.5' }}>
                           Melaksanakan Perjalanan Dinas dalam rangka: "{travel.purpose}".
                         </li>
                         <li>
@@ -1059,14 +1113,14 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </table>
 
               {/* SIGNATURE BLOCK */}
-              <div className="mt-12 flex flex-col items-end break-inside-avoid">
+              <div className="mt-6 md:mt-8 flex flex-col items-end break-inside-avoid">
                 <div className="sig-container w-64 text-xs md:text-sm text-slate-900 text-left">
                   <p className="m-0 text-left">Dikeluarkan di : Tabalong</p>
                   <p className="m-0 text-left border-b border-black pb-1">Pada Tanggal : {formatIndoDate(travel.taskLetterDate)}</p>
                   
-                  <div className="mt-3 text-left">
+                  <div className="mt-2 text-left">
                     <p className="m-0 text-left">{formatProperJabatan(signatory?.jabatan || "Inspektur Daerah")},</p>
-                    <div className="sig-box min-h-[110px] flex flex-col justify-center my-2" style={{ minHeight: '110px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div className="sig-box flex flex-col justify-center my-1.5" style={{ minHeight: sigBoxHeight, height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       {signSpecialCode ? (
                         <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                           {signCodeCase === "uppercase" 
@@ -1105,79 +1159,79 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </div>
 
               {/* DASAR SECTION */}
-              <table className="format-baru-table w-full text-xs md:text-sm border-collapse select-text mb-4" style={{ fontFamily: 'inherit' }}>
+              <table className="format-baru-table w-full text-xs md:text-sm border-collapse select-text mb-3" style={{ fontFamily: 'inherit' }}>
                 <tbody>
                   <tr>
-                    <td className="align-top text-black whitespace-nowrap" style={{ width: '80px', verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>Dasar</td>
-                    <td className="align-top text-center text-black" style={{ width: '20px', verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
-                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>
-                      {dasarTextFormatBaru || defaultDasarTextBaru}
+                    <td className="align-top text-black whitespace-nowrap" style={{ width: '80px', verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>Dasar</td>
+                    <td className="align-top text-center text-black" style={{ width: '20px', verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
+                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5', textAlign: 'justify', textAlignLast: 'left', textJustify: 'inter-word', letterSpacing: 'normal', wordSpacing: 'normal' }}>
+                      {cleanSpacing(dasarTextFormatBaru || defaultDasarTextBaru)}
                     </td>
                   </tr>
                 </tbody>
               </table>
 
               {/* MEMERINTAHKAN SECTION */}
-              <div className="text-center font-normal tracking-wide text-black my-5 text-xs md:text-sm">
+              <div className="format-baru-memperin text-center font-normal tracking-wide text-black my-2.5 text-xs md:text-sm">
                 MEMERINTAHKAN :
               </div>
 
               {/* KEPADA SECTION */}
-              <table className="format-baru-table w-full text-xs md:text-sm border-collapse select-text mb-4" style={{ fontFamily: 'inherit' }}>
+              <table className="format-baru-table w-full text-xs md:text-sm border-collapse select-text mb-3" style={{ fontFamily: 'inherit' }}>
                 <tbody>
                   <tr>
-                    <td className="align-top text-black whitespace-nowrap" style={{ width: '80px', verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>Kepada</td>
-                    <td className="align-top text-center text-black" style={{ width: '20px', verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
-                    <td className="align-top" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px' }}>
+                    <td className="align-top text-black whitespace-nowrap" style={{ width: '80px', verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>Kepada</td>
+                    <td className="align-top text-center text-black" style={{ width: '20px', verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
+                    <td className="align-top" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px' }}>
                       <table className="w-full text-xs md:text-sm text-black border-none border-collapse text-left">
                         <tbody>
                           {participants.map((emp, index) => (
                             <React.Fragment key={`new-p-${emp.id}-${index}`}>
                               {/* 1. Nama */}
                               <tr>
-                                <td className="align-top py-0.5 text-black" style={{ width: '24px' }}>
+                                <td className="align-top py-0.5 text-black" style={{ width: '24px', verticalAlign: 'top' }}>
                                   {participants.length > 1 ? `${index + 1}.` : "1."}
                                 </td>
-                                <td className="align-top py-0.5 text-black whitespace-nowrap" style={{ width: '135px' }}>
+                                <td className="align-top py-0.5 text-black whitespace-nowrap" style={{ width: '135px', verticalAlign: 'top' }}>
                                   Nama
                                 </td>
-                                <td className="align-top py-0.5 text-center text-black" style={{ width: '16px' }}>:</td>
-                                <td className="align-top py-0.5 text-black">{formatProperName(emp.name)}</td>
+                                <td className="align-top py-0.5 text-center text-black" style={{ width: '16px', verticalAlign: 'top' }}>:</td>
+                                <td className="align-top py-0.5 text-black" style={{ verticalAlign: 'top' }}>{formatProperName(emp.name)}</td>
                               </tr>
                               {/* Pangkat/Golongan */}
                               <tr>
-                                <td className="align-top py-0.5 text-black"></td>
-                                <td className="align-top py-0.5 text-black whitespace-nowrap">
+                                <td className="align-top py-0.5 text-black" style={{ verticalAlign: 'top' }}></td>
+                                <td className="align-top py-0.5 text-black whitespace-nowrap" style={{ verticalAlign: 'top' }}>
                                   Pangkat/Golongan
                                 </td>
-                                <td className="align-top py-0.5 text-center text-black">:</td>
-                                <td className="align-top py-0.5 text-black">
+                                <td className="align-top py-0.5 text-center text-black" style={{ verticalAlign: 'top' }}>:</td>
+                                <td className="align-top py-0.5 text-black" style={{ verticalAlign: 'top' }}>
                                   {emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "Non-Eselon / Non-ASN"}
                                 </td>
                               </tr>
                               {/* NIP */}
                               <tr>
-                                <td className="align-top py-0.5 text-black"></td>
-                                <td className="align-top py-0.5 text-black whitespace-nowrap">
+                                <td className="align-top py-0.5 text-black" style={{ verticalAlign: 'top' }}></td>
+                                <td className="align-top py-0.5 text-black whitespace-nowrap" style={{ verticalAlign: 'top' }}>
                                   NIP
                                 </td>
-                                <td className="align-top py-0.5 text-center text-black">:</td>
-                                <td className="align-top py-0.5 font-mono text-black">
+                                <td className="align-top py-0.5 text-center text-black" style={{ verticalAlign: 'top' }}>:</td>
+                                <td className="align-top py-0.5 font-mono text-black" style={{ verticalAlign: 'top' }}>
                                   {emp.nip !== "-" ? emp.nip : "-"}
                                 </td>
                               </tr>
                               {/* Jabatan */}
                               <tr>
-                                <td className="align-top py-0.5 text-black"></td>
-                                <td className="align-top py-0.5 text-black whitespace-nowrap">
+                                <td className="align-top py-0.5 text-black" style={{ verticalAlign: 'top' }}></td>
+                                <td className="align-top py-0.5 text-black whitespace-nowrap" style={{ verticalAlign: 'top' }}>
                                   Jabatan
                                 </td>
-                                <td className="align-top py-0.5 text-center text-black">:</td>
-                                <td className="align-top py-0.5 text-black">{formatProperJabatan(emp.jabatan)}</td>
+                                <td className="align-top py-0.5 text-center text-black" style={{ verticalAlign: 'top' }}>:</td>
+                                <td className="align-top py-0.5 text-black" style={{ verticalAlign: 'top' }}>{formatProperJabatan(emp.jabatan)}</td>
                               </tr>
                               {index < participants.length - 1 && (
                                 <tr>
-                                  <td colSpan={4} className="h-3 border-b border-dashed border-stone-200"></td>
+                                  <td colSpan={4} className="h-2 border-b border-dashed border-stone-200"></td>
                                 </tr>
                               )}
                             </React.Fragment>
@@ -1190,22 +1244,22 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </table>
 
               {/* UNTUK SECTION */}
-              <table className="format-baru-table w-full text-xs md:text-sm border-collapse select-text mb-6" style={{ fontFamily: 'inherit' }}>
+              <table className="format-baru-table w-full text-xs md:text-sm border-collapse select-text mb-4" style={{ fontFamily: 'inherit' }}>
                 <tbody>
                   <tr>
-                    <td className="align-top text-black whitespace-nowrap" style={{ width: '80px', verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>Untuk</td>
-                    <td className="align-top text-center text-black" style={{ width: '20px', verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
-                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>
-                      {untukTextFormatBaru || defaultUntukTextBaru}
+                    <td className="align-top text-black whitespace-nowrap" style={{ width: '80px', verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>Untuk</td>
+                    <td className="align-top text-center text-black" style={{ width: '20px', verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
+                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5', textAlign: 'justify', textAlignLast: 'left', textJustify: 'inter-word', letterSpacing: 'normal', wordSpacing: 'normal' }}>
+                      {cleanSpacing(untukTextFormatBaru || defaultUntukTextBaru)}
                     </td>
                   </tr>
                 </tbody>
               </table>
 
               {/* SIGNATURE BLOCK (SESUAI CONTOH KANAN RATA KIRI) */}
-              <div className="mt-10 flex flex-col items-end break-inside-avoid">
+              <div className="mt-6 md:mt-8 flex flex-col items-end break-inside-avoid">
                 <div className="sig-container w-72 text-xs md:text-sm text-black text-left">
-                  <table className="border-none border-collapse mb-2 text-xs md:text-sm w-full text-left" style={{ fontFamily: 'inherit' }}>
+                  <table className="border-none border-collapse mb-1.5 text-xs md:text-sm w-full text-left" style={{ fontFamily: 'inherit' }}>
                     <tbody>
                       <tr>
                         <td className="py-0.5 pr-1 text-left whitespace-nowrap" style={{ width: '105px' }}>Dikeluarkan di</td>
@@ -1220,10 +1274,10 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                     </tbody>
                   </table>
 
-                  <div className="mt-3 text-left">
+                  <div className="mt-2 text-left">
                     <p className="m-0 text-left leading-tight">{formatProperJabatan(signatory?.jabatan || "Inspektur Daerah")},</p>
                     
-                    <div className="sig-box min-h-[95px] flex flex-col justify-center my-2" style={{ minHeight: '95px', height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div className="sig-box flex flex-col justify-center my-1.5" style={{ minHeight: sigBoxHeight, height: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       {signSpecialCode ? (
                         <p className="m-0 font-mono text-slate-800 text-left" style={{ fontSize: signCodeSize, lineHeight: '1.2', fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
                           {signCodeCase === "uppercase" 
