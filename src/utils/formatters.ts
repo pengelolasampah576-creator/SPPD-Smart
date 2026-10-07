@@ -41,16 +41,36 @@ const DEGREE_MAP: Record<string, string> = {
   "s.ip": "S.IP",
   "sip": "S.IP",
   "frmp": "FRMP",
+  "frmp.": "FRMP",
   "cpa": "CPA",
+  "cpa.": "CPA",
   "ca": "CA",
+  "ca.": "CA",
   "cia": "CIA",
+  "cia.": "CIA",
   "qia": "QIA",
+  "qia.": "QIA",
   "cgcae": "CGCAE",
+  "cgcae.": "CGCAE",
   "crgp": "CRGP",
+  "crgp.": "CRGP",
   "csep": "CSEP",
+  "csep.": "CSEP",
   "qrsa": "QRSA",
+  "qrsa.": "QRSA",
   "cisa": "CISA",
+  "cisa.": "CISA",
+  "crmo": "CRMO",
+  "crmo.": "CRMO",
+  "cfe": "CFE",
+  "cfe.": "CFE",
 };
+
+// Known professional certifications that must always be uppercase
+const KNOWN_CERTIFICATIONS = new Set([
+  "FRMP", "CRGP", "CRMO", "CGCAE", "CPA", "CA", "CIA", "QIA", "CSEP", 
+  "QRSA", "CISA", "CFE", "CSFA", "ASEAN ENG", "CFRM", "CPRM"
+]);
 
 // Common prefixes/honorifics
 const PREFIX_MAP: Record<string, string> = {
@@ -73,11 +93,11 @@ const PREFIX_MAP: Record<string, string> = {
 // Common lowercase conjunctions/prepositions in Indonesian
 const LOWERCASE_WORDS = new Set(["dan", "di", "ke", "dari", "pada", "untuk", "dengan", "atas", "oleh", "yang", "atau", "sebagai"]);
 
-// Known acronyms that should remain uppercase
+// Known acronyms that should remain uppercase (Note: KAB/KAB. is excluded because Kabupaten is abbreviated as 'Kab.')
 const ACRONYMS = new Set([
   "SKPD", "ASN", "PNS", "PPPK", "NIP", "SPD", "PPTK", "PA", "KPA", "PPK", 
-  "DPA", "APBD", "APBN", "BAPEDA", "BPK", "BPKP", "KPK", "BKPSDM", "KAB.", 
-  "KAB", "RI", "UPTD", "OPD", "SOP", "KPI", "IT", "HRD"
+  "DPA", "APBD", "APBN", "BAPEDA", "BPK", "BPKP", "KPK", "BKPSDM", 
+  "RI", "UPTD", "OPD", "SOP", "KPI", "IT", "HRD"
 ]);
 
 /**
@@ -112,23 +132,43 @@ export const formatProperName = (fullName?: string): string => {
 
   const formattedDegrees = degrees.map(deg => {
     const clean = deg.trim();
+    if (!clean) return "";
+
+    const cleanNoTrailingDot = clean.replace(/\.+$/, "").trim();
     const key = clean.toLowerCase().replace(/\s+/g, "");
-    if (DEGREE_MAP[key]) {
-      return DEGREE_MAP[key];
+    const keyNoDots = clean.toLowerCase().replace(/[\s.]+/g, "");
+
+    // 1. Direct match in DEGREE_MAP (with or without dots)
+    if (DEGREE_MAP[key]) return DEGREE_MAP[key];
+    if (DEGREE_MAP[clean.toLowerCase()]) return DEGREE_MAP[clean.toLowerCase()];
+    if (DEGREE_MAP[keyNoDots]) return DEGREE_MAP[keyNoDots];
+    if (DEGREE_MAP[cleanNoTrailingDot.toLowerCase()]) return DEGREE_MAP[cleanNoTrailingDot.toLowerCase()];
+
+    // 2. Known professional certifications (FRMP, CRGP, CGCAE, CPA, CIA, etc.) -> ALWAYS UPPERCASE
+    const upperNoDots = keyNoDots.toUpperCase();
+    if (KNOWN_CERTIFICATIONS.has(upperNoDots)) {
+      return upperNoDots;
     }
-    // Check with dots
-    if (DEGREE_MAP[clean.toLowerCase()]) {
-      return DEGREE_MAP[clean.toLowerCase()];
+
+    // 3. Known acronym degrees like SE, MT, MM, SH, ST, SI, MH, MP, MS, etc.
+    if (/^(se|mt|mm|sh|st|si|mh|mp|ms|ak|apt|frmp|crgp|crmo|cgcae|cpa|ca|cia|qia|csep|qrsa|cisa|cfe)$/i.test(keyNoDots)) {
+      return keyNoDots.toUpperCase();
     }
-    // Mixed case already (e.g. S.Sos)
+
+    // 4. Mixed case already (e.g. S.Sos, M.Si, S.Kom, S.Pd)
     if (/[a-z]/.test(clean) && /[A-Z]/.test(clean)) {
+      if (KNOWN_CERTIFICATIONS.has(cleanNoTrailingDot.toUpperCase())) {
+        return cleanNoTrailingDot.toUpperCase();
+      }
       return clean;
     }
-    // If short (<= 4 chars) and was uppercase, or all caps
-    if (clean.length <= 4) {
+
+    // 5. If short (<= 4 chars without dots)
+    if (keyNoDots.length <= 4) {
       return clean.toUpperCase();
     }
-    // Fallback: Title Case
+
+    // 6. Fallback: Title Case
     return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
   });
 
@@ -139,6 +179,7 @@ export const formatProperName = (fullName?: string): string => {
  * Formats an Indonesian government job title (jabatan) into Proper Title Case.
  * E.g. "INSPEKTUR DAERAH" -> "Inspektur Daerah"
  * "KASUBBAG UMUM DAN KEPEGAWAIAN" -> "Kasubbag Umum dan Kepegawaian"
+ * "Inspektur Daerah Kab. Tabalong" -> "Inspektur Daerah Kab. Tabalong"
  */
 export const formatProperJabatan = (jabatan?: string): string => {
   if (!jabatan || typeof jabatan !== "string") return "Inspektur Daerah";
@@ -149,8 +190,17 @@ export const formatProperJabatan = (jabatan?: string): string => {
     .split(/\s+/)
     .map((w, idx) => {
       const lower = w.toLowerCase().replace(/[.,/()]/g, "");
+      const lowerWithDot = w.toLowerCase().replace(/[/()]/g, "");
       const upper = w.toUpperCase();
       
+      // Special handles - evaluated BEFORE ACRONYMS so 'Kab.' is never forced to all-caps 'KAB.'
+      if (lower === "kab" || lowerWithDot === "kab." || w.toLowerCase() === "kab" || w.toLowerCase() === "kab.") {
+        return "Kab.";
+      }
+      if (lower === "kasubbag") return "Kasubbag";
+      if (lower === "kasubbid") return "Kasubbid";
+      if (lower === "sekda") return "Sekda";
+
       // Keep known acronyms
       if (ACRONYMS.has(upper) || ACRONYMS.has(w)) {
         return upper;
@@ -163,11 +213,6 @@ export const formatProperJabatan = (jabatan?: string): string => {
       if (idx > 0 && LOWERCASE_WORDS.has(lower)) {
         return w.toLowerCase();
       }
-      // Special handles
-      if (lower === "kab" || lower === "kab.") return "Kab.";
-      if (lower === "kasubbag") return "Kasubbag";
-      if (lower === "kasubbid") return "Kasubbid";
-      if (lower === "sekda") return "Sekda";
 
       // Normal capitalize
       return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();

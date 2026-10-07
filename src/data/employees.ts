@@ -3,7 +3,7 @@ import { Employee } from "../types";
 export const MASTER_EMPLOYEES: Employee[] = [
   {
     id: "emp-1",
-    name: "Diyanto, SE, MT",
+    name: "Diyanto, SE, MT, FRMP",
     nip: "19711013 200501 1 005",
     pangkat: "Pembina Tk. I",
     jabatan: "Inspektur"

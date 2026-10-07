@@ -5,13 +5,26 @@ import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
 import { getFormattedPangkatGolongan } from "../utils/pangkat";
 import { formatProperName, formatProperJabatan, formatProperText } from "../utils/formatters";
 
+export const getFormattedTransportMode = (mode?: string): string => {
+  if (!mode) return "Transportasi Darat";
+  const lower = mode.toLowerCase().trim();
+  if (lower.includes("udara") || lower.includes("pesawat") || lower.includes("flight") || lower.includes("air")) {
+    return "Transportasi Udara";
+  }
+  if (lower.includes("laut") || lower.includes("feri") || lower.includes("kapal") || lower.includes("boat") || lower.includes("sea")) {
+    return "Transportasi Laut";
+  }
+  return "Transportasi Darat";
+};
+
 interface DocumentSPDProps {
   key?: React.Key;
   travel: Travel;
   employees: Employee[];
+  onUpdateTravel?: (travel: Travel) => void;
 }
 
-export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
+export default function DocumentSPD({ travel, employees, onUpdateTravel }: DocumentSPDProps) {
   const participants = travel.employeeIds
     .map(id => employees.find(e => e.id === id))
     .filter(Boolean) as Employee[];
@@ -188,7 +201,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
   useEffect(() => {
     if (!activeEmployee) return;
 
-    const currentKey = `${travel.id}-${activeEmployeeId}`;
+    const currentKey = `${travel.id}-${activeEmployeeId}-${travel.transportMode || ''}`;
     if (currentKey !== prevSyncKey) {
       setPrevSyncKey(currentKey);
 
@@ -217,7 +230,21 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
           if (data.jabatanTraveler !== undefined) setJabatanTraveler(data.jabatanTraveler);
           if (data.tingkatBiaya !== undefined) setTingkatBiaya(data.tingkatBiaya);
           if (data.maksudDinas !== undefined) setMaksudDinas(data.maksudDinas);
-          if (data.alatTransport !== undefined) setAlatTransport(data.alatTransport);
+          
+          const mappedFromTravel = getFormattedTransportMode(travel.transportMode);
+          if (data.cachedTransportMode && data.cachedTransportMode !== travel.transportMode) {
+            setAlatTransport(mappedFromTravel);
+          } else if (data.alatTransport !== undefined) {
+            // Auto-heal if cached mode was mistakenly Udara while travel mode is Darat
+            if (travel.transportMode && travel.transportMode.toLowerCase().includes("darat") && data.alatTransport.toLowerCase().includes("udara")) {
+              setAlatTransport("Transportasi Darat");
+            } else {
+              setAlatTransport(data.alatTransport);
+            }
+          } else {
+            setAlatTransport(mappedFromTravel);
+          }
+
           if (data.tempatBerangkat !== undefined) setTempatBerangkat(data.tempatBerangkat);
           if (data.tempatTujuan !== undefined) setTempatTujuan(data.tempatTujuan);
           if (data.lamanyaDinas !== undefined) setLamanyaDinas(data.lamanyaDinas);
@@ -349,6 +376,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
       tingkatBiaya,
       maksudDinas,
       alatTransport,
+      cachedTransportMode: travel.transportMode,
       tempatBerangkat,
       tempatTujuan,
       lamanyaDinas,
@@ -449,7 +477,7 @@ export default function DocumentSPD({ travel, employees }: DocumentSPDProps) {
     setTingkatBiaya("Perjalanan Dinas Luar Daerah Luar Provinsi");
 
     setMaksudDinas("Penetapan dan Pemanggilan Peserta Ujikom Perjenjangan Jabatan Fungsional PPUPD Ahli Muda Angkatan II Tahun 2025");
-    setAlatTransport("Transportasi Udara");
+    setAlatTransport(travel.transportMode ? getFormattedTransportMode(travel.transportMode) : "Transportasi Darat");
     setTempatBerangkat("Tanjung");
     setTempatTujuan("Makassar");
     setLamanyaDinas("4 (empat) hari");

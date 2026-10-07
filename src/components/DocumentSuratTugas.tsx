@@ -3,6 +3,7 @@ import { Employee, Travel } from "../types";
 import { Printer, FileBadge2, Settings } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
 import { getFormattedPangkatGolongan } from "../utils/pangkat";
+import { formatProperName, formatProperJabatan } from "../utils/formatters";
 
 interface DocumentSuratTugasProps {
   key?: React.Key;
@@ -51,77 +52,6 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
       return days[d.getDay()] || "";
     }
     return "";
-  };
-
-  // Helper to format proper case for inspector title/jabatan
-  const formatProperJabatan = (jabatan?: string): string => {
-    if (!jabatan) return "Inspektur Daerah";
-    if (jabatan.toUpperCase() === jabatan) {
-      return jabatan
-        .toLowerCase()
-        .split(/\s+/)
-        .map(w => {
-          if (["dan", "di", "ke", "dari", "pada"].includes(w)) return w;
-          if (["skpd", "asn", "pns"].includes(w)) return w.toUpperCase();
-          if (/^(i|ii|iii|iv|v|vi)$/i.test(w)) return w.toUpperCase();
-          return w.charAt(0).toUpperCase() + w.slice(1);
-        })
-        .join(" ");
-    }
-    return jabatan;
-  };
-
-  // Helper to format proper name with academic degrees preserved
-  const formatProperName = (fullName?: string): string => {
-    if (!fullName) return "";
-    const parts = fullName.split(",");
-    const baseName = parts[0].trim();
-    const degrees = parts.slice(1).map(d => d.trim()).filter(Boolean);
-
-    const formattedBase = baseName
-      .split(/\s+/)
-      .map(word => {
-        const lower = word.toLowerCase();
-        if (lower === "dr." || lower === "dr") return "Dr.";
-        if (lower === "drs." || lower === "drs") return "Drs.";
-        if (lower === "dra." || lower === "dra") return "Dra.";
-        if (lower === "ir." || lower === "ir") return "Ir.";
-        if (lower === "prof." || lower === "prof") return "Prof.";
-        if (lower === "h." || lower === "h") return "H.";
-        if (lower === "hj." || lower === "hj") return "Hj.";
-        if (word.length === 0) return "";
-        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-      })
-      .join(" ");
-
-    if (degrees.length === 0) {
-      return formattedBase;
-    }
-
-    const formattedDegrees = degrees.map(deg => {
-      const clean = deg.trim();
-      if (/^s\.?\s*sos\.?$/i.test(clean)) return "S.Sos";
-      if (/^m\.?\s*si\.?$/i.test(clean)) return "M.Si";
-      if (/^s\.?\s*kom\.?$/i.test(clean)) return "S.Kom";
-      if (/^s\.?\s*pd\.?$/i.test(clean)) return "S.Pd";
-      if (/^m\.?\s*pd\.?$/i.test(clean)) return "M.Pd";
-      if (/^s\.?\s*ked\.?$/i.test(clean)) return "S.Ked";
-      if (/^s\.?\s*kep\.?$/i.test(clean)) return "S.Kep";
-      if (/^s\.?\s*pt\.?$/i.test(clean)) return "S.Pt";
-      if (/^s\.?\s*hut\.?$/i.test(clean)) return "S.Hut";
-      if (/^s\.?\s*st\.?$/i.test(clean)) return "S.ST";
-      if (/^s\.?\s*tr\.?$/i.test(clean)) return "S.Tr";
-      if (/^frmp$/i.test(clean)) return "FRMP";
-      if (/^cpa$/i.test(clean)) return "CPA";
-      if (/^ca$/i.test(clean)) return "CA";
-      if (/^cia$/i.test(clean)) return "CIA";
-      if (/^qia$/i.test(clean)) return "QIA";
-      if (/^cgcae$/i.test(clean)) return "CGCAE";
-      if (/[a-z]/.test(clean) && /[A-Z]/.test(clean)) return clean;
-      return clean.toUpperCase();
-    });
-
-    return `${formattedBase}, ${formattedDegrees.join(", ")}`;
   };
 
   const cleanSpacing = (str?: string): string => {

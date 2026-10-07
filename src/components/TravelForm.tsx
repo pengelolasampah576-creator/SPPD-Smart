@@ -215,7 +215,7 @@ export default function TravelForm({
       setReturnDate("");
       setIsNonConsecutive(false);
       setCustomDatesList([]);
-      setTransportMode("Pesawat Udara (Komersil)");
+      setTransportMode("Transportasi Darat");
       setBudgetSource("DPA-SKPD Inspektorat Daerah Kabupaten Tabalong Tahun Anggaran 2026");
       setBudgetCode("5.1.02.04.001.00001");
       setSignatoryId(defaultSignatory);
