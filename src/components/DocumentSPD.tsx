@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Employee, Travel } from "../types";
-import { Printer, Settings, RefreshCw, FileText, Layers } from "lucide-react";
+import { Printer, Settings, RefreshCw, FileText, Layers, Eye, CheckCircle2, ZoomIn, ZoomOut, X } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
 import { getFormattedPangkatGolongan } from "../utils/pangkat";
 import { formatProperName, formatProperJabatan, formatProperText } from "../utils/formatters";
@@ -89,6 +89,9 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
 
   // --- INTERACTIVE CONFIGURATION PANEL STATES ---
   const [showConfig, setShowConfig] = useState(false);
+  const [isPrintMode, setIsPrintMode] = useState(false);
+  const [compactSpacing, setCompactSpacing] = useState(true);
+  const [zoomScale, setZoomScale] = useState<number>(100);
   const [activeTab, setActiveTab] = useState<"all" | "depan" | "belakang">("all");
 
   // Header State
@@ -730,6 +733,7 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
                 .sub-nested-table td {
                   border: none !important;
                   padding: 1.5px 0 !important;
+                  vertical-align: top !important;
                 }
 
                 /* Inner standard Pengikut sub-table */
@@ -741,6 +745,7 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
                 .pengikut-inner-table td {
                   border-bottom: 1px solid #ddd;
                   padding: 3px 4px;
+                  vertical-align: top !important;
                 }
                 .pengikut-header-row td {
                   font-weight: normal;
@@ -801,6 +806,16 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
                   height: auto;
                   margin-bottom: 8px;
                 }
+
+                ${compactSpacing ? `
+                  .spd-main-table td { padding: 3px 5px !important; line-height: 1.35 !important; }
+                  .back-table td { padding: 4px 6px !important; line-height: 1.35 !important; }
+                  .kop-header { margin-bottom: 6px !important; padding-bottom: 4px !important; }
+                  .doc-title-box { margin-top: 6px !important; margin-bottom: 4px !important; }
+                  .sig-box { min-height: 75px !important; }
+                  .signature-box-mini { min-height: 75px !important; }
+                  .footer-sig-block { margin-top: 8px !important; }
+                ` : ''}
 
                 @media print {
                   body { padding: 0; margin: 0; }
@@ -1475,6 +1490,7 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
             #spd-printable .sub-nested-table td {
               border: none !important;
               padding: 1.5px 0 !important;
+              vertical-align: top !important;
             }
             #spd-printable .back-table {
               width: 100%;

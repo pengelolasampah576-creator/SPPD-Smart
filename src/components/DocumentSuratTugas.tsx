@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Employee, Travel } from "../types";
-import { Printer, FileBadge2, Settings } from "lucide-react";
+import { Printer, FileBadge2, Settings, Eye, FileText, CheckCircle2, ZoomIn, ZoomOut, X, Sparkles } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
 import { getFormattedPangkatGolongan } from "../utils/pangkat";
 import { formatProperName, formatProperJabatan } from "../utils/formatters";
@@ -16,6 +16,9 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
   const participants = travel.employeeIds.map(id => employees.find(e => e.id === id)).filter(Boolean) as Employee[];
 
   const [showConfig, setShowConfig] = useState(false);
+  const [isPrintMode, setIsPrintMode] = useState(false);
+  const [compactSpacing, setCompactSpacing] = useState(true);
+  const [zoomScale, setZoomScale] = useState<number>(100);
   const [formatType, setFormatType] = useState<"standar" | "naskah_baru">("standar");
   const [docFontFamily, setDocFontFamily] = useState<"Arial" | "Times New Roman">("Arial");
   const [docFontSize, setDocFontSize] = useState<"12pt" | "11pt" | "10pt" | "14px">("12pt");
@@ -403,6 +406,76 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   letter-spacing: normal;
                 }
                 
+                /* Rigid Flexbox Layout for Dasar, Kepada, Untuk */
+                .doc-rigid-row {
+                  display: flex !important;
+                  flex-direction: row !important;
+                  align-items: flex-start !important;
+                  justify-content: flex-start !important;
+                  width: 100% !important;
+                  margin-bottom: 10px !important;
+                  page-break-inside: auto !important;
+                }
+                .doc-rigid-label {
+                  width: 80px !important;
+                  min-width: 80px !important;
+                  max-width: 80px !important;
+                  flex: 0 0 80px !important;
+                  flex-shrink: 0 !important;
+                  align-self: flex-start !important;
+                  vertical-align: top !important;
+                  text-align: left !important;
+                  line-height: 1.5 !important;
+                  color: #000 !important;
+                  font-weight: normal !important;
+                  padding: 0 4px 0 0 !important;
+                  margin: 0 !important;
+                }
+                .doc-rigid-colon {
+                  width: 20px !important;
+                  min-width: 20px !important;
+                  max-width: 20px !important;
+                  flex: 0 0 20px !important;
+                  flex-shrink: 0 !important;
+                  text-align: center !important;
+                  align-self: flex-start !important;
+                  vertical-align: top !important;
+                  line-height: 1.5 !important;
+                  color: #000 !important;
+                  padding: 0 !important;
+                  margin: 0 !important;
+                }
+                .doc-rigid-content {
+                  flex: 1 1 0% !important;
+                  min-width: 0 !important;
+                  align-self: flex-start !important;
+                  vertical-align: top !important;
+                  line-height: 1.5 !important;
+                  padding: 0 !important;
+                  margin: 0 !important;
+                }
+                .participant-card {
+                  width: 100% !important;
+                  break-inside: avoid !important;
+                  page-break-inside: avoid !important;
+                }
+                
+                /* Layout utilities */
+                .flex { display: flex !important; }
+                .flex-col { flex-direction: column !important; }
+                .items-start { align-items: flex-start !important; }
+                .self-start { align-self: flex-start !important; }
+                .shrink-0 { flex-shrink: 0 !important; }
+                .flex-1 { flex: 1 1 0% !important; min-width: 0 !important; }
+                .w-6 { width: 24px !important; min-width: 24px !important; }
+                .w-20 { width: 80px !important; min-width: 80px !important; }
+                .w-36 { width: 135px !important; min-width: 135px !important; }
+                .w-4 { width: 16px !important; min-width: 16px !important; }
+                .w-5 { width: 20px !important; min-width: 20px !important; }
+                .w-full { width: 100% !important; }
+                .space-y-1 > * + * { margin-top: 4px !important; }
+                .space-y-2 > * + * { margin-top: 8px !important; }
+
                 /* Memerintahkan */
                 .memperin {
                   font-size: 13.5px;
@@ -487,6 +560,16 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   page-break-inside: avoid;
                 }
 
+                ${compactSpacing ? `
+                  .kop-header { margin-bottom: 10px !important; padding-bottom: 6px !important; }
+                  .doc-title { margin-top: 4px !important; margin-bottom: 1px !important; }
+                  .doc-subtitle { margin-bottom: 8px !important; }
+                  .doc-rigid-row { margin-bottom: 7px !important; }
+                  .memperin, .format-baru-memperin { margin-top: 6px !important; margin-bottom: 6px !important; padding-top: 2px !important; padding-bottom: 2px !important; }
+                  .sig-container { margin-top: 10px !important; }
+                  .space-y-2 > * + * { margin-top: 4px !important; }
+                ` : ''}
+
                 @media print {
                   body { margin: 0 !important; padding: 0 !important; }
                   @page { size: A4 portrait; margin: 1.5cm 2cm 1.5cm 2cm; }
@@ -545,6 +628,20 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
         </div>
         
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setIsPrintMode(!isPrintMode)}
+            className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition duration-150 cursor-pointer ${
+              isPrintMode 
+                ? "bg-blue-600 text-white border-blue-600 shadow-sm ring-2 ring-blue-300" 
+                : "bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
+            }`}
+            title="Lihat tata letak dalam ukuran lembar A4 sesungguhnya dengan gaya cetak teroptimasi"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>{isPrintMode ? "Print Mode (A4) Aktif" : "Print Mode (A4)"}</span>
+          </button>
+
           <button
             onClick={() => setShowConfig(!showConfig)}
             className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg border transition duration-150 cursor-pointer ${
@@ -853,11 +950,111 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
       )}
 
       {/* RENDER SHEET */}
-      <div className="border border-slate-300 p-8 md:p-12 bg-white max-w-3xl mx-auto shadow-sm select-text overflow-x-auto min-w-[320px]">
+      {isPrintMode && (
+        <div className="w-full max-w-[210mm] mx-auto mb-4 bg-slate-900 text-white p-4 rounded-xl shadow-xl border border-slate-700/80 flex flex-col md:flex-row items-center justify-between gap-3 animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-500/20 text-blue-400 rounded-lg shrink-0">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs font-bold flex flex-wrap items-center gap-2">
+                <span>Pratinjau Cetak Ukuran A4 (210 × 297 mm)</span>
+                <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> Gaya Cetak Teroptimasi Aktif
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-300 mt-0.5">
+                Spasi diperketat secara proporsional agar dokumen pas dalam 1 lembar A4 tanpa halaman kosong berlebih saat di-PDF-kan.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {/* Toggle Kerapatan Spasi */}
+            <div className="flex items-center bg-slate-800 rounded-lg p-0.5 border border-slate-700">
+              <button
+                type="button"
+                onClick={() => setCompactSpacing(!compactSpacing)}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+                  compactSpacing 
+                    ? "bg-blue-600 text-white shadow-xs" 
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+                title="Memadatkan jarak antar seksi agar pas 1 halaman A4"
+              >
+                {compactSpacing ? "Kompak (Pas 1 Hlm)" : "Spasi Normal"}
+              </button>
+            </div>
+
+            {/* Zoom Controls */}
+            <div className="flex items-center bg-slate-800 rounded-lg p-0.5 border border-slate-700">
+              <button
+                type="button"
+                onClick={() => setZoomScale(Math.max(60, zoomScale - 10))}
+                className="p-1 text-slate-400 hover:text-white cursor-pointer transition"
+                title="Perkecil Pratinjau (Zoom Out)"
+              >
+                <ZoomOut className="w-3.5 h-3.5" />
+              </button>
+              <span className="text-[10px] px-1.5 font-mono text-slate-200">{zoomScale}%</span>
+              <button
+                type="button"
+                onClick={() => setZoomScale(Math.min(130, zoomScale + 10))}
+                className="p-1 text-slate-400 hover:text-white cursor-pointer transition"
+                title="Perbesar Pratinjau (Zoom In)"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Quick Print Button */}
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm cursor-pointer transition"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Cetak / PDF</span>
+            </button>
+
+            {/* Exit Print Mode */}
+            <button
+              type="button"
+              onClick={() => setIsPrintMode(false)}
+              className="text-slate-400 hover:text-white hover:bg-slate-800 p-1.5 rounded-lg transition cursor-pointer"
+              title="Keluar dari Print Mode"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* PAPER CONTAINER VIEWPORT */}
+      <div className={`transition-all duration-300 ${
+        isPrintMode 
+          ? 'bg-slate-300/80 p-4 sm:p-8 rounded-2xl flex flex-col items-center overflow-x-auto min-h-[650px] shadow-inner' 
+          : 'border border-slate-300 p-8 md:p-12 bg-white max-w-3xl mx-auto shadow-sm select-text overflow-x-auto min-w-[320px]'
+      }`}>
         <div 
           id="surat-tugas-printable" 
-          className="text-black leading-relaxed max-w-[650px] mx-auto bg-white"
-          style={{
+          className={`text-black leading-relaxed bg-white transition-all select-text ${
+            isPrintMode 
+              ? 'shadow-2xl ring-1 ring-slate-400/60 rounded-xs' 
+              : 'max-w-[650px] mx-auto'
+          }`}
+          style={isPrintMode ? {
+            width: '210mm',
+            minHeight: '297mm',
+            boxSizing: 'border-box',
+            padding: compactSpacing ? '15mm 20mm 15mm 20mm' : '20mm 20mm 20mm 20mm',
+            fontFamily: docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif',
+            fontSize: docFontSize,
+            lineHeight: compactSpacing ? "1.4" : "1.5",
+            transform: zoomScale !== 100 ? `scale(${zoomScale / 100})` : undefined,
+            transformOrigin: 'top center',
+            marginBottom: zoomScale !== 100 ? `${-(297 * (1 - zoomScale / 100))}mm` : undefined,
+          } : {
             fontFamily: docFontFamily === "Arial" ? "Arial, 'Helvetica Neue', Helvetica, sans-serif" : '"Times New Roman", Times, serif',
             fontSize: docFontSize,
             lineHeight: "1.5"
@@ -875,6 +1072,69 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
             #surat-tugas-printable .sig-container {
               font-size: ${docFontSize} !important;
             }
+            #surat-tugas-printable .doc-rigid-row {
+              display: flex !important;
+              flex-direction: row !important;
+              align-items: flex-start !important;
+              justify-content: flex-start !important;
+              width: 100% !important;
+              ${isPrintMode && compactSpacing ? 'margin-bottom: 7px !important;' : 'margin-bottom: 10px !important;'}
+            }
+            #surat-tugas-printable .doc-rigid-label {
+              width: 80px !important;
+              min-width: 80px !important;
+              max-width: 80px !important;
+              flex: 0 0 80px !important;
+              flex-shrink: 0 !important;
+              align-self: flex-start !important;
+              vertical-align: top !important;
+              text-align: left !important;
+              line-height: 1.5 !important;
+              padding-right: 4px !important;
+              margin: 0 !important;
+            }
+            #surat-tugas-printable .doc-rigid-colon {
+              width: 20px !important;
+              min-width: 20px !important;
+              max-width: 20px !important;
+              flex: 0 0 20px !important;
+              flex-shrink: 0 !important;
+              text-align: center !important;
+              align-self: flex-start !important;
+              vertical-align: top !important;
+              line-height: 1.5 !important;
+              margin: 0 !important;
+            }
+            #surat-tugas-printable .doc-rigid-content {
+              flex: 1 1 0% !important;
+              min-width: 0 !important;
+              align-self: flex-start !important;
+              vertical-align: top !important;
+              line-height: 1.5 !important;
+              margin: 0 !important;
+            }
+            ${isPrintMode && compactSpacing ? `
+              #surat-tugas-printable .kop-header {
+                margin-bottom: 10px !important;
+                padding-bottom: 6px !important;
+              }
+              #surat-tugas-printable .doc-title {
+                margin-top: 4px !important;
+                margin-bottom: 1px !important;
+              }
+              #surat-tugas-printable .doc-subtitle {
+                margin-bottom: 8px !important;
+              }
+              #surat-tugas-printable .memperin, #surat-tugas-printable .format-baru-memperin {
+                margin-top: 6px !important;
+                margin-bottom: 6px !important;
+                padding-top: 2px !important;
+                padding-bottom: 2px !important;
+              }
+              #surat-tugas-printable .sig-container {
+                margin-top: 10px !important;
+              }
+            ` : ''}
           ` }} />
           
           {/* KOP SURAT */}
@@ -916,23 +1176,23 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </div>
 
               {/* DASAR / BACKGROUND */}
-              <table className="dasar-table w-full text-xs md:text-sm border-collapse select-text">
-                <tbody>
-                  <tr>
-                    <td className="w-16 md:w-20 align-top text-black whitespace-nowrap" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>Dasar</td>
-                    <td className="w-3 align-top text-center text-black" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
-                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5', textAlign: 'justify', textAlignLast: 'left', textJustify: 'inter-word', letterSpacing: 'normal' }}>
-                      <ol className="list-decimal list-outside ml-4 p-0 space-y-2 text-justify text-slate-900" style={{ margin: 0, marginTop: 0, paddingTop: 0, paddingLeft: '1.25rem' }}>
-                        {getFlattenedDasarList().map((item, index) => (
-                          <li key={`st-dasar-${index}`} style={{ margin: 0, marginTop: 0, paddingTop: 0, padding: 0, lineHeight: '1.5' }}>
-                            {renderFormattedDasarItem(item)}
-                          </li>
-                        ))}
-                      </ol>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="doc-rigid-row flex items-start w-full mb-3 text-xs md:text-sm select-text" style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'flex-start', width: '100%' }}>
+                <div className="doc-rigid-label shrink-0 self-start text-black whitespace-nowrap" style={{ width: '80px', minWidth: '80px', maxWidth: '80px', flex: '0 0 80px', flexShrink: 0, alignSelf: 'flex-start', textAlign: 'left', verticalAlign: 'top', paddingTop: '0px', lineHeight: '1.5' }}>
+                  Dasar
+                </div>
+                <div className="doc-rigid-colon shrink-0 self-start text-center text-black" style={{ width: '20px', minWidth: '20px', maxWidth: '20px', flex: '0 0 20px', flexShrink: 0, alignSelf: 'flex-start', textAlign: 'center', verticalAlign: 'top', paddingTop: '0px', lineHeight: '1.5' }}>
+                  :
+                </div>
+                <div className="doc-rigid-content flex-1 self-start text-justify text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start', textAlign: 'justify', textAlignLast: 'left', textJustify: 'inter-word', letterSpacing: 'normal', paddingTop: '0px', lineHeight: '1.5' }}>
+                  <ol className="list-decimal list-outside ml-4 p-0 space-y-2 text-justify text-slate-900" style={{ margin: 0, marginTop: 0, paddingTop: 0, paddingLeft: '1.25rem' }}>
+                    {getFlattenedDasarList().map((item, index) => (
+                      <li key={`st-dasar-${index}`} style={{ margin: 0, marginTop: 0, paddingTop: 0, padding: 0, lineHeight: '1.5' }}>
+                        {renderFormattedDasarItem(item)}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </div>
 
               {/* MEMERINTAHKAN SECTION */}
               <div className="memperin text-center font-normal tracking-wide text-slate-900 border-y border-stone-300 py-1 my-4 text-sm">
@@ -940,107 +1200,117 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </div>
 
               {/* KEPADA SECTION */}
-              <table className="participants-list-table w-full text-xs md:text-sm select-text">
-                <tbody>
-                  <tr>
-                    <td className="w-16 md:w-20 align-top text-black whitespace-nowrap" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>Kepada</td>
-                    <td className="w-3 align-top text-center text-black" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
-                    <td className="align-top" style={{ verticalAlign: 'top', paddingTop: '1px', paddingBottom: '1px' }}>
-                      <table className="w-full text-xs md:text-sm text-black border-none border-collapse text-left">
-                        <tbody>
-                          {participants.map((emp, index) => (
-                            <React.Fragment key={`st-p-${emp.id}-${index}`}>
-                              {/* Nama Row */}
-                              <tr className="break-inside-avoid">
-                                <td className="w-6 align-top py-0.5 text-black" rowSpan={4}>
-                                  {index + 1}.
-                                </td>
-                                 <td className="w-32 align-top py-0 text-black">Nama</td>
-                                <td className="w-4 align-top py-0 text-center text-black">:</td>
-                                <td className="align-top py-0 text-black">{formatProperName(emp.name)}</td>
-                              </tr>
-                              {/* NIP Row */}
-                              <tr className="break-inside-avoid">
-                                <td className="align-top py-0 text-black">NIP</td>
-                                <td className="align-top py-0 text-center text-black">:</td>
-                                <td className="align-top py-0 font-mono text-black">
-                                  {emp.nip !== "-" ? emp.nip : "-"}
-                                </td>
-                              </tr>
-                              {/* Pangkat/Gol Row */}
-                              <tr className="break-inside-avoid">
-                                <td className="align-top py-0 text-black">Pangkat/Golongan</td>
-                                <td className="align-top py-0 text-center text-black">:</td>
-                                <td className="align-top py-0 text-black">
-                                  {emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "Non-Eselon / Non-ASN"}
-                                </td>
-                              </tr>
-                              {/* Jabatan Row */}
-                              <tr className="break-inside-avoid">
-                                <td className="align-top py-0 text-black">Jabatan</td>
-                                <td className="align-top py-0 text-center text-black">:</td>
-                                <td className="align-top py-0 text-black">{formatProperJabatan(emp.jabatan)}</td>
-                              </tr>
-                              {/* Spacer row between participants */}
-                              {index < participants.length - 1 && (
-                                <tr>
-                                  <td colSpan={4} className="h-1.5 border-b border-dashed border-stone-200"></td>
-                                </tr>
-                              )}
-                            </React.Fragment>
-                          ))}
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="doc-rigid-row flex items-start w-full mb-3 text-xs md:text-sm select-text" style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'flex-start', width: '100%' }}>
+                <div className="doc-rigid-label shrink-0 self-start text-black whitespace-nowrap" style={{ width: '80px', minWidth: '80px', maxWidth: '80px', flex: '0 0 80px', flexShrink: 0, alignSelf: 'flex-start', textAlign: 'left', verticalAlign: 'top', paddingTop: '0px', lineHeight: '1.5' }}>
+                  Kepada
+                </div>
+                <div className="doc-rigid-colon shrink-0 self-start text-center text-black" style={{ width: '20px', minWidth: '20px', maxWidth: '20px', flex: '0 0 20px', flexShrink: 0, alignSelf: 'flex-start', textAlign: 'center', verticalAlign: 'top', paddingTop: '0px', lineHeight: '1.5' }}>
+                  :
+                </div>
+                <div className="doc-rigid-content flex-1 self-start" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start', paddingTop: '0px' }}>
+                  <div className="w-full text-xs md:text-sm text-black text-left flex flex-col space-y-2">
+                    {participants.map((emp, index) => (
+                      <div key={`st-p-${emp.id}-${index}`} className="participant-card w-full break-inside-avoid">
+                        {/* 1. Nama */}
+                        <div className="flex items-start w-full py-0.5">
+                          <div className="w-6 shrink-0 self-start text-black font-normal" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                            {participants.length > 1 ? `${index + 1}.` : "1."}
+                          </div>
+                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                            Nama
+                          </div>
+                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                          <div className="flex-1 self-start text-black font-normal" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                            {formatProperName(emp.name)}
+                          </div>
+                        </div>
+                        {/* Pangkat/Golongan */}
+                        <div className="flex items-start w-full py-0.5">
+                          <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
+                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                            Pangkat/Golongan
+                          </div>
+                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                          <div className="flex-1 self-start text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                            {emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "Non-Eselon / Non-ASN"}
+                          </div>
+                        </div>
+                        {/* NIP */}
+                        <div className="flex items-start w-full py-0.5">
+                          <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
+                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                            NIP
+                          </div>
+                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                          <div className="flex-1 self-start font-mono text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                            {emp.nip !== "-" ? emp.nip : "-"}
+                          </div>
+                        </div>
+                        {/* Jabatan */}
+                        <div className="flex items-start w-full py-0.5">
+                          <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
+                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                            Jabatan
+                          </div>
+                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                          <div className="flex-1 self-start text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                            {formatProperJabatan(emp.jabatan)}
+                          </div>
+                        </div>
+                        {index < participants.length - 1 && (
+                          <div className="h-1 border-b border-dashed border-stone-200 my-1"></div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
               {/* UNTUK SECTION */}
-              <table className="dasar-table w-full text-xs md:text-sm border-collapse select-text">
-                <tbody>
-                  <tr>
-                    <td className="w-16 md:w-20 align-top text-black whitespace-nowrap" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>Untuk</td>
-                    <td className="w-3 align-top text-center text-black" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
-                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5', textAlign: 'justify', textAlignLast: 'left', textJustify: 'inter-word', letterSpacing: 'normal' }}>
-                      <ol className="list-decimal list-outside ml-4 p-0 space-y-1.5 text-justify text-slate-900" style={{ margin: 0, marginTop: 0, paddingTop: 0, paddingLeft: '1.25rem' }}>
-                        <li style={{ margin: 0, marginTop: 0, paddingTop: 0, padding: 0, lineHeight: '1.5' }}>
-                          Melaksanakan Perjalanan Dinas dalam rangka: "{travel.purpose}".
-                        </li>
-                        <li>
-                          Tujuan perjalanan dinas bertempat di {travel.destination}, berlokasi kedudukan awal di {travel.departurePlace}.
-                        </li>
-                        <li>
-                          Tugas ini dilaksanakan selama {durationDays} hari kerja {travel.customDates && travel.customDates.length > 0 ? (
-                            <>
-                              yaitu pada tanggal{" "}
-                              <span>
-                                {(() => {
-                                  const sorted = [...travel.customDates].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-                                  const formatted = sorted.map(d => formatIndoDate(d));
-                                  if (formatted.length === 1) return formatted[0];
-                                  const last = formatted.pop();
-                                  return `${formatted.join(", ")} dan ${last}`;
-                                })()}
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              terhitung mulai tanggal {formatIndoDate(travel.departureDate)} s.d {formatIndoDate(travel.returnDate)}
-                            </>
-                          )} dengan mengendarai angkutan {travel.transportMode}.
-                        </li>
-                        <li>
-                          Melaporkan secara tertulis pertanggungjawaban hasil pelaksanaan dinas dan mengumpulkan rincian biaya kepada Inspektur Daerah Kabupaten Tabalong melalui PPK setibanya kembali.
-                        </li>
-                        <li>
-                          Segala biaya yang timbul akibat diterbitkannya Surat Tugas ini dibebankan pada APBD Kabupaten Tabalong melalui anggaran SKPD Inspektorat Daerah Kabupaten Tabalong, kode anggaran: <span className="font-mono text-xs bg-slate-50 p-0.5">{travel.budgetCode}</span>.
-                        </li>
-                      </ol>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="doc-rigid-row flex items-start w-full mb-3 text-xs md:text-sm select-text" style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'flex-start', width: '100%' }}>
+                <div className="doc-rigid-label shrink-0 self-start text-black whitespace-nowrap" style={{ width: '80px', minWidth: '80px', maxWidth: '80px', flex: '0 0 80px', flexShrink: 0, alignSelf: 'flex-start', textAlign: 'left', verticalAlign: 'top', paddingTop: '0px', lineHeight: '1.5' }}>
+                  Untuk
+                </div>
+                <div className="doc-rigid-colon shrink-0 self-start text-center text-black" style={{ width: '20px', minWidth: '20px', maxWidth: '20px', flex: '0 0 20px', flexShrink: 0, alignSelf: 'flex-start', textAlign: 'center', verticalAlign: 'top', paddingTop: '0px', lineHeight: '1.5' }}>
+                  :
+                </div>
+                <div className="doc-rigid-content flex-1 self-start text-justify text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start', textAlign: 'justify', textAlignLast: 'left', textJustify: 'inter-word', letterSpacing: 'normal', paddingTop: '0px', lineHeight: '1.5' }}>
+                  <ol className="list-decimal list-outside ml-4 p-0 space-y-1.5 text-justify text-slate-900" style={{ margin: 0, marginTop: 0, paddingTop: 0, paddingLeft: '1.25rem' }}>
+                    <li style={{ margin: 0, marginTop: 0, paddingTop: 0, padding: 0, lineHeight: '1.5' }}>
+                      Melaksanakan Perjalanan Dinas dalam rangka: "{travel.purpose}".
+                    </li>
+                    <li>
+                      Tujuan perjalanan dinas bertempat di {travel.destination}, berlokasi kedudukan awal di {travel.departurePlace}.
+                    </li>
+                    <li>
+                      Tugas ini dilaksanakan selama {durationDays} hari kerja {travel.customDates && travel.customDates.length > 0 ? (
+                        <>
+                          yaitu pada tanggal{" "}
+                          <span>
+                            {(() => {
+                              const sorted = [...travel.customDates].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+                              const formatted = sorted.map(d => formatIndoDate(d));
+                              if (formatted.length === 1) return formatted[0];
+                              const last = formatted.pop();
+                              return `${formatted.join(", ")} dan ${last}`;
+                            })()}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          terhitung mulai tanggal {formatIndoDate(travel.departureDate)} s.d {formatIndoDate(travel.returnDate)}
+                        </>
+                      )} dengan mengendarai angkutan {travel.transportMode}.
+                    </li>
+                    <li>
+                      Melaporkan secara tertulis pertanggungjawaban hasil pelaksanaan dinas dan mengumpulkan rincian biaya kepada Inspektur Daerah Kabupaten Tabalong melalui PPK setibanya kembali.
+                    </li>
+                    <li>
+                      Segala biaya yang timbul akibat diterbitkannya Surat Tugas ini dibebankan pada APBD Kabupaten Tabalong melalui anggaran SKPD Inspektorat Daerah Kabupaten Tabalong, kode anggaran: <span className="font-mono text-xs bg-slate-50 p-0.5">{travel.budgetCode}</span>.
+                    </li>
+                  </ol>
+                </div>
+              </div>
 
               {/* SIGNATURE BLOCK */}
               <div className="mt-6 md:mt-8 flex flex-col items-end break-inside-avoid">
@@ -1089,17 +1359,17 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </div>
 
               {/* DASAR SECTION */}
-              <table className="format-baru-table w-full text-xs md:text-sm border-collapse select-text mb-3" style={{ fontFamily: 'inherit' }}>
-                <tbody>
-                  <tr>
-                    <td className="align-top text-black whitespace-nowrap" style={{ width: '80px', verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>Dasar</td>
-                    <td className="align-top text-center text-black" style={{ width: '20px', verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
-                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5', textAlign: 'justify', textAlignLast: 'left', textJustify: 'inter-word', letterSpacing: 'normal', wordSpacing: 'normal' }}>
-                      {cleanSpacing(dasarTextFormatBaru || defaultDasarTextBaru)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="doc-rigid-row flex items-start w-full mb-3 text-xs md:text-sm select-text" style={{ display: 'flex', alignItems: 'flex-start', width: '100%' }}>
+                <div className="doc-rigid-label shrink-0 self-start text-black whitespace-nowrap" style={{ width: '80px', flexShrink: 0, alignSelf: 'flex-start', paddingTop: '0px', lineHeight: '1.5' }}>
+                  Dasar
+                </div>
+                <div className="doc-rigid-colon shrink-0 self-start text-center text-black" style={{ width: '20px', flexShrink: 0, alignSelf: 'flex-start', paddingTop: '0px', lineHeight: '1.5' }}>
+                  :
+                </div>
+                <div className="doc-rigid-content flex-1 self-start text-justify text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start', paddingTop: '0px', lineHeight: '1.5', textAlign: 'justify', textAlignLast: 'left', textJustify: 'inter-word', letterSpacing: 'normal', wordSpacing: 'normal' }}>
+                  {cleanSpacing(dasarTextFormatBaru || defaultDasarTextBaru)}
+                </div>
+              </div>
 
               {/* MEMERINTAHKAN SECTION */}
               <div className="format-baru-memperin text-center font-normal tracking-wide text-black my-2.5 text-xs md:text-sm">
@@ -1107,84 +1377,84 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </div>
 
               {/* KEPADA SECTION */}
-              <table className="format-baru-table w-full text-xs md:text-sm border-collapse select-text mb-3" style={{ fontFamily: 'inherit' }}>
-                <tbody>
-                  <tr>
-                    <td className="align-top text-black whitespace-nowrap" style={{ width: '80px', verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>Kepada</td>
-                    <td className="align-top text-center text-black" style={{ width: '20px', verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
-                    <td className="align-top" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px' }}>
-                      <table className="w-full text-xs md:text-sm text-black border-none border-collapse text-left">
-                        <tbody>
-                          {participants.map((emp, index) => (
-                            <React.Fragment key={`new-p-${emp.id}-${index}`}>
-                              {/* 1. Nama */}
-                              <tr>
-                                <td className="align-top py-0.5 text-black" style={{ width: '24px', verticalAlign: 'top' }}>
-                                  {participants.length > 1 ? `${index + 1}.` : "1."}
-                                </td>
-                                <td className="align-top py-0.5 text-black whitespace-nowrap" style={{ width: '135px', verticalAlign: 'top' }}>
-                                  Nama
-                                </td>
-                                <td className="align-top py-0.5 text-center text-black" style={{ width: '16px', verticalAlign: 'top' }}>:</td>
-                                <td className="align-top py-0.5 text-black" style={{ verticalAlign: 'top' }}>{formatProperName(emp.name)}</td>
-                              </tr>
-                              {/* Pangkat/Golongan */}
-                              <tr>
-                                <td className="align-top py-0.5 text-black" style={{ verticalAlign: 'top' }}></td>
-                                <td className="align-top py-0.5 text-black whitespace-nowrap" style={{ verticalAlign: 'top' }}>
-                                  Pangkat/Golongan
-                                </td>
-                                <td className="align-top py-0.5 text-center text-black" style={{ verticalAlign: 'top' }}>:</td>
-                                <td className="align-top py-0.5 text-black" style={{ verticalAlign: 'top' }}>
-                                  {emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "Non-Eselon / Non-ASN"}
-                                </td>
-                              </tr>
-                              {/* NIP */}
-                              <tr>
-                                <td className="align-top py-0.5 text-black" style={{ verticalAlign: 'top' }}></td>
-                                <td className="align-top py-0.5 text-black whitespace-nowrap" style={{ verticalAlign: 'top' }}>
-                                  NIP
-                                </td>
-                                <td className="align-top py-0.5 text-center text-black" style={{ verticalAlign: 'top' }}>:</td>
-                                <td className="align-top py-0.5 font-mono text-black" style={{ verticalAlign: 'top' }}>
-                                  {emp.nip !== "-" ? emp.nip : "-"}
-                                </td>
-                              </tr>
-                              {/* Jabatan */}
-                              <tr>
-                                <td className="align-top py-0.5 text-black" style={{ verticalAlign: 'top' }}></td>
-                                <td className="align-top py-0.5 text-black whitespace-nowrap" style={{ verticalAlign: 'top' }}>
-                                  Jabatan
-                                </td>
-                                <td className="align-top py-0.5 text-center text-black" style={{ verticalAlign: 'top' }}>:</td>
-                                <td className="align-top py-0.5 text-black" style={{ verticalAlign: 'top' }}>{formatProperJabatan(emp.jabatan)}</td>
-                              </tr>
-                              {index < participants.length - 1 && (
-                                <tr>
-                                  <td colSpan={4} className="h-2 border-b border-dashed border-stone-200"></td>
-                                </tr>
-                              )}
-                            </React.Fragment>
-                          ))}
-                        </tbody>
-                      </table>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="doc-rigid-row flex items-start w-full mb-3 text-xs md:text-sm select-text" style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'flex-start', width: '100%' }}>
+                <div className="doc-rigid-label shrink-0 self-start text-black whitespace-nowrap" style={{ width: '80px', minWidth: '80px', maxWidth: '80px', flex: '0 0 80px', flexShrink: 0, alignSelf: 'flex-start', textAlign: 'left', verticalAlign: 'top', paddingTop: '0px', lineHeight: '1.5' }}>
+                  Kepada
+                </div>
+                <div className="doc-rigid-colon shrink-0 self-start text-center text-black" style={{ width: '20px', minWidth: '20px', maxWidth: '20px', flex: '0 0 20px', flexShrink: 0, alignSelf: 'flex-start', textAlign: 'center', verticalAlign: 'top', paddingTop: '0px', lineHeight: '1.5' }}>
+                  :
+                </div>
+                <div className="doc-rigid-content flex-1 self-start" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start', paddingTop: '0px' }}>
+                  <div className="w-full text-xs md:text-sm text-black text-left flex flex-col space-y-2">
+                    {participants.map((emp, index) => (
+                      <div key={`new-p-${emp.id}-${index}`} className="participant-card w-full break-inside-avoid">
+                        {/* 1. Nama */}
+                        <div className="flex items-start w-full py-0.5">
+                          <div className="w-6 shrink-0 self-start text-black font-normal" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                            {participants.length > 1 ? `${index + 1}.` : "1."}
+                          </div>
+                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                            Nama
+                          </div>
+                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                          <div className="flex-1 self-start text-black font-normal" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                            {formatProperName(emp.name)}
+                          </div>
+                        </div>
+                        {/* Pangkat/Golongan */}
+                        <div className="flex items-start w-full py-0.5">
+                          <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
+                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                            Pangkat/Golongan
+                          </div>
+                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                          <div className="flex-1 self-start text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                            {emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "Non-Eselon / Non-ASN"}
+                          </div>
+                        </div>
+                        {/* NIP */}
+                        <div className="flex items-start w-full py-0.5">
+                          <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
+                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                            NIP
+                          </div>
+                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                          <div className="flex-1 self-start font-mono text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                            {emp.nip !== "-" ? emp.nip : "-"}
+                          </div>
+                        </div>
+                        {/* Jabatan */}
+                        <div className="flex items-start w-full py-0.5">
+                          <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
+                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                            Jabatan
+                          </div>
+                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                          <div className="flex-1 self-start text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                            {formatProperJabatan(emp.jabatan)}
+                          </div>
+                        </div>
+                        {index < participants.length - 1 && (
+                          <div className="h-1 border-b border-dashed border-stone-200 my-1"></div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
               {/* UNTUK SECTION */}
-              <table className="format-baru-table w-full text-xs md:text-sm border-collapse select-text mb-4" style={{ fontFamily: 'inherit' }}>
-                <tbody>
-                  <tr>
-                    <td className="align-top text-black whitespace-nowrap" style={{ width: '80px', verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>Untuk</td>
-                    <td className="align-top text-center text-black" style={{ width: '20px', verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5' }}>:</td>
-                    <td className="align-top text-justify text-black" style={{ verticalAlign: 'top', paddingTop: '0px', paddingBottom: '1px', lineHeight: '1.5', textAlign: 'justify', textAlignLast: 'left', textJustify: 'inter-word', letterSpacing: 'normal', wordSpacing: 'normal' }}>
-                      {cleanSpacing(untukTextFormatBaru || defaultUntukTextBaru)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div className="doc-rigid-row flex items-start w-full mb-4 text-xs md:text-sm select-text" style={{ display: 'flex', alignItems: 'flex-start', width: '100%' }}>
+                <div className="doc-rigid-label shrink-0 self-start text-black whitespace-nowrap" style={{ width: '80px', flexShrink: 0, alignSelf: 'flex-start', paddingTop: '0px', lineHeight: '1.5' }}>
+                  Untuk
+                </div>
+                <div className="doc-rigid-colon shrink-0 self-start text-center text-black" style={{ width: '20px', flexShrink: 0, alignSelf: 'flex-start', paddingTop: '0px', lineHeight: '1.5' }}>
+                  :
+                </div>
+                <div className="doc-rigid-content flex-1 self-start text-justify text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start', paddingTop: '0px', lineHeight: '1.5', textAlign: 'justify', textAlignLast: 'left', textJustify: 'inter-word', letterSpacing: 'normal', wordSpacing: 'normal' }}>
+                  {cleanSpacing(untukTextFormatBaru || defaultUntukTextBaru)}
+                </div>
+              </div>
 
               {/* SIGNATURE BLOCK (SESUAI CONTOH KANAN RATA KIRI) */}
               <div className="mt-6 md:mt-8 flex flex-col items-end break-inside-avoid">
