@@ -639,9 +639,9 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                   font-size: ${fontSizeCss};
                   font-family: ${fontFamilyCss};
                 }
-                .meta-table td {
+                .meta-table tr, .meta-table td {
                   padding: 1.5px 3px;
-                  vertical-align: top;
+                  vertical-align: top !important;
                   font-size: ${fontSizeCss};
                   font-family: ${fontFamilyCss};
                 }
@@ -1418,45 +1418,45 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
           {/* METADATA TABLES */}
           <table className="meta-table w-full border-collapse mb-3 select-text leading-normal" style={{ fontSize: docFontSize }}>
             <tbody>
-              <tr>
-                <td className="w-20 font-medium py-1">Kepada</td>
-                <td className="w-4 py-1 text-center">:</td>
-                <td className="py-1">{kepada}</td>
+              <tr className="align-top">
+                <td className="w-20 font-medium py-1 align-top text-left">Kepada</td>
+                <td className="w-4 py-1 text-center align-top">:</td>
+                <td className="py-1 align-top text-left">{kepada}</td>
               </tr>
-              <tr>
-                <td className="font-medium py-1">Dari</td>
-                <td className="py-1 text-center">:</td>
-                <td className="py-1">{dari}</td>
+              <tr className="align-top">
+                <td className="font-medium py-1 align-top text-left">Dari</td>
+                <td className="py-1 text-center align-top">:</td>
+                <td className="py-1 align-top text-left">{dari}</td>
               </tr>
-              <tr>
-                <td className="font-medium py-1">Tembusan</td>
-                <td className="py-1 text-center">:</td>
-                <td className="py-1">{tembusan}</td>
+              <tr className="align-top">
+                <td className="font-medium py-1 align-top text-left">Tembusan</td>
+                <td className="py-1 text-center align-top">:</td>
+                <td className="py-1 align-top text-left">{tembusan}</td>
               </tr>
-              <tr>
-                <td className="font-medium py-1">Tanggal</td>
-                <td className="py-1 text-center">:</td>
-                <td className="py-1">{dateNota}</td>
+              <tr className="align-top">
+                <td className="font-medium py-1 align-top text-left">Tanggal</td>
+                <td className="py-1 text-center align-top">:</td>
+                <td className="py-1 align-top text-left">{dateNota}</td>
               </tr>
-              <tr>
-                <td className="font-medium py-1">Nomor</td>
-                <td className="py-1 text-center">:</td>
-                <td className="py-1">{numNota}</td>
+              <tr className="align-top">
+                <td className="font-medium py-1 align-top text-left">Nomor</td>
+                <td className="py-1 text-center align-top">:</td>
+                <td className="py-1 align-top text-left">{numNota}</td>
               </tr>
-              <tr>
-                <td className="font-medium py-1">Sifat</td>
-                <td className="py-1 text-center">:</td>
-                <td className="py-1">{sifat}</td>
+              <tr className="align-top">
+                <td className="font-medium py-1 align-top text-left">Sifat</td>
+                <td className="py-1 text-center align-top">:</td>
+                <td className="py-1 align-top text-left">{sifat}</td>
               </tr>
-              <tr>
-                <td className="font-medium py-1">Lampiran</td>
-                <td className="py-1 text-center">:</td>
-                <td className="py-1">{lampiran}</td>
+              <tr className="align-top">
+                <td className="font-medium py-1 align-top text-left">Lampiran</td>
+                <td className="py-1 text-center align-top">:</td>
+                <td className="py-1 align-top text-left">{lampiran}</td>
               </tr>
-              <tr>
-                <td className="font-medium py-1">Hal</td>
-                <td className="py-1 text-center">:</td>
-                <td className="py-1 text-justify">
+              <tr className="align-top">
+                <td className="font-medium py-1 align-top text-left">Hal</td>
+                <td className="py-1 text-center align-top">:</td>
+                <td className="py-1 align-top text-left leading-relaxed break-words">
                   {hal}
                 </td>
               </tr>

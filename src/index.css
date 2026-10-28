@@ -28,6 +28,18 @@ body {
   background: #94a3b8;
 }
 
+/* Document table styles */
+.meta-table tr,
+.meta-table td,
+.meta-table th {
+  vertical-align: top !important;
+}
+
+.text-justify {
+  text-align: justify;
+  text-justify: inter-word;
+}
+
 /* Rigid layout print rules */
 @media print {
   .doc-rigid-row {
