@@ -36,8 +36,10 @@ body {
 }
 
 .text-justify {
-  text-align: justify;
-  text-justify: inter-word;
+  text-align: justify !important;
+  text-justify: inter-word !important;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 /* Rigid layout print rules */

@@ -1,9 +1,27 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Employee, Travel } from "../types";
 import { Printer, FileText, Settings, RefreshCw } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
 import { getFormattedPangkatGolongan } from "../utils/pangkat";
 import { formatProperName, formatProperJabatan } from "../utils/formatters";
+
+/**
+ * Normalizes sentence spacing and punctuation to ensure justify text wraps cleanly
+ * without unnatural gaps caused by unspaced commas or long concatenated words.
+ */
+export const cleanSentenceSpacing = (str: string): string => {
+  if (!str) return "";
+  let res = str;
+  // Ensure single space after commas if missing (e.g. "DISDIK,DISPORA" -> "DISDIK, DISPORA")
+  res = res.replace(/,([A-Za-z0-9])/g, ", $1");
+  // Ensure space after abbreviations (e.g. "KEC.MUARA" -> "KEC. MUARA", "DESA.USIH" -> "DESA. USIH")
+  res = res.replace(/(KEC|DESA|KEL|KAB|PROV|NO|LHP)\.([A-Za-z])/gi, "$1. $2");
+  // Ensure space after period followed by capital letter (e.g. "Selatan.Pada" -> "Selatan. Pada")
+  res = res.replace(/([a-z0-9])\.([A-Z])/g, "$1. $2");
+  // Normalize multiple spaces into single space
+  res = res.replace(/[ \t]+/g, " ");
+  return res.trim();
+};
 
 interface DocumentNotaDinasProps {
   key?: React.Key;
@@ -227,17 +245,31 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
     }
   }, [travel.notaDate]);
 
-  // Synchronize Hal and Budget Sentence if purpose or budget source changes
+  // Synchronize Hal whenever master travel.purpose genuinely changes
+  const prevPurposeRef = useRef<string>(travel.purpose);
   useEffect(() => {
-    if (travel.purpose) {
-      setHal((prev) => {
-        if (!prev || prev.startsWith("Mohon persetujuan mengikuti Kegiatan")) {
-          return `Mohon persetujuan mengikuti Kegiatan ${travel.purpose}`;
-        }
-        return prev;
-      });
+    if (travel.purpose && travel.purpose !== prevPurposeRef.current) {
+      prevPurposeRef.current = travel.purpose;
+      setHal(cleanSentenceSpacing(`Mohon persetujuan mengikuti Kegiatan ${travel.purpose}`));
     }
   }, [travel.purpose]);
+
+  // Dynamically resolve purpose from hal or travel.purpose so that editing Hal updates the body paragraph
+  const displayPurpose = useMemo(() => {
+    if (hal) {
+      const lower = hal.toLowerCase();
+      const marker = "kegiatan ";
+      const idx = lower.indexOf(marker);
+      if (idx !== -1) {
+        const extracted = hal.substring(idx + marker.length).trim();
+        if (extracted) return cleanSentenceSpacing(extracted);
+      }
+      if (!lower.startsWith("mohon persetujuan")) {
+        return cleanSentenceSpacing(hal);
+      }
+    }
+    return cleanSentenceSpacing(travel.purpose || "");
+  }, [hal, travel.purpose]);
 
   useEffect(() => {
     if (travel.budgetSource) {
@@ -280,7 +312,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
           if (data.tembusan !== undefined) setTembusan(data.tembusan);
           if (data.sifat !== undefined) setSifat(data.sifat);
           if (data.lampiran !== undefined) setLampiran(data.lampiran);
-          if (data.hal !== undefined) setHal(data.hal);
+          if (data.hal !== undefined) setHal(cleanSentenceSpacing(data.hal));
           if (data.useRujukan !== undefined) setUseRujukan(data.useRujukan);
           if (data.rujalanDari !== undefined) setRujukanDari(data.rujalanDari);
           if (data.rujakanNomor !== undefined) setRujukanNomor(data.rujakanNomor);
@@ -317,7 +349,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
       setDateNota(formatIndoDate(travel.notaDate));
       
       // Default Hal based on current travel purpose
-      setHal(`Mohon persetujuan mengikuti Kegiatan ${travel.purpose}`);
+      setHal(cleanSentenceSpacing(`Mohon persetujuan mengikuti Kegiatan ${travel.purpose}`));
 
       // Set initial rujukan text
       setCustomRujukanText(`Sehubungan dengan surat dari ${rujalanDari} Nomor ${rujakanNomor} Tanggal ${rujakanTanggal} Hal: ${rujakanHal}.`);
@@ -449,7 +481,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
     setSifat("Biasa");
     setLampiran("1 (satu) berkas");
     
-    setHal(`Mohon persetujuan mengikuti Kegiatan ${travel.purpose}`);
+    setHal(cleanSentenceSpacing(`Mohon persetujuan mengikuti Kegiatan ${travel.purpose}`));
     
     setUseRujukan(true);
     setRujukanDari("Bupati Tabalong");
@@ -942,13 +974,27 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] text-slate-400 font-bold uppercase block">Perihal (Hal)</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-[10px] text-slate-400 font-bold uppercase block">Perihal (Hal)</label>
+                    <button
+                      type="button"
+                      onClick={() => setHal(prev => cleanSentenceSpacing(prev))}
+                      className="text-[10px] font-semibold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition cursor-pointer"
+                      title="Rapikan spasi koma, titik singkatan, dan susunan kata agar rapi rata kanan-kiri"
+                    >
+                      ✨ Rapikan Teks
+                    </button>
+                  </div>
                   <textarea
-                    rows={2}
+                    rows={3}
                     value={hal}
                     onChange={(e) => setHal(e.target.value)}
-                    className="w-full text-xs bg-slate-50 border p-1.5 rounded focus:bg-white"
+                    onBlur={(e) => setHal(cleanSentenceSpacing(e.target.value))}
+                    className="w-full text-xs bg-slate-50 border p-1.5 rounded focus:bg-white leading-relaxed"
                   />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    💡 Perubahan Hal otomatis menyesuaikan kalimat kegiatan di dokumen secara langsung.
+                  </p>
                 </div>
               </div>
             </div>
@@ -1456,8 +1502,23 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
               <tr className="align-top">
                 <td className="font-medium py-1 align-top text-left">Hal</td>
                 <td className="py-1 text-center align-top">:</td>
-                <td className="py-1 align-top text-left leading-relaxed break-words">
-                  {hal}
+                <td 
+                  className="py-1 align-top text-justify leading-relaxed break-words" 
+                  style={{ textJustify: "inter-word" }}
+                >
+                  <div
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={(e) => {
+                      const text = e.currentTarget.innerText;
+                      setHal(cleanSentenceSpacing(text));
+                    }}
+                    className="hover:bg-amber-50/40 focus:bg-amber-50/80 rounded p-1 -m-1 focus:outline-none focus:ring-1 focus:ring-amber-300 transition duration-150 cursor-text text-justify"
+                    style={{ textJustify: "inter-word", outline: "none" }}
+                    title="Klik langsung pada teks ini untuk mengubah kalimat Hal"
+                  >
+                    {cleanSentenceSpacing(hal)}
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -1467,7 +1528,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
           <div className="line-divider border-t-1.5 border-black mb-3"></div>
 
           {/* BODY CONTENT */}
-          <div className="space-y-2.5 text-justify leading-relaxed" style={{ fontSize: docFontSize }}>
+          <div className="space-y-2.5 text-justify leading-relaxed" style={{ fontSize: docFontSize, textJustify: "inter-word" }}>
             
             {useRujukan && (
               <div className="relative group">
@@ -1485,7 +1546,7 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
                     setIsFocused(false);
                   }}
                   className="body-text text-black hover:bg-amber-50/40 focus:bg-amber-50/80 p-1.5 -m-1.5 rounded focus:outline-none focus:ring-1 focus:ring-amber-300 transition duration-150 cursor-text text-justify"
-                  style={{ minHeight: "1.5em", outline: "none" }}
+                  style={{ minHeight: "1.5em", outline: "none", textJustify: "inter-word" }}
                   title="Klik langsung pada teks ini untuk mengubah kalimat rujukan"
                 >
                   {isFocused ? (isCustomRujukan ? customRujukanText : `Sehubungan dengan surat dari ${rujalanDari} Nomor ${rujakanNomor} Tanggal ${rujakanTanggal} Hal: ${rujakanHal}.`) : (
@@ -1495,26 +1556,37 @@ export default function DocumentNotaDinas({ travel, employees, onUpdateTravel }:
               </div>
             )}
 
-            <p className="body-text indent-8 text-black">
-              Berkenaan dengan hal tersebut di atas, mohon persetujuan untuk melaksanakan perjalanan dinas dalam rangka mengikuti kegiatan "{travel.purpose}" selama {durationDays} ({durationDaysToWords(durationDays)}) hari {travel.customDates && travel.customDates.length > 0 ? (
-                <>
-                  yaitu pada tanggal{" "}
-                  <span>
-                    {(() => {
-                      const sorted = [...travel.customDates].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-                      const formatted = sorted.map(d => formatIndoDate(d));
-                      if (formatted.length === 1) return formatted[0];
-                      const last = formatted.pop();
-                      return `${formatted.join(", ")} dan ${last}`;
-                    })()}
-                  </span>
-                </>
-              ) : (
-                <>
-                  dari tanggal <span>{formatIndoDate(travel.departureDate)} s.d {formatIndoDate(travel.returnDate)}</span>
-                </>
-              )} bertempat di <span>{travel.destination}</span>.
-            </p>
+            <div className="relative group">
+              <div className="absolute -left-6 top-1 text-blue-500 opacity-0 group-hover:opacity-100 print:hidden print-hidden transition-opacity duration-150 select-none pointer-events-none text-xs" title="Kalimat permohonan ini dapat diedit langsung">
+                ✍️
+              </div>
+              <p 
+                className="body-text indent-8 text-black text-justify leading-relaxed hover:bg-amber-50/40 focus:bg-amber-50/80 p-1.5 -m-1.5 rounded focus:outline-none focus:ring-1 focus:ring-amber-300 transition duration-150 cursor-text"
+                style={{ textJustify: "inter-word", fontSize: docFontSize, outline: "none" }}
+                contentEditable
+                suppressContentEditableWarning
+                title="Klik langsung pada teks ini untuk menyesuaikan kalimat pengantar"
+              >
+                Berkenaan dengan hal tersebut di atas, mohon persetujuan untuk melaksanakan perjalanan dinas dalam rangka mengikuti kegiatan "{displayPurpose}" selama {durationDays} ({durationDaysToWords(durationDays)}) hari {travel.customDates && travel.customDates.length > 0 ? (
+                  <>
+                    yaitu pada tanggal{" "}
+                    <span>
+                      {(() => {
+                        const sorted = [...travel.customDates].sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+                        const formatted = sorted.map(d => formatIndoDate(d));
+                        if (formatted.length === 1) return formatted[0];
+                        const last = formatted.pop();
+                        return `${formatted.join(", ")} dan ${last}`;
+                      })()}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    dari tanggal <span>{formatIndoDate(travel.departureDate)} s.d {formatIndoDate(travel.returnDate)}</span>
+                  </>
+                )} bertempat di <span>{travel.destination}</span>.
+              </p>
+            </div>
 
             <p className="body-text text-black">
               Adapun Pegawai yang diusulkan mengikuti kegiatan tersebut adalah:
