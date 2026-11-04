@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Employee, Travel } from "../types";
-import { Printer, FileBadge2, Settings, Eye, FileText, CheckCircle2, ZoomIn, ZoomOut, X, Sparkles } from "lucide-react";
+import { Printer, FileBadge2, Settings, Eye, FileText, CheckCircle2, ZoomIn, ZoomOut, X, Sparkles, Users, UserCheck } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
 import { getFormattedPangkatGolongan } from "../utils/pangkat";
 import { formatProperName, formatProperJabatan } from "../utils/formatters";
@@ -30,6 +30,13 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
   const [untukTextFormatBaru, setUntukTextFormatBaru] = useState("");
   const [issuedCity, setIssuedCity] = useState("Tanjung");
   const [sigBoxHeight, setSigBoxHeight] = useState("55px");
+
+  // Participant extra columns states (Jabatan dalam Tim & Keterangan)
+  const [showJabatanTim, setShowJabatanTim] = useState<boolean>(true);
+  const [showKeterangan, setShowKeterangan] = useState<boolean>(false);
+  const [formatPeserta, setFormatPeserta] = useState<"list" | "tabel">("list");
+  const [teamRoles, setTeamRoles] = useState<Record<string, string>>({});
+  const [keteranganMap, setKeteranganMap] = useState<Record<string, string>>({});
 
   // Helper to format Indonesian dates
   const formatIndoDate = (dateStr: string) => {
@@ -127,6 +134,11 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
           if (data.signCodeSize !== undefined) setSignCodeSize(data.signCodeSize);
           if (data.docFontFamily !== undefined) setDocFontFamily(data.docFontFamily);
           if (data.docFontSize !== undefined) setDocFontSize(data.docFontSize);
+          if (data.showJabatanTim !== undefined) setShowJabatanTim(data.showJabatanTim);
+          if (data.showKeterangan !== undefined) setShowKeterangan(data.showKeterangan);
+          if (data.formatPeserta !== undefined) setFormatPeserta(data.formatPeserta);
+          if (data.teamRoles !== undefined) setTeamRoles(data.teamRoles);
+          if (data.keteranganMap !== undefined) setKeteranganMap(data.keteranganMap);
           return;
         } catch (e) {
           console.error("Error parsing cached Surat Tugas", e);
@@ -135,6 +147,9 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
 
       setFormatType("standar");
       setIssuedCity("Tanjung");
+      setShowJabatanTim(true);
+      setShowKeterangan(false);
+      setFormatPeserta("list");
       setDasarTextFormatBaru(
         cleanSpacing(`Nota Dinas ${formatProperName(signatory?.name || "Diyanto, SE, MT, FRMP")} (${formatProperJabatan(signatory?.jabatan || "Inspektur Daerah")}) Inspektorat Daerah Kabupaten Tabalong Nomor ${travel.notaNumber || ""} tanggal ${formatIndoDate(travel.notaDate)} perihal Pengajuan Registrasi Perjalanan Dinas ${travel.destination || ""}.`)
       );
@@ -162,10 +177,15 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
       signCodeCase,
       signCodeSize,
       docFontFamily,
-      docFontSize
+      docFontSize,
+      showJabatanTim,
+      showKeterangan,
+      formatPeserta,
+      teamRoles,
+      keteranganMap
     };
     localStorage.setItem(cacheKey, JSON.stringify(data));
-  }, [travel.id, formatType, dasarTextFormatBaru, untukTextFormatBaru, issuedCity, dasarList, signSpecialCode, signCodeCase, signCodeSize, docFontFamily, docFontSize]);
+  }, [travel.id, formatType, dasarTextFormatBaru, untukTextFormatBaru, issuedCity, dasarList, signSpecialCode, signCodeCase, signCodeSize, docFontFamily, docFontSize, showJabatanTim, showKeterangan, formatPeserta, teamRoles, keteranganMap]);
 
   // Helper to split a combined text entry into a list of individual cleaned legal references
   const getFlattenedDasarList = () => {
@@ -498,6 +518,29 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   vertical-align: top !important;
                   line-height: 1.5;
                 }
+                .table-participants {
+                  width: 100% !important;
+                  border-collapse: collapse !important;
+                  border: 1px solid #000 !important;
+                  margin-top: 4px !important;
+                  margin-bottom: 8px !important;
+                  font-size: ${docFontSize} !important;
+                  font-family: ${fontCssFamily} !important;
+                }
+                .table-participants th, .table-participants td {
+                  border: 1px solid #000 !important;
+                  padding: 3px 6px !important;
+                  vertical-align: top !important;
+                  line-height: 1.35 !important;
+                }
+                .table-participants th {
+                  font-weight: 600 !important;
+                  text-align: center !important;
+                  background-color: #f8fafc !important;
+                }
+                .border { border: 1px solid #000 !important; }
+                .border-black { border-color: #000 !important; }
+                .border-collapse { border-collapse: collapse !important; }
 
                 /* Goals / Untuk */
                 .untuk-list {
@@ -591,6 +634,198 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
     }
   };
 
+  const renderParticipantsContent = (prefix: string) => {
+    if (formatPeserta === "tabel") {
+      return (
+        <div className="w-full my-1 overflow-x-auto">
+          <table className="table-participants w-full border-collapse border border-black text-black text-left" style={{ fontSize: docFontSize }}>
+            <thead>
+              <tr className="bg-slate-50 font-normal">
+                <th className="border border-black p-1 text-center font-normal" style={{ width: '28px' }}>No</th>
+                <th className="border border-black p-1.5 font-normal">Nama / NIP</th>
+                <th className="border border-black p-1.5 font-normal">Pangkat / Gol</th>
+                <th className="border border-black p-1.5 font-normal">Jabatan</th>
+                {showJabatanTim && (
+                  <th className="border border-black p-1.5 font-normal text-center" style={{ minWidth: '110px' }}>Jabatan dalam Tim</th>
+                )}
+                {showKeterangan && (
+                  <th className="border border-black p-1.5 font-normal text-center" style={{ minWidth: '95px' }}>Keterangan</th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {participants.map((emp, index) => {
+                const roleVal = teamRoles[emp.id] ?? (index === 0 ? "Ketua Tim" : "Anggota Tim");
+                const ketVal = keteranganMap[emp.id] ?? "";
+                return (
+                  <tr key={`${prefix}-tab-${emp.id}-${index}`} className="break-inside-avoid">
+                    <td className="border border-black p-1 text-center text-black" style={{ width: '28px' }}>
+                      {index + 1}
+                    </td>
+                    <td className="border border-black p-1 px-1.5">
+                      <div className="text-black font-normal">{formatProperName(emp.name)}</div>
+                      <div className="text-[11px] text-slate-800 leading-none mt-0.5">
+                        {emp.nip !== "-" ? `NIP. ${emp.nip}` : "Non-ASN"}
+                      </div>
+                    </td>
+                    <td className="border border-black p-1 px-1.5 text-black">
+                      {emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "-"}
+                    </td>
+                    <td className="border border-black p-1 px-1.5 text-black">
+                      {formatProperJabatan(emp.jabatan)}
+                    </td>
+                    {showJabatanTim && (
+                      <td className="border border-black p-1 px-1.5 text-black font-medium">
+                        <span
+                          contentEditable
+                          suppressContentEditableWarning
+                          onBlur={(e) => {
+                            const val = e.currentTarget.innerText.trim();
+                            setTeamRoles(prev => ({ ...prev, [emp.id]: val }));
+                          }}
+                          className="hover:bg-amber-50 focus:bg-amber-100 rounded px-1 -mx-1 outline-none transition cursor-text block"
+                          title="Klik untuk mengubah Jabatan dalam Tim"
+                        >
+                          {roleVal}
+                        </span>
+                      </td>
+                    )}
+                    {showKeterangan && (
+                      <td className="border border-black p-1 px-1.5 text-black">
+                        <span
+                          contentEditable
+                          suppressContentEditableWarning
+                          onBlur={(e) => {
+                            const val = e.currentTarget.innerText.trim();
+                            setKeteranganMap(prev => ({ ...prev, [emp.id]: val }));
+                          }}
+                          className="hover:bg-amber-50 focus:bg-amber-100 rounded px-1 -mx-1 outline-none transition cursor-text block"
+                          title="Klik untuk mengubah Keterangan"
+                        >
+                          {ketVal || "-"}
+                        </span>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    return (
+      <div className="w-full text-xs md:text-sm text-black text-left flex flex-col space-y-2">
+        {participants.map((emp, index) => {
+          const roleVal = teamRoles[emp.id] ?? (index === 0 ? "Ketua Tim" : "Anggota Tim");
+          const ketVal = keteranganMap[emp.id] ?? "";
+          return (
+            <div key={`${prefix}-p-${emp.id}-${index}`} className="participant-card w-full break-inside-avoid">
+              {/* 1. Nama */}
+              <div className="flex items-start w-full py-0.5">
+                <div className="w-6 shrink-0 self-start text-black font-normal" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                  {participants.length > 1 ? `${index + 1}.` : "1."}
+                </div>
+                <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                  Nama
+                </div>
+                <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                <div className="flex-1 self-start text-black font-normal" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                  {formatProperName(emp.name)}
+                </div>
+              </div>
+              {/* Pangkat/Golongan */}
+              <div className="flex items-start w-full py-0.5">
+                <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
+                <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                  Pangkat/Golongan
+                </div>
+                <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                <div className="flex-1 self-start text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                  {emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "Non-Eselon / Non-ASN"}
+                </div>
+              </div>
+              {/* NIP */}
+              <div className="flex items-start w-full py-0.5">
+                <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
+                <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                  NIP
+                </div>
+                <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                <div className="flex-1 self-start font-mono text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                  {emp.nip !== "-" ? emp.nip : "-"}
+                </div>
+              </div>
+              {/* Jabatan */}
+              <div className="flex items-start w-full py-0.5">
+                <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
+                <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                  Jabatan
+                </div>
+                <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                <div className="flex-1 self-start text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                  {formatProperJabatan(emp.jabatan)}
+                </div>
+              </div>
+              {/* Jabatan dalam Tim (Optional) */}
+              {showJabatanTim && (
+                <div className="flex items-start w-full py-0.5">
+                  <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
+                  <div className="w-36 shrink-0 self-start text-black whitespace-nowrap font-medium" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                    Jabatan dalam Tim
+                  </div>
+                  <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                  <div className="flex-1 self-start text-black font-semibold" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                    <span
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) => {
+                        const val = e.currentTarget.innerText.trim();
+                        setTeamRoles(prev => ({ ...prev, [emp.id]: val }));
+                      }}
+                      className="hover:bg-amber-50 focus:bg-amber-100 rounded px-1 -mx-1 outline-none transition cursor-text inline-block"
+                      title="Klik untuk mengubah Jabatan dalam Tim"
+                    >
+                      {roleVal}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {/* Keterangan (Optional) */}
+              {showKeterangan && (
+                <div className="flex items-start w-full py-0.5">
+                  <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
+                  <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
+                    Keterangan
+                  </div>
+                  <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
+                  <div className="flex-1 self-start text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
+                    <span
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) => {
+                        const val = e.currentTarget.innerText.trim();
+                        setKeteranganMap(prev => ({ ...prev, [emp.id]: val }));
+                      }}
+                      className="hover:bg-amber-50 focus:bg-amber-100 rounded px-1 -mx-1 outline-none transition cursor-text inline-block"
+                      title="Klik untuk mengubah Keterangan"
+                    >
+                      {ketVal || "-"}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {index < participants.length - 1 && (
+                <div className="h-1 border-b border-dashed border-stone-200 my-1"></div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="bg-white rounded-2xl border border-slate-150 p-6 shadow-xs space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
@@ -660,6 +895,85 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
           >
             <Printer className="w-3.5 h-3.5" />
             Cetak Surat Tugas
+          </button>
+        </div>
+      </div>
+
+      {/* QUICK COLUMN TOGGLES & BENTUK DAFTAR BAR */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-blue-50/80 via-slate-50 to-indigo-50/70 p-3 rounded-xl border border-blue-200/80 text-xs shadow-2xs">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="font-bold text-slate-700 flex items-center gap-1.5 pr-1">
+            <Users className="w-4 h-4 text-blue-600" />
+            <span>Kolom Peserta:</span>
+          </span>
+
+          {/* Toggle Jabatan dalam Tim */}
+          <label className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border shadow-xs cursor-pointer select-none transition ${
+            showJabatanTim 
+              ? "bg-blue-600 border-blue-600 text-white font-semibold ring-1 ring-blue-300" 
+              : "bg-white border-slate-250 text-slate-600 hover:bg-slate-50"
+          }`}>
+            <input
+              type="checkbox"
+              checked={showJabatanTim}
+              onChange={(e) => setShowJabatanTim(e.target.checked)}
+              className="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 cursor-pointer accent-blue-600"
+            />
+            <span className="text-xs">Jabatan dalam Tim</span>
+            {showJabatanTim && (
+              <span className="text-[10px] bg-white/20 text-white font-bold px-1.5 py-0.2 rounded-full">
+                Tampil
+              </span>
+            )}
+          </label>
+
+          {/* Toggle Keterangan */}
+          <label className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border shadow-xs cursor-pointer select-none transition ${
+            showKeterangan 
+              ? "bg-emerald-600 border-emerald-600 text-white font-semibold ring-1 ring-emerald-300" 
+              : "bg-white border-slate-250 text-slate-600 hover:bg-slate-50"
+          }`}>
+            <input
+              type="checkbox"
+              checked={showKeterangan}
+              onChange={(e) => setShowKeterangan(e.target.checked)}
+              className="rounded text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5 cursor-pointer accent-emerald-600"
+            />
+            <span className="text-xs">Keterangan</span>
+            {showKeterangan && (
+              <span className="text-[10px] bg-white/20 text-white font-bold px-1.5 py-0.2 rounded-full">
+                Tampil
+              </span>
+            )}
+          </label>
+        </div>
+
+        {/* Format Peserta: List vs Tabel */}
+        <div className="flex items-center gap-1.5 bg-white p-1 rounded-lg border border-slate-250 shadow-2xs">
+          <span className="text-[11px] text-slate-500 px-1.5 font-medium">Tampilan:</span>
+          <button
+            type="button"
+            onClick={() => setFormatPeserta("list")}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
+              formatPeserta === "list"
+                ? "bg-blue-600 text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+            title="Tampilkan peserta dalam susunan baris berurutan"
+          >
+            Daftar (List)
+          </button>
+          <button
+            type="button"
+            onClick={() => setFormatPeserta("tabel")}
+            className={`px-2.5 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
+              formatPeserta === "tabel"
+                ? "bg-blue-600 text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+            title="Tampilkan peserta dalam bentuk tabel matriks dengan kolom"
+          >
+            Tabel Kolom
           </button>
         </div>
       </div>
@@ -946,6 +1260,152 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
               </div>
             </div>
           </div>
+
+          {/* PENGATURAN KOLOM PESERTA (JABATAN DALAM TIM & KETERANGAN) */}
+          <div className="bg-white p-4 rounded-lg border border-slate-200 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-150 pb-2">
+              <div>
+                <label className="text-[11px] text-blue-700 font-extrabold block uppercase tracking-wider flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-blue-600" />
+                  Pengaturan Kolom Peserta & Jabatan dalam Tim
+                </label>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Sesuaikan tampilan kolom, peran tim (Ketua/Anggota/dll), dan keterangan untuk setiap personil yang ditugaskan.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const roles: Record<string, string> = {};
+                    participants.forEach((p, idx) => {
+                      roles[p.id] = idx === 0 ? "Ketua Tim" : "Anggota Tim";
+                    });
+                    setTeamRoles(roles);
+                  }}
+                  className="text-[10px] font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded cursor-pointer transition"
+                >
+                  Set Default (Ketua & Anggota)
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg border border-slate-150">
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={showJabatanTim}
+                  onChange={(e) => setShowJabatanTim(e.target.checked)}
+                  className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 mt-0.5 cursor-pointer accent-blue-600"
+                />
+                <div>
+                  <div className="text-xs font-bold text-slate-800">Tampilkan Kolom "Jabatan dalam Tim"</div>
+                  <div className="text-[11px] text-slate-500">
+                    Menampilkan posisi personil dalam penugasan (contoh: Penanggung Jawab, Pengendali Teknis, Ketua Tim, Anggota).
+                  </div>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={showKeterangan}
+                  onChange={(e) => setShowKeterangan(e.target.checked)}
+                  className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 mt-0.5 cursor-pointer accent-emerald-600"
+                />
+                <div>
+                  <div className="text-xs font-bold text-slate-800">Tampilkan Kolom "Keterangan"</div>
+                  <div className="text-[11px] text-slate-500">
+                    Menampilkan kolom catatan atau keterangan khusus per personil di dokumen surat tugas.
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            {/* DAFTAR PERSONIL & ISIAN JABATAN DALAM TIM */}
+            <div className="space-y-2.5 pt-1">
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">
+                Detail Personil ({participants.length} Orang):
+              </span>
+              <div className="divide-y divide-slate-100 border border-slate-200 rounded-lg overflow-hidden bg-white">
+                {participants.map((emp, index) => {
+                  const currentRole = teamRoles[emp.id] ?? (index === 0 ? "Ketua Tim" : "Anggota Tim");
+                  const currentKet = keteranganMap[emp.id] ?? "";
+                  return (
+                    <div key={`cfg-emp-${emp.id}-${index}`} className="p-3 hover:bg-slate-50/70 transition space-y-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center text-[10px]">
+                            {index + 1}
+                          </span>
+                          <span className="font-bold text-slate-900">{formatProperName(emp.name)}</span>
+                          <span className="text-slate-400 font-normal">({formatProperJabatan(emp.jabatan)})</span>
+                        </div>
+                        <span className="text-[11px] font-mono text-slate-500">
+                          {emp.nip !== "-" ? `NIP: ${emp.nip}` : "Non-ASN"}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        {/* Input Jabatan dalam Tim */}
+                        <div>
+                          <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">
+                            Jabatan dalam Tim:
+                          </label>
+                          <div className="flex flex-col gap-1">
+                            <input
+                              type="text"
+                              value={currentRole}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setTeamRoles(prev => ({ ...prev, [emp.id]: val }));
+                              }}
+                              placeholder="Contoh: Ketua Tim / Anggota Tim"
+                              className="w-full text-xs p-1.5 border border-slate-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            />
+                            {/* Preset Buttons */}
+                            <div className="flex flex-wrap gap-1">
+                              {["Ketua Tim", "Anggota Tim", "Penanggung Jawab", "Pengendali Teknis", "Sekretaris"].map(tag => (
+                                <button
+                                  key={tag}
+                                  type="button"
+                                  onClick={() => setTeamRoles(prev => ({ ...prev, [emp.id]: tag }))}
+                                  className={`text-[9px] px-1.5 py-0.5 rounded border transition cursor-pointer ${
+                                    currentRole === tag
+                                      ? "bg-blue-600 text-white border-blue-600 font-semibold"
+                                      : "bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200"
+                                  }`}
+                                >
+                                  {tag}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Input Keterangan */}
+                        <div>
+                          <label className="text-[10px] text-slate-500 font-semibold block mb-0.5">
+                            Keterangan:
+                          </label>
+                          <input
+                            type="text"
+                            value={currentKet}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setKeteranganMap(prev => ({ ...prev, [emp.id]: val }));
+                            }}
+                            placeholder="Catatan tambahan per personil (opsional)"
+                            className="w-full text-xs p-1.5 border border-slate-300 rounded bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -1208,61 +1668,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   :
                 </div>
                 <div className="doc-rigid-content flex-1 self-start" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start', paddingTop: '0px' }}>
-                  <div className="w-full text-xs md:text-sm text-black text-left flex flex-col space-y-2">
-                    {participants.map((emp, index) => (
-                      <div key={`st-p-${emp.id}-${index}`} className="participant-card w-full break-inside-avoid">
-                        {/* 1. Nama */}
-                        <div className="flex items-start w-full py-0.5">
-                          <div className="w-6 shrink-0 self-start text-black font-normal" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}>
-                            {participants.length > 1 ? `${index + 1}.` : "1."}
-                          </div>
-                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
-                            Nama
-                          </div>
-                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
-                          <div className="flex-1 self-start text-black font-normal" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
-                            {formatProperName(emp.name)}
-                          </div>
-                        </div>
-                        {/* Pangkat/Golongan */}
-                        <div className="flex items-start w-full py-0.5">
-                          <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
-                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
-                            Pangkat/Golongan
-                          </div>
-                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
-                          <div className="flex-1 self-start text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
-                            {emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "Non-Eselon / Non-ASN"}
-                          </div>
-                        </div>
-                        {/* NIP */}
-                        <div className="flex items-start w-full py-0.5">
-                          <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
-                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
-                            NIP
-                          </div>
-                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
-                          <div className="flex-1 self-start font-mono text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
-                            {emp.nip !== "-" ? emp.nip : "-"}
-                          </div>
-                        </div>
-                        {/* Jabatan */}
-                        <div className="flex items-start w-full py-0.5">
-                          <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
-                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
-                            Jabatan
-                          </div>
-                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
-                          <div className="flex-1 self-start text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
-                            {formatProperJabatan(emp.jabatan)}
-                          </div>
-                        </div>
-                        {index < participants.length - 1 && (
-                          <div className="h-1 border-b border-dashed border-stone-200 my-1"></div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  {renderParticipantsContent("st")}
                 </div>
               </div>
 
@@ -1385,61 +1791,7 @@ export default function DocumentSuratTugas({ travel, employees }: DocumentSuratT
                   :
                 </div>
                 <div className="doc-rigid-content flex-1 self-start" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start', paddingTop: '0px' }}>
-                  <div className="w-full text-xs md:text-sm text-black text-left flex flex-col space-y-2">
-                    {participants.map((emp, index) => (
-                      <div key={`new-p-${emp.id}-${index}`} className="participant-card w-full break-inside-avoid">
-                        {/* 1. Nama */}
-                        <div className="flex items-start w-full py-0.5">
-                          <div className="w-6 shrink-0 self-start text-black font-normal" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}>
-                            {participants.length > 1 ? `${index + 1}.` : "1."}
-                          </div>
-                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
-                            Nama
-                          </div>
-                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
-                          <div className="flex-1 self-start text-black font-normal" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
-                            {formatProperName(emp.name)}
-                          </div>
-                        </div>
-                        {/* Pangkat/Golongan */}
-                        <div className="flex items-start w-full py-0.5">
-                          <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
-                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
-                            Pangkat/Golongan
-                          </div>
-                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
-                          <div className="flex-1 self-start text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
-                            {emp.pangkat !== "-" ? getFormattedPangkatGolongan(emp.pangkat) : "Non-Eselon / Non-ASN"}
-                          </div>
-                        </div>
-                        {/* NIP */}
-                        <div className="flex items-start w-full py-0.5">
-                          <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
-                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
-                            NIP
-                          </div>
-                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
-                          <div className="flex-1 self-start font-mono text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
-                            {emp.nip !== "-" ? emp.nip : "-"}
-                          </div>
-                        </div>
-                        {/* Jabatan */}
-                        <div className="flex items-start w-full py-0.5">
-                          <div className="w-6 shrink-0 self-start" style={{ width: '24px', flexShrink: 0, alignSelf: 'flex-start' }}></div>
-                          <div className="w-36 shrink-0 self-start text-black whitespace-nowrap" style={{ width: '135px', flexShrink: 0, alignSelf: 'flex-start' }}>
-                            Jabatan
-                          </div>
-                          <div className="w-4 shrink-0 self-start text-center text-black" style={{ width: '16px', flexShrink: 0, alignSelf: 'flex-start' }}>:</div>
-                          <div className="flex-1 self-start text-black" style={{ flex: '1 1 0%', minWidth: 0, alignSelf: 'flex-start' }}>
-                            {formatProperJabatan(emp.jabatan)}
-                          </div>
-                        </div>
-                        {index < participants.length - 1 && (
-                          <div className="h-1 border-b border-dashed border-stone-200 my-1"></div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  {renderParticipantsContent("new")}
                 </div>
               </div>
 

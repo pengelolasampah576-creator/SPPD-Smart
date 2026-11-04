@@ -110,6 +110,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
   // Font standardization (Arial 12pt default)
   const [docFontFamily, setDocFontFamily] = useState<"Arial" | "Times New Roman">("Arial");
   const [docFontSize, setDocFontSize] = useState<"12pt" | "11pt" | "10pt">("12pt");
+  const [monitoringDatesFontSize, setMonitoringDatesFontSize] = useState<string>("12px");
   
   // State for adding new employee to the honorarium table
   const [selectedNewEmpId, setSelectedNewEmpId] = useState("");
@@ -370,6 +371,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
           if (data.calendarMonth !== undefined) setCalendarMonth(data.calendarMonth);
           if (data.docFontFamily !== undefined) setDocFontFamily(data.docFontFamily);
           if (data.docFontSize !== undefined) setDocFontSize(data.docFontSize);
+          if (data.monitoringDatesFontSize !== undefined) setMonitoringDatesFontSize(data.monitoringDatesFontSize);
           return;
         } catch (e) {
           console.error("Error parsing cached Honorarium document", e);
@@ -473,7 +475,8 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
       calendarYear,
       calendarMonth,
       docFontFamily,
-      docFontSize
+      docFontSize,
+      monitoringDatesFontSize
     };
     localStorage.setItem(cacheKey, JSON.stringify(data));
   }, [
@@ -490,7 +493,8 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
     calendarYear,
     calendarMonth,
     docFontFamily,
-    docFontSize
+    docFontSize,
+    monitoringDatesFontSize
   ]);
 
   // Handle participant change
@@ -643,6 +647,18 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   position: absolute;
                   bottom: 6px;
                   color: #000000 !important;
+                }
+
+                .monitoring-dates-box {
+                  font-size: ${monitoringDatesFontSize} !important;
+                  margin-top: 5px !important;
+                  padding-top: 3px !important;
+                  line-height: 1.4 !important;
+                }
+
+                .monitoring-dates-text {
+                  font-size: ${monitoringDatesFontSize} !important;
+                  font-weight: bold !important;
                 }
 
                 .terbilang-box {
@@ -845,7 +861,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                 <span className="text-xs font-bold uppercase text-blue-600">Standarisasi Jenis & Ukuran Huruf (Font)</span>
                 <span className="text-[10px] text-slate-400">Standar resmi: Arial 12pt</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div>
                   <label className="text-[10px] text-slate-500 block font-bold uppercase mb-1">Jenis Huruf (Font Family)</label>
                   <select
@@ -858,7 +874,7 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] text-slate-500 block font-bold uppercase mb-1">Ukuran Huruf (Font Size)</label>
+                  <label className="text-[10px] text-slate-500 block font-bold uppercase mb-1">Ukuran Huruf Dokumen</label>
                   <select
                     value={docFontSize}
                     onChange={(e) => setDocFontSize(e.target.value as any)}
@@ -867,6 +883,20 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                     <option value="12pt">Ukuran 12 (12pt Standar)</option>
                     <option value="11pt">Ukuran 11 (11pt)</option>
                     <option value="10pt">Ukuran 10 (10pt)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-[10px] text-blue-700 block font-bold uppercase mb-1">Ukuran Tanggal/Bulan/Tahun di Bawah Nama</label>
+                  <select
+                    value={monitoringDatesFontSize}
+                    onChange={(e) => setMonitoringDatesFontSize(e.target.value)}
+                    className="w-full text-xs p-2 border border-blue-300 rounded-lg bg-blue-50/50 font-bold text-blue-900"
+                  >
+                    <option value="12px">Besar (12px - Standar Jelas)</option>
+                    <option value="13px">Sangat Besar (13px)</option>
+                    <option value="14px">Ekstra Besar (14px)</option>
+                    <option value="11px">Sedang (11px)</option>
+                    <option value="10px">Kompak (10px)</option>
                   </select>
                 </div>
               </div>
@@ -1186,6 +1216,14 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
               #honorarium-printable .sign-block, #honorarium-printable .sign-column {
                 font-size: ${docFontSize} !important;
               }
+              #honorarium-printable .monitoring-dates-box {
+                font-size: ${monitoringDatesFontSize} !important;
+                line-height: 1.4 !important;
+              }
+              #honorarium-printable .monitoring-dates-text {
+                font-size: ${monitoringDatesFontSize} !important;
+                font-weight: bold !important;
+              }
             ` }} />
 
             {/* DOCUMENT TITLE SECTION */}
@@ -1224,9 +1262,28 @@ export default function DocumentHonorarium({ travel, employees }: DocumentHonora
                         <div style={{ fontWeight: "normal", color: "#000000" }}>{formatProperName(p.name)}</div>
                         <div style={{ fontSize: "10.5px", marginTop: "2px", color: "#000000" }}>NIP {p.nip}</div>
                         {p.monitoringDates && (
-                          <div style={{ fontSize: "9.5px", marginTop: "4px", color: "#000000", borderTop: "1px dashed #000000", paddingTop: "2px" }}>
-                            <span style={{ fontWeight: "normal", color: "#000000" }}>Hari Pengawasan: </span>
-                            <span style={{ fontWeight: "normal", color: "#000000" }}>{formatMonitoringDatesWithMonth(p.monitoringDates)}</span>
+                          <div 
+                            className="monitoring-dates-box"
+                            style={{ 
+                              fontSize: monitoringDatesFontSize, 
+                              marginTop: "5px", 
+                              color: "#000000", 
+                              borderTop: "1px dashed #000000", 
+                              paddingTop: "3px", 
+                              lineHeight: "1.4" 
+                            }}
+                          >
+                            <span style={{ fontWeight: "normal", color: "#000000", fontSize: monitoringDatesFontSize }}>Hari Pengawasan: </span>
+                            <span 
+                              className="monitoring-dates-text"
+                              style={{ 
+                                fontWeight: "bold", 
+                                fontSize: monitoringDatesFontSize, 
+                                color: "#000000" 
+                              }}
+                            >
+                              {formatMonitoringDatesWithMonth(p.monitoringDates)}
+                            </span>
                           </div>
                         )}
                       </td>
