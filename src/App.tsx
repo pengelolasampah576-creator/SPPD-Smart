@@ -881,9 +881,10 @@ export default function App() {
                 )}
                 {activeDocTab === "spd" && (
                   <DocumentSPD
-                    key={`spd-${selectedTravelObj.id}-${selectedTravelObj.spdNumberPrefix}-${selectedTravelObj.departureDate}-${selectedTravelObj.destination}`}
+                    key={`spd-${selectedTravelObj.id}-${selectedTravelObj.spdNumberPrefix}-${selectedTravelObj.departureDate}-${selectedTravelObj.destination}-${selectedTravelObj.tingkatBiaya || ""}`}
                     travel={selectedTravelObj}
                     employees={employees}
+                    onUpdateTravel={handleEditTravel}
                   />
                 )}
                 {activeDocTab === "honor" && (

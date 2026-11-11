@@ -28,6 +28,7 @@ export interface Travel {
   purpose: string; // Maksud perjalanan dinas
   departurePlace: string; // Tempat berangkat, default "Tabalong" atau ibukota domisili
   destination: string; // Tempat tujuan
+  tingkatBiaya?: string; // Tingkat Perjalanan Dinas (Luar Daerah Dalam Provinsi / Luar Daerah Luar Provinsi)
   departureDate: string; // Tanggal berangkat
   returnDate: string; // Tanggal kembali
   customDates?: string[]; // Daftar tanggal cabutan/non-consecutive (jika ada)

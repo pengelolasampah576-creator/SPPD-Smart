@@ -84,4 +84,7 @@ body {
   table td, td, th {
     vertical-align: top !important;
   }
+  .print-hidden, .no-print {
+    display: none !important;
+  }
 }

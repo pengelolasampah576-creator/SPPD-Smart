@@ -28,9 +28,24 @@ export default function TravelForm({
   const [purpose, setPurpose] = useState("");
   const [departurePlace, setDeparturePlace] = useState("Tabalong");
   const [destination, setDestination] = useState("");
+  const [tingkatBiaya, setTingkatBiaya] = useState<string>("Perjalanan Dinas Luar Daerah Dalam Provinsi");
   const [departureDate, setDepartureDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [transportMode, setTransportMode] = useState("Transportasi Darat");
+
+  // Helper to detect if a destination is outside South Kalimantan province
+  const checkOutsideProvince = (dest: string): boolean => {
+    if (!dest) return false;
+    const lower = dest.toLowerCase();
+    const outsideKeywords = [
+      "jakarta", "dki", "jawa", "jabar", "jateng", "jatim", "banten", "yogyakarta", "jogja", "surabaya", "bali", "denpasar",
+      "bogor", "bandung", "sulawesi", "sumatera", "balikpapan", "samarinda", "penajam", "ikn", "kaltim", "kalteng", "palangkaraya",
+      "kalbar", "pontianak", "kaltara", "tarakan", "luar provinsi", "kepri", "batam", "medan", "makassar", "padang", "palembang",
+      "pekanbaru", "lampung", "bengkulu", "jambi", "aceh", "maluku", "papua", "ntb", "ntt", "mataram", "kupang", "manado", "gorontalo",
+      "palu", "kendari", "mamuju", "ambon", "jayapura", "sorong", "semarang", "solo", "surakarta", "malang", "tangerang", "bekasi", "depok"
+    ];
+    return outsideKeywords.some(k => lower.includes(k));
+  };
   
   // Finance
   const [budgetSource, setBudgetSource] = useState("DPA-SKPD Inspektorat Daerah Kabupaten Tabalong Tahun Anggaran 2026");
@@ -171,6 +186,11 @@ export default function TravelForm({
       setPurpose(initialTravel.purpose);
       setDeparturePlace(initialTravel.departurePlace);
       setDestination(initialTravel.destination);
+      if (initialTravel.tingkatBiaya) {
+        setTingkatBiaya(initialTravel.tingkatBiaya);
+      } else {
+        setTingkatBiaya(checkOutsideProvince(initialTravel.destination) ? "Perjalanan Dinas Luar Daerah Luar Provinsi" : "Perjalanan Dinas Luar Daerah Dalam Provinsi");
+      }
       setDepartureDate(initialTravel.departureDate);
       setReturnDate(initialTravel.returnDate);
       if (initialTravel.customDates && initialTravel.customDates.length > 0) {
@@ -211,6 +231,7 @@ export default function TravelForm({
       setPurpose("");
       setDeparturePlace("Tabalong");
       setDestination("");
+      setTingkatBiaya("Perjalanan Dinas Luar Daerah Dalam Provinsi");
       setDepartureDate("");
       setReturnDate("");
       setIsNonConsecutive(false);
@@ -365,6 +386,7 @@ export default function TravelForm({
       purpose,
       departurePlace,
       destination,
+      tingkatBiaya,
       departureDate: finalDepartureDate,
       returnDate: finalReturnDate,
       customDates: finalCustomDates,
@@ -504,9 +526,65 @@ export default function TravelForm({
                 required
                 placeholder="e.g. Jakarta Pusat, DKI Jakarta atau Cianjur, Jawa Barat"
                 value={destination}
-                onChange={(e) => setDestination(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setDestination(val);
+                  if (checkOutsideProvince(val)) {
+                    setTingkatBiaya("Perjalanan Dinas Luar Daerah Luar Provinsi");
+                  }
+                }}
                 className="w-full bg-white border border-slate-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
               />
+            </div>
+          </div>
+
+          {/* TINGKAT PERJALANAN DINAS SELECTOR */}
+          <div className="bg-white p-3.5 rounded-xl border border-slate-150 space-y-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">
+                Tingkat Perjalanan Dinas (SPD Butir 3c)
+              </label>
+              <span className="text-[10px] text-slate-400">
+                Pilih sesuai lokasi dinas di dalam atau di luar provinsi
+              </span>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setTingkatBiaya("Perjalanan Dinas Luar Daerah Dalam Provinsi")}
+                className={`p-3 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                  tingkatBiaya === "Perjalanan Dinas Luar Daerah Dalam Provinsi"
+                    ? "bg-emerald-50 border-emerald-400 text-emerald-900 font-bold shadow-xs ring-1 ring-emerald-300"
+                    : "bg-slate-50/70 border-slate-200 text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <div>
+                  <div className="text-xs font-bold">Luar Daerah Dalam Provinsi</div>
+                  <div className="text-[10px] text-slate-500 font-normal mt-0.5">Misal: Banjarbaru, Banjarmasin, Barabai, Tanah Laut, dll.</div>
+                </div>
+                {tingkatBiaya === "Perjalanan Dinas Luar Daerah Dalam Provinsi" && (
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 ml-2"></span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setTingkatBiaya("Perjalanan Dinas Luar Daerah Luar Provinsi")}
+                className={`p-3 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                  tingkatBiaya === "Perjalanan Dinas Luar Daerah Luar Provinsi"
+                    ? "bg-blue-50 border-blue-400 text-blue-900 font-bold shadow-xs ring-1 ring-blue-300"
+                    : "bg-slate-50/70 border-slate-200 text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                <div>
+                  <div className="text-xs font-bold">Luar Daerah Luar Provinsi</div>
+                  <div className="text-[10px] text-slate-500 font-normal mt-0.5">Misal: Jakarta, Surabaya, Jogja, Balikpapan, Makassar, dll.</div>
+                </div>
+                {tingkatBiaya === "Perjalanan Dinas Luar Daerah Luar Provinsi" && (
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shrink-0 ml-2"></span>
+                )}
+              </button>
             </div>
           </div>
 

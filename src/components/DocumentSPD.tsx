@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Employee, Travel } from "../types";
-import { Printer, Settings, RefreshCw, FileText, Layers, Eye, CheckCircle2, ZoomIn, ZoomOut, X } from "lucide-react";
+import { Printer, Settings, RefreshCw, FileText, Layers, Eye, CheckCircle2, ZoomIn, ZoomOut, X, Compass, ArrowRightLeft } from "lucide-react";
 import { TABALONG_LOGO_BASE64 } from "./TabalongLogo";
 import { getFormattedPangkatGolongan } from "../utils/pangkat";
 import { formatProperName, formatProperJabatan, formatProperText } from "../utils/formatters";
@@ -78,8 +78,21 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
   // Determine Level of Cost ("Tingkat Biaya Perjalanan Dinas")
   const getTingkatBiaya = (destination: string) => {
     if (!destination) return "Perjalanan Dinas Luar Daerah Dalam Provinsi";
-    const lowerDest = destination.toLowerCase();
-    const outsideKeywords = ["jakarta", "jawa", "yogyakarta", "jogja", "surabaya", "bali", "bogor", "bandung", "sulawesi", "sumatera", "balikpapan", "samarinda", "kaltim", "kalteng", "kalbar", "luar provinsi", "kepri", "banten", "medan", "makassar", "ntb", "ntt", "papua"];
+    const lowerDest = destination.toLowerCase().trim();
+    if (lowerDest.includes("luar provinsi")) {
+      return "Perjalanan Dinas Luar Daerah Luar Provinsi";
+    }
+    if (lowerDest.includes("dalam provinsi")) {
+      return "Perjalanan Dinas Luar Daerah Dalam Provinsi";
+    }
+    const outsideKeywords = [
+      "jakarta", "dki", "jawa", "yogyakarta", "jogja", "surabaya", "bali", "denpasar",
+      "bogor", "bandung", "semarang", "solo", "surakarta", "malang", "sulawesi", "makassar", "manado", "palu",
+      "sumatera", "medan", "padang", "palembang", "pekanbaru", "lampung", "aceh", "batam", "kepri", "banten", "tangerang", "serang",
+      "balikpapan", "samarinda", "kaltim", "kalimantan timur", "kaltara", "kalimantan utara", "tarakan",
+      "kalteng", "kalimantan tengah", "palangkaraya", "palangka raya", "kalbar", "kalimantan barat", "pontianak", "ikn", "nusantara",
+      "ntb", "lombok", "mataram", "ntt", "kupang", "papua", "jayapura", "ambon", "maluku"
+    ];
     const isOutside = outsideKeywords.some(keyword => lowerDest.includes(keyword));
     if (isOutside) {
       return "Perjalanan Dinas Luar Daerah Luar Provinsi";
@@ -113,6 +126,25 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
   const [jabatanTraveler, setJabatanTraveler] = useState("");
   const [tingkatBiaya, setTingkatBiaya] = useState("");
   const [maksudDinas, setMaksudDinas] = useState("");
+
+  const handleTingkatBiayaChange = (newVal: string) => {
+    setTingkatBiaya(newVal);
+    const cacheKey = `sppd_doc_spd_cache_${travel.id}_${activeEmployeeId}`;
+    try {
+      const existing = localStorage.getItem(cacheKey);
+      const parsed = existing ? JSON.parse(existing) : {};
+      parsed.tingkatBiaya = newVal;
+      localStorage.setItem(cacheKey, JSON.stringify(parsed));
+    } catch (e) {
+      console.error(e);
+    }
+    if (onUpdateTravel) {
+      onUpdateTravel({
+        ...travel,
+        tingkatBiaya: newVal,
+      });
+    }
+  };
   const [alatTransport, setAlatTransport] = useState("");
   const [tempatBerangkat, setTempatBerangkat] = useState("");
   const [tempatTujuan, setTempatTujuan] = useState("");
@@ -231,7 +263,13 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
           if (data.paPangkat !== undefined) setPaPangkat(data.paPangkat);
           if (data.pangkatTraveler !== undefined) setPangkatTraveler(data.pangkatTraveler);
           if (data.jabatanTraveler !== undefined) setJabatanTraveler(data.jabatanTraveler);
-          if (data.tingkatBiaya !== undefined) setTingkatBiaya(data.tingkatBiaya);
+          if (travel.tingkatBiaya) {
+            setTingkatBiaya(travel.tingkatBiaya);
+          } else if (data.tingkatBiaya !== undefined) {
+            setTingkatBiaya(data.tingkatBiaya);
+          } else {
+            setTingkatBiaya(getTingkatBiaya(travel.destination));
+          }
           if (data.maksudDinas !== undefined) setMaksudDinas(data.maksudDinas);
           
           const mappedFromTravel = getFormattedTransportMode(travel.transportMode);
@@ -302,7 +340,7 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
       // Traveler details
       setPangkatTraveler(getFormattedPangkatGolongan(activeEmployee.pangkat));
       setJabatanTraveler(formatProperJabatan(activeEmployee.jabatan));
-      setTingkatBiaya(getTingkatBiaya(travel.destination));
+      setTingkatBiaya(travel.tingkatBiaya || getTingkatBiaya(travel.destination));
 
       // Travel particulars
       setMaksudDinas(travel.purpose);
@@ -357,7 +395,7 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
       }
     }
 
-  }, [activeEmployeeId, travel.id, employees, activeEmployee, durationDays, serialNo, travel.spdNumberPrefix, travel.ppkId, travel.destination, travel.purpose, travel.transportMode, travel.departurePlace, travel.departureDate, travel.returnDate, travel.budgetCode, travel.budgetSource, travel.signatoryId, prevSyncKey]);
+  }, [activeEmployeeId, travel.id, employees, activeEmployee, durationDays, serialNo, travel.spdNumberPrefix, travel.ppkId, travel.destination, travel.purpose, travel.transportMode, travel.departurePlace, travel.departureDate, travel.returnDate, travel.budgetCode, travel.budgetSource, travel.signatoryId, travel.tingkatBiaya, prevSyncKey]);
 
   // Save changes to localStorage on any state change
   useEffect(() => {
@@ -1074,10 +1112,38 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
                 </div>
                 <div>
                   <label className="text-[9px] text-slate-400 font-bold block">BUTIR 3C. TINGKAT PERJALANAN DINAS</label>
-                  <select value={tingkatBiaya} onChange={(e) => setTingkatBiaya(e.target.value)} className="w-full text-[11px] p-1 bg-slate-50 border rounded cursor-pointer">
+                  <select
+                    value={tingkatBiaya}
+                    onChange={(e) => handleTingkatBiayaChange(e.target.value)}
+                    className="w-full text-[11px] p-1 bg-slate-50 border rounded cursor-pointer font-medium"
+                  >
                     <option value="Perjalanan Dinas Luar Daerah Dalam Provinsi">Perjalanan Dinas Luar Daerah Dalam Provinsi</option>
                     <option value="Perjalanan Dinas Luar Daerah Luar Provinsi">Perjalanan Dinas Luar Daerah Luar Provinsi</option>
                   </select>
+                  <div className="flex gap-1 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => handleTingkatBiayaChange("Perjalanan Dinas Luar Daerah Dalam Provinsi")}
+                      className={`text-[9.5px] px-2 py-0.5 rounded border transition cursor-pointer flex-1 text-center font-medium ${
+                        !tingkatBiaya.includes("Luar Provinsi")
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-300 font-bold"
+                          : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      Dalam Prov.
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleTingkatBiayaChange("Perjalanan Dinas Luar Daerah Luar Provinsi")}
+                      className={`text-[9.5px] px-2 py-0.5 rounded border transition cursor-pointer flex-1 text-center font-medium ${
+                        tingkatBiaya.includes("Luar Provinsi")
+                          ? "bg-purple-50 text-purple-700 border-purple-300 font-bold"
+                          : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      Luar Prov.
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <label className="text-[9px] text-slate-400 font-bold block">BUTIR 4. MAKSUD PERJALANAN DINAS</label>
@@ -1311,6 +1377,49 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
           </div>
         </div>
       )}
+
+      {/* QUICK STATUS BAR FOR TINGKAT PERJALANAN DINAS (SCREEN-ONLY) */}
+      <div className="bg-slate-50 border border-slate-200 p-3 rounded-xl shadow-xs flex flex-wrap items-center justify-between gap-3 text-xs print-hidden print:hidden no-print">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-bold text-slate-700 flex items-center gap-1.5">
+            <Compass className="w-4 h-4 text-emerald-600" />
+            Butir 3c (Tingkat Perjalanan Dinas):
+          </span>
+          <span className={`px-2.5 py-1 rounded-full font-bold text-xs border ${
+            tingkatBiaya.includes("Luar Provinsi")
+              ? "bg-purple-50 text-purple-700 border-purple-200"
+              : "bg-blue-50 text-blue-700 border-blue-200"
+          }`}>
+            {tingkatBiaya}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-slate-500 font-medium mr-1">Ubah Cepat:</span>
+          <button
+            type="button"
+            onClick={() => handleTingkatBiayaChange("Perjalanan Dinas Luar Daerah Dalam Provinsi")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer flex items-center gap-1 ${
+              !tingkatBiaya.includes("Luar Provinsi")
+                ? "bg-emerald-600 text-white border-emerald-600 shadow-xs ring-2 ring-emerald-300/40"
+                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+            }`}
+          >
+            Luar Daerah Dalam Provinsi
+          </button>
+          <button
+            type="button"
+            onClick={() => handleTingkatBiayaChange("Perjalanan Dinas Luar Daerah Luar Provinsi")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer flex items-center gap-1 ${
+              tingkatBiaya.includes("Luar Provinsi")
+                ? "bg-purple-600 text-white border-purple-600 shadow-xs ring-2 ring-purple-300/40"
+                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+            }`}
+          >
+            Luar Daerah Luar Provinsi
+          </button>
+        </div>
+      </div>
 
       {/* RENDER SHEET WRAPPER WITH TIMES NEW ROMAN STYLES FOR THE SIMULATION */}
       <div className="border border-slate-300 p-8 md:p-14 bg-slate-100 max-w-4xl mx-auto shadow-inner overflow-x-auto min-w-[320px]">
@@ -1622,7 +1731,23 @@ export default function DocumentSPD({ travel, employees, onUpdateTravel }: Docum
                     <td style={{ border: '1px solid black', verticalAlign: 'top', padding: '4px 6px' }}>
                       <div className="py-0 leading-tight">a. {pangkatTraveler}</div>
                       <div className="py-0 leading-tight mt-0.5">b. {formatProperJabatan(jabatanTraveler)}</div>
-                      <div className="py-0 leading-tight mt-0.5">c. {tingkatBiaya}</div>
+                      <div className="py-0 leading-tight mt-0.5 flex items-start justify-between gap-1">
+                        <span>c. {tingkatBiaya}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const nextVal = tingkatBiaya.includes("Luar Provinsi")
+                              ? "Perjalanan Dinas Luar Daerah Dalam Provinsi"
+                              : "Perjalanan Dinas Luar Daerah Luar Provinsi";
+                            handleTingkatBiayaChange(nextVal);
+                          }}
+                          className="print-hidden print:hidden no-print text-[9px] font-sans font-medium px-1.5 py-0.5 rounded border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 transition cursor-pointer inline-flex items-center gap-1 shadow-2xs shrink-0 ml-1"
+                          title="Klik untuk mengubah tingkat perjalanan dinas"
+                        >
+                          <ArrowRightLeft className="w-2.5 h-2.5" />
+                          <span>Ganti ke {tingkatBiaya.includes("Luar Provinsi") ? "Dalam Prov." : "Luar Prov."}</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
 
